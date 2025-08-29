@@ -50,3 +50,4 @@ npm run start
 - Bank connections (Plaid) + real payments (Stripe)
 - Nice UI components & animations
 ```
+# PoolUp
