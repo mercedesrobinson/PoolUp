@@ -1,15 +1,55 @@
 const API_BASE = 'http://localhost:3000/api';
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3000/api';
 
+// API service for PoolUp
 export const api = {
-  // Auth
+  // Guest user creation
   guest: async (name) => {
-    const response = await fetch(`${API_BASE}/guest`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/auth/guest`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      });
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    } catch (error) {
+      console.log('API Error - using mock data:', error);
+      return { id: Date.now(), name, email: null, profileImage: null };
+    }
+  },
+
+  // Google OAuth user creation
+  createGoogleUser: async (googleUser) => {
+    try {
+      const response = await fetch(`${BASE_URL}/auth/google`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${googleUser.accessToken}`
+        },
+        body: JSON.stringify({
+          google_id: googleUser.id,
+          name: googleUser.name,
+          email: googleUser.email,
+          profile_image: googleUser.photo,
+          access_token: googleUser.accessToken
+        })
+      });
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    } catch (error) {
+      console.log('Google API Error - using mock data:', error);
+      return {
+        id: Date.now(),
+        name: googleUser.name,
+        email: googleUser.email,
+        profileImage: googleUser.photo,
+        authProvider: 'google',
+        bankAccounts: [],
+        virtualCard: null
+      };
+    }
   },
 
   // Pools

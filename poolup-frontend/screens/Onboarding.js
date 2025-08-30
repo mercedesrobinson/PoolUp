@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 import { colors, radius, shadow } from '../theme';
 import { api } from '../services/api';
+import authService from '../services/auth';
 
 export default function Onboarding({ navigation }){
   const [name,setName] = useState('');
@@ -18,29 +19,84 @@ export default function Onboarding({ navigation }){
 
   const signInWithGoogle = async () => {
     try {
-      // Mock Google sign-in for now since we don't have backend
-      const mockGoogleUser = {
-        id: Date.now(),
-        name: 'Google User',
-        email: 'user@gmail.com',
-        profileImage: null,
-        authProvider: 'google'
-      };
-      navigation.replace('Pools', { user: mockGoogleUser });
+      // For development, simulate Google sign-in since we need real OAuth setup
+      Alert.alert(
+        'Google Sign-In',
+        'Google OAuth requires setup with real credentials. For now, this will create a demo Google user.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Continue with Demo', 
+            onPress: async () => {
+              try {
+                const demoUser = {
+                  id: 'google_' + Date.now(),
+                  name: 'Demo Google User',
+                  email: 'demo@gmail.com',
+                  photo: 'https://via.placeholder.com/150',
+                  authProvider: 'google'
+                };
+                
+                const response = await api.createGoogleUser(demoUser);
+                navigation.replace('Pools', { user: response });
+              } catch (error) {
+                Alert.alert('Error', 'Failed to create demo user');
+              }
+            }
+          }
+        ]
+      );
     } catch (error) {
-      Alert.alert('Error', 'Google sign-in failed. Please try again.');
+      console.error('Google sign-in error:', error);
+      Alert.alert('Error', error.message || 'Google sign-in failed. Please try again.');
     }
   };
 
   return (
     <View style={{ flex:1, backgroundColor: colors.bg, alignItems:'center', justifyContent:'center', padding:24 }}>
-      <Image 
-        source={require('../assets/icon.png')} 
-        style={{ width: 80, height: 80, marginBottom: 12 }} 
-        resizeMode="contain"
-      />
-      <Text style={{ fontSize:32, fontWeight:'800', color: colors.text, marginBottom:12 }}>PoolUp</Text>
-      <Text style={{ fontSize:16, color:'#566', marginBottom:32, textAlign:'center' }}>Your future, funded with friends.</Text>
+      {/* PoolUp Logo */}
+      <View style={{ alignItems: 'center', marginBottom: 48 }}>
+        <View style={{ 
+          width: 120, 
+          height: 120, 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          marginBottom: 16,
+          position: 'relative'
+        }}>
+          {/* First circle (top-left) */}
+          <View style={{
+            width: 80,
+            height: 80,
+            borderRadius: 40,
+            backgroundColor: colors.green,
+            position: 'absolute',
+            top: 0,
+            left: 20,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 4
+          }} />
+          {/* Second circle (bottom-right) */}
+          <View style={{
+            width: 80,
+            height: 80,
+            borderRadius: 40,
+            backgroundColor: colors.green,
+            position: 'absolute',
+            bottom: 0,
+            right: 20,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 4
+          }} />
+        </View>
+        <Text style={{ fontSize: 18, color: '#666', textAlign: 'center', fontWeight: '500' }}>Your future, funded with friends.</Text>
+      </View>
       
       {/* Google Sign In */}
       <TouchableOpacity onPress={signInWithGoogle} style={{ 

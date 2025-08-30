@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, FlatList } from 'react-native';
 import { colors, radius } from '../theme';
 import { api } from '../services/api';
+import bankingService from '../services/banking';
 
 function TransactionItem({ transaction }) {
   const isPositive = transaction.cashback_cents > 0;
@@ -77,19 +78,23 @@ export default function DebitCard({ navigation, route }) {
   const [transactions, setTransactions] = useState([]);
   const [insights, setInsights] = useState(null);
   const [perks, setPerks] = useState(null);
+  const [bankAccounts, setBankAccounts] = useState([]);
+  const [isConnectingBank, setIsConnectingBank] = useState(false);
 
   const loadData = async () => {
     try {
-      const [cardData, transactionsData, insightsData, perksData] = await Promise.all([
+      const [cardData, transactionsData, insightsData, perksData, bankAccountsData] = await Promise.all([
         api.getDebitCard(user.id),
         api.getCardTransactions(user.id, 20),
         api.getSpendingInsights(user.id, 30),
-        api.getTravelPerks(user.id)
+        api.getTravelPerks(user.id),
+        bankingService.getBankAccounts()
       ]);
       setCard(cardData);
       setTransactions(transactionsData);
       setInsights(insightsData);
       setPerks(perksData);
+      setBankAccounts(bankAccountsData);
     } catch (error) {
       console.error('Failed to load card data:', error);
     }
@@ -105,6 +110,40 @@ export default function DebitCard({ navigation, route }) {
       );
     } catch (error) {
       Alert.alert('Error', 'Failed to update card status');
+    }
+  };
+
+  const connectBankAccount = async () => {
+    try {
+      setIsConnectingBank(true);
+      const linkToken = await bankingService.initializePlaidLink();
+      
+      // In a real app, you would use Plaid Link SDK here
+      // For now, we'll simulate the connection
+      Alert.alert(
+        'Bank Connection',
+        'In a real app, Plaid Link would open here to connect your bank account securely.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Simulate Connection', 
+            onPress: async () => {
+              try {
+                // Simulate successful bank connection
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                Alert.alert('Success!', 'Bank account connected successfully! 🎉');
+                loadData();
+              } catch (error) {
+                Alert.alert('Error', 'Failed to connect bank account');
+              }
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      Alert.alert('Connection Error', error.message || 'Failed to initialize bank connection');
+    } finally {
+      setIsConnectingBank(false);
     }
   };
 
@@ -212,6 +251,53 @@ export default function DebitCard({ navigation, route }) {
             )}
           </View>
         )}
+
+        {/* Bank Account Connection */}
+        <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius, marginBottom: 16 }}>
+          <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 }}>
+            🏦 Connected Bank Accounts
+          </Text>
+          {bankAccounts.length > 0 ? (
+            bankAccounts.map((account, index) => (
+              <View key={index} style={{ 
+                flexDirection: 'row', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                padding: 12,
+                backgroundColor: '#f8f9fa',
+                borderRadius: 8,
+                marginBottom: 8
+              }}>
+                <View>
+                  <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>
+                    {account.name}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: '#666', textTransform: 'capitalize' }}>
+                    {account.subtype} • {account.type}
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 12, color: colors.green, fontWeight: '600' }}>
+                  ✓ Connected
+                </Text>
+              </View>
+            ))
+          ) : (
+            <TouchableOpacity 
+              onPress={connectBankAccount}
+              disabled={isConnectingBank}
+              style={{ 
+                backgroundColor: colors.blue, 
+                padding: 12, 
+                borderRadius: radius,
+                opacity: isConnectingBank ? 0.7 : 1
+              }}
+            >
+              <Text style={{ color: 'white', fontWeight: '700', textAlign: 'center' }}>
+                {isConnectingBank ? '🔄 Connecting...' : '+ Connect Bank Account'}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
         {/* Card Controls */}
         <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius, marginBottom: 16 }}>
