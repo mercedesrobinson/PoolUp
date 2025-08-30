@@ -1,0 +1,11 @@
+.DS_Store
+node_modules/
+app/.expo
+app/.expo-shared
+dist/
+build/
+**/.env
+**/.env.local
+server/poolup.db
+
+*.log

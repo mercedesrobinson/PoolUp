@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "PoolUp",
+    "slug": "poolup",
+    "scheme": "poolup",
+    "version": "0.1.0",
+    "sdkVersion": "53.0.0",
+    "ios": {
+      "bundleIdentifier": "com.poolup.app"
+    }
+  }
+}
