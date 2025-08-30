@@ -10,9 +10,14 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.19.2",
-    "better-sqlite3": "^9.4.0",
+    "sqlite3": "^5.1.6",
+    "sqlite": "^5.1.1",
     "socket.io": "^4.7.5",
     "dotenv": "^16.4.5",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "plaid": "^11.0.0",
+    "stripe": "^14.21.0",
+    "google-auth-library": "^9.6.3",
+    "jsonwebtoken": "^9.0.2"
   }
 }

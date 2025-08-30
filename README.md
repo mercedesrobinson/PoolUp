@@ -1,12 +1,13 @@
-# PoolUp – Gamified Social Micro‑Savings 🎮💰
+# PoolUp - Social Savings with Real Banking Integration
 
-**PoolUp** is a gamified group savings app similar to Duolingo, but for money! Create savings pools with friends, earn points and badges, compete on leaderboards, and unlock rewards as you reach your goals.
+A comprehensive React Native app for group and solo savings with real Gmail OAuth authentication, Plaid bank account linking, Stripe virtual debit cards, and full gamification features.
 
-## 🌟 Features
+## 🚀 Features
 
-### 💳 **PoolUp Debit Card**
-- **2% cashback** on all purchases
-- **Bonus points** for every transaction
+### Authentication & User Management
+- **Real Gmail OAuth Integration** - Secure Google sign-in with token management
+- **Guest User Support** - Quick access without account creation
+- **Profile Management** - Avatar customization and user preferences
 - **Travel perks** that unlock based on your level
 - **Real-time spending insights** and transaction history
 - **Freeze/unfreeze** card instantly for security
