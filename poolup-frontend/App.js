@@ -17,6 +17,16 @@ import AvatarBuilder from './screens/AvatarBuilder';
 import SoloSavings from './screens/SoloSavings';
 import SocialFeed from './screens/SocialFeed';
 
+// Phase 1 MVP Screens
+import FriendsFeed from './screens/FriendsFeed';
+import InviteFriends from './screens/InviteFriends';
+import GroupManagement from './screens/GroupManagement';
+import PrivacySettings from './screens/PrivacySettings';
+import TransactionHistory from './screens/TransactionHistory';
+import SavingsSummary from './screens/SavingsSummary';
+import PenaltySettings from './screens/PenaltySettings';
+import RecurringPayments from './screens/RecurringPayments';
+
 // Import theme
 import { colors } from './theme';
 
@@ -63,6 +73,16 @@ export default function App() {
         <Stack.Screen name="AvatarBuilder" component={AvatarBuilder} />
         <Stack.Screen name="SoloSavings" component={SoloSavings} />
         <Stack.Screen name="SocialFeed" component={SocialFeed} />
+        
+        {/* Phase 1 MVP Screens */}
+        <Stack.Screen name="FriendsFeed" component={FriendsFeed} options={{ headerShown: false }} />
+        <Stack.Screen name="InviteFriends" component={InviteFriends} options={{ headerShown: false }} />
+        <Stack.Screen name="GroupManagement" component={GroupManagement} options={{ headerShown: false }} />
+        <Stack.Screen name="PrivacySettings" component={PrivacySettings} options={{ headerShown: false }} />
+        <Stack.Screen name="TransactionHistory" component={TransactionHistory} options={{ headerShown: false }} />
+        <Stack.Screen name="SavingsSummary" component={SavingsSummary} options={{ headerShown: false }} />
+        <Stack.Screen name="PenaltySettings" component={PenaltySettings} options={{ headerShown: false }} />
+        <Stack.Screen name="RecurringPayments" component={RecurringPayments} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -389,5 +389,125 @@ export const api = {
       headers: { 'Content-Type': 'application/json' }
     });
     return res.json();
+  },
+
+  // Phase 1 MVP Features
+  
+  // Friends Feed
+  async getFriendsFeed(userId, filter = 'all') {
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/friends-feed?filter=${filter}`, {
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
+    return res.json();
+  },
+
+  // Invite System
+  async generateInviteCode(poolId) {
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/invite-code`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-user-id': getCurrentUserId() }
+    });
+    return res.json();
+  },
+
+  async inviteMemberToPool(poolId, email) {
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/invite`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-user-id': getCurrentUserId() },
+      body: JSON.stringify({ email })
+    });
+    return res.json();
+  },
+
+  // Group Management
+  async getPoolMembers(poolId) {
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/members`, {
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
+    return res.json();
+  },
+
+  async removeMemberFromPool(poolId, memberId) {
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/members/${memberId}`, {
+      method: 'DELETE',
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
+    return res.json();
+  },
+
+  async updateMemberRole(poolId, memberId, role) {
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/members/${memberId}/role`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'x-user-id': getCurrentUserId() },
+      body: JSON.stringify({ role })
+    });
+    return res.json();
+  },
+
+  // Privacy Settings
+  async getUserPrivacySettings(userId) {
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/privacy`, {
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
+    return res.json();
+  },
+
+  async updatePrivacySetting(userId, setting, value) {
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/privacy`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'x-user-id': getCurrentUserId() },
+      body: JSON.stringify({ [setting]: value })
+    });
+    return res.json();
+  },
+
+  // Transaction History
+  async getTransactionHistory(userId, filter = 'all', timeFilter = 'all') {
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/transactions?filter=${filter}&time=${timeFilter}`, {
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
+    return res.json();
+  },
+
+  // Savings Summary
+  async getSavingsSummary(userId, timeframe = '6months') {
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/savings-summary?timeframe=${timeframe}`, {
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
+    return res.json();
+  },
+
+  // Penalty Settings
+  async getPoolPenaltySettings(poolId) {
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/penalty-settings`, {
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
+    return res.json();
+  },
+
+  async updatePoolPenaltySettings(poolId, settings) {
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/penalty-settings`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'x-user-id': getCurrentUserId() },
+      body: JSON.stringify(settings)
+    });
+    return res.json();
+  },
+
+  // Recurring Payments
+  async getRecurringPaymentSettings(poolId, userId) {
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/users/${userId}/recurring`, {
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
+    return res.json();
+  },
+
+  async updateRecurringPaymentSettings(poolId, userId, settings) {
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/users/${userId}/recurring`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'x-user-id': getCurrentUserId() },
+      body: JSON.stringify(settings)
+    });
+    return res.json();
   }
 };
