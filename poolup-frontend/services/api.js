@@ -74,17 +74,21 @@ export const api = {
     } catch (error) {
       console.log('Pool creation API error, using mock data:', error);
       // Mock successful pool creation for demo
-      return {
+      const newPool = {
         id: Date.now(),
         name,
-        goalCents,
+        goal_cents: goalCents,
+        saved_cents: 0,
         destination,
         tripDate,
         poolType,
-        userId,
+        creator_id: userId,
         createdAt: new Date().toISOString(),
         success: true
       };
+      // Store in mock pools array
+      this._mockPools.push(newPool);
+      return newPool;
     }
   },
 
@@ -248,6 +252,9 @@ export const api = {
     return response.json();
   },
 
+  // Store created pools in memory for demo mode
+  _mockPools: [],
+
   async listPools(userId) {
     try {
       const res = await fetch(`${BASE_URL}/api/users/${userId}/pools`, {
@@ -257,8 +264,18 @@ export const api = {
       return res.json();
     } catch (error) {
       console.log('listPools API error, using mock data:', error);
-      // Return mock data for development
-      return [];
+      // Return mock pools including any created ones
+      return [
+        {
+          id: 1,
+          name: "Tokyo Trip 2024",
+          goal_cents: 300000,
+          saved_cents: 75000,
+          destination: "Tokyo, Japan",
+          creator_id: userId
+        },
+        ...this._mockPools
+      ];
     }
   },
 

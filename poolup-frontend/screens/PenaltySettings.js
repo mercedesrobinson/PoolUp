@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Alert, Switch } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Alert, Switch, ScrollView } from 'react-native';
 import { colors, radius } from '../theme';
 import { api } from '../services/api';
 
@@ -7,7 +7,7 @@ export default function PenaltySettings({ navigation, route }) {
   const [penaltyEnabled, setPenaltyEnabled] = useState(true);
   const [penaltyType, setPenaltyType] = useState('percentage'); // 'percentage' or 'fixed'
   const [penaltyAmount, setPenaltyAmount] = useState('10');
-  const [penaltyDestination, setPenaltyDestination] = useState('pool'); // 'pool', 'charity', 'forfeit'
+  const [penaltyDestination, setPenaltyDestination] = useState('pool'); // 'pool', 'charity', 'forfeit' - default to pool
   const [selectedCharity, setSelectedCharity] = useState('');
   const poolId = route.params?.poolId;
   const poolName = route.params?.poolName || 'Savings Pool';
@@ -68,11 +68,11 @@ export default function PenaltySettings({ navigation, route }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
       <View style={{ 
         backgroundColor: 'white', 
         paddingHorizontal: 20, 
-        paddingTop: 60, 
+        paddingTop: 80, 
         paddingBottom: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -246,9 +246,23 @@ export default function PenaltySettings({ navigation, route }) {
                 <Text style={{ fontSize: 12, color: colors.textSecondary, marginBottom: 4 }}>
                   Preview:
                 </Text>
-                <Text style={{ fontSize: 14, color: colors.text }}>
+                <Text style={{ fontSize: 14, color: colors.text, marginBottom: 8 }}>
                   {getPenaltyPreview()}
                 </Text>
+                {parseFloat(penaltyAmount) >= 15 && (
+                  <View style={{
+                    backgroundColor: colors.successLight,
+                    padding: 8,
+                    borderRadius: 6,
+                    flexDirection: 'row',
+                    alignItems: 'center'
+                  }}>
+                    <Text style={{ fontSize: 12, marginRight: 4 }}>🔥</Text>
+                    <Text style={{ fontSize: 12, color: colors.success, fontWeight: '600' }}>
+                      High accountability = better results!
+                    </Text>
+                  </View>
+                )}
               </View>
             </View>
 
@@ -268,9 +282,17 @@ export default function PenaltySettings({ navigation, route }) {
                 fontSize: 18,
                 fontWeight: '600',
                 color: colors.text,
-                marginBottom: 16
+                marginBottom: 8
               }}>
                 🎯 Where do penalties go?
+              </Text>
+              <Text style={{
+                fontSize: 14,
+                color: colors.textSecondary,
+                marginBottom: 16,
+                lineHeight: 20
+              }}>
+                Higher penalties = stronger accountability! We recommend adding penalties to your pool to maximize your group's savings power.
               </Text>
 
               <TouchableOpacity
@@ -288,18 +310,31 @@ export default function PenaltySettings({ navigation, route }) {
               >
                 <Text style={{ fontSize: 20, marginRight: 12 }}>🏦</Text>
                 <View style={{ flex: 1 }}>
-                  <Text style={{
-                    fontSize: 16,
-                    fontWeight: '600',
-                    color: penaltyDestination === 'pool' ? colors.primary : colors.text
-                  }}>
-                    Add to Pool
-                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
+                    <Text style={{
+                      fontSize: 16,
+                      fontWeight: '600',
+                      color: penaltyDestination === 'pool' ? colors.primary : colors.text,
+                      marginRight: 8
+                    }}>
+                      Add to Pool
+                    </Text>
+                    <View style={{
+                      backgroundColor: colors.success,
+                      paddingHorizontal: 8,
+                      paddingVertical: 2,
+                      borderRadius: 10
+                    }}>
+                      <Text style={{ fontSize: 10, color: 'white', fontWeight: '600' }}>
+                        RECOMMENDED
+                      </Text>
+                    </View>
+                  </View>
                   <Text style={{
                     fontSize: 14,
                     color: colors.textSecondary
                   }}>
-                    Penalties boost the group's savings goal
+                    Penalties boost your group's savings goal + earn interest
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -354,13 +389,13 @@ export default function PenaltySettings({ navigation, route }) {
                     fontWeight: '600',
                     color: penaltyDestination === 'forfeit' ? colors.primary : colors.text
                   }}>
-                    Forfeit (Lost)
+                    Forfeit (Lost Forever)
                   </Text>
                   <Text style={{
                     fontSize: 14,
                     color: colors.textSecondary
                   }}>
-                    Maximum accountability - money is lost
+                    You lose out on maximizing your savings - penalty money is forfeited
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -442,6 +477,6 @@ export default function PenaltySettings({ navigation, route }) {
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }

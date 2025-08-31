@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Share } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Alert, SafeAreaView } from 'react-native';
 import { colors, radius } from '../theme';
 import { api } from '../services/api';
 
@@ -65,12 +65,13 @@ export default function FriendsFeed({ navigation, route }) {
     setRefreshing(false);
   };
 
-  const shareActivity = async (activity) => {
+  const addComment = async (activityId) => {
     try {
-      const message = getShareMessage(activity);
-      await Share.share({ message });
+      // Navigate to comment modal or show inline comment input
+      // For now, show a simple alert - can be enhanced later
+      Alert.alert('Add Comment', 'Comment functionality coming soon!');
     } catch (error) {
-      console.error('Error sharing:', error);
+      console.error('Error adding comment:', error);
     }
   };
 
@@ -124,10 +125,10 @@ export default function FriendsFeed({ navigation, route }) {
             </Text>
           </View>
           <TouchableOpacity 
-            onPress={() => shareActivity(activity)}
+            onPress={() => addComment(activity.id)}
             style={{ padding: 8 }}
           >
-            <Text style={{ fontSize: 16 }}>📤</Text>
+            <Text style={{ fontSize: 16 }}>💬</Text>
           </TouchableOpacity>
         </View>
 
@@ -212,18 +213,28 @@ export default function FriendsFeed({ navigation, route }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      {/* Header */}
       <View style={{ 
         backgroundColor: 'white', 
         paddingHorizontal: 20, 
-        paddingTop: 60, 
-        paddingBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3
+        paddingTop: 20,
+        paddingBottom: 20
       }}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()}
+          style={{ 
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 16,
+            padding: 8,
+            alignSelf: 'flex-start'
+          }}
+        >
+          <Text style={{ color: 'black', fontSize: 16, fontWeight: 'bold', marginRight: 8 }}>←</Text>
+          <Text style={{ color: 'black', fontSize: 16, fontWeight: '600' }}>Back</Text>
+        </TouchableOpacity>
+        
         <Text style={{ 
           fontSize: 28, 
           fontWeight: '700', 
@@ -298,6 +309,6 @@ export default function FriendsFeed({ navigation, route }) {
           activities.map(renderActivity)
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

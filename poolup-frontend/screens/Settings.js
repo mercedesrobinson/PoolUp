@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, Linking } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, Linking, Image } from 'react-native';
 import { colors, radius, shadow } from '../theme';
 import { api } from '../services/api';
 
@@ -121,17 +121,16 @@ export default function Settings({ navigation, route }) {
         {/* App Info */}
         <View style={{ backgroundColor: 'white', marginTop: 16, paddingVertical: 16, paddingHorizontal: 20 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={{
-              width: 40,
-              height: 40,
-              borderRadius: 8,
-              backgroundColor: colors.primary,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginRight: 12
-            }}>
-              <Text style={{ color: 'white', fontSize: 18, fontWeight: '700' }}>P</Text>
-            </View>
+            <Image
+              source={require('../assets/poolup-logo.png')}
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 8,
+                marginRight: 12
+              }}
+              resizeMode="contain"
+            />
             <View>
               <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>
                 PoolUp - Social Savings

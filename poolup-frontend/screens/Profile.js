@@ -274,39 +274,89 @@ export default function Profile({ navigation, route }) {
         )}
       </View>
 
-      {/* Savings Progress */}
+      {/* Savings Summary */}
       <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius, marginBottom: 16 }}>
-        <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 }}>
-          💰 Savings Progress
-        </Text>
-        <View style={{ marginBottom: 16 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-            <Text style={{ fontSize: 14, color: '#666' }}>Total Saved</Text>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.green }}>$1,250</Text>
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-            <Text style={{ fontSize: 14, color: '#666' }}>Monthly Goal</Text>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.blue }}>$500</Text>
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-            <Text style={{ fontSize: 14, color: '#666' }}>This Month</Text>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.purple }}>$320</Text>
-          </View>
-          
-          {/* Progress Bar */}
-          <View style={{ backgroundColor: '#f0f0f0', height: 8, borderRadius: 4, marginBottom: 8 }}>
-            <View style={{ 
-              backgroundColor: colors.green, 
-              height: '100%', 
-              width: '64%', 
-              borderRadius: 4 
-            }} />
-          </View>
-          <Text style={{ fontSize: 12, color: '#666', textAlign: 'center' }}>
-            64% of monthly goal • $180 to go
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text }}>
+            💰 Savings Summary
           </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('SavingsSummary', { user })}>
+            <Text style={{ color: colors.blue, fontWeight: '600' }}>View Details →</Text>
+          </TouchableOpacity>
         </View>
         
+        {/* Total Saved Card */}
+        <View style={{ 
+          backgroundColor: colors.primary, 
+          padding: 16, 
+          borderRadius: radius, 
+          marginBottom: 12,
+          alignItems: 'center'
+        }}>
+          <Text style={{ color: 'white', fontSize: 14, opacity: 0.9 }}>Total Saved</Text>
+          <Text style={{ color: 'white', fontSize: 28, fontWeight: '700' }}>$1,250.00</Text>
+          <Text style={{ color: 'white', fontSize: 12, opacity: 0.8 }}>🏖️ 6 weekend getaways</Text>
+        </View>
+
+        {/* Quick Stats Grid */}
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <View style={{ flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: radius, alignItems: 'center' }}>
+            <Text style={{ fontSize: 20, marginBottom: 4 }}>🎯</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>3</Text>
+            <Text style={{ fontSize: 12, color: colors.textSecondary }}>Active Goals</Text>
+          </View>
+          <View style={{ flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: radius, alignItems: 'center' }}>
+            <Text style={{ fontSize: 20, marginBottom: 4 }}>🔥</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>14</Text>
+            <Text style={{ fontSize: 12, color: colors.textSecondary }}>Day Streak</Text>
+          </View>
+          <View style={{ flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: radius, alignItems: 'center' }}>
+            <Text style={{ fontSize: 20, marginBottom: 4 }}>💪</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>23%</Text>
+            <Text style={{ fontSize: 12, color: colors.textSecondary }}>Savings Rate</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Transaction History */}
+      <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius, marginBottom: 16 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text }}>
+            📊 Recent Activity
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('TransactionHistory', { user })}>
+            <Text style={{ color: colors.blue, fontWeight: '600' }}>View All →</Text>
+          </TouchableOpacity>
+        </View>
+        
+        {/* Recent Transactions */}
+        <View style={{ marginBottom: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <Text style={{ fontSize: 16, marginRight: 8 }}>💰</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>Contribution</Text>
+              <Text style={{ fontSize: 12, color: colors.textSecondary }}>Bali Adventure • 2 days ago</Text>
+            </View>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: colors.success }}>+$150.00</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <Text style={{ fontSize: 16, marginRight: 8 }}>💳</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>Contribution</Text>
+              <Text style={{ fontSize: 12, color: colors.textSecondary }}>Tokyo Trip • 5 days ago</Text>
+            </View>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: colors.success }}>+$250.00</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ fontSize: 16, marginRight: 8 }}>⚠️</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>Penalty</Text>
+              <Text style={{ fontSize: 12, color: colors.textSecondary }}>Missed weekly contribution</Text>
+            </View>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: colors.coral }}>$50.00</Text>
+          </View>
+        </View>
+      </View>  
         {/* Projection */}
         <View style={{ backgroundColor: colors.blue + '10', padding: 12, borderRadius: 8 }}>
           <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 4 }}>
@@ -335,7 +385,6 @@ export default function Profile({ navigation, route }) {
           <Text style={{ color: colors.text, fontWeight: '600' }}>⚙️ Settings</Text>
         </TouchableOpacity>
       </View>
-    </View>
-  </ScrollView>
-);
+    </ScrollView>
+  );
 }

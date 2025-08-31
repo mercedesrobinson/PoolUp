@@ -72,14 +72,19 @@ function QuickStatsCard({ user, navigation }) {
 
 export default function Pools({ navigation, route }){
   const [pools,setPools] = useState([]);
+  const [summaryData, setSummaryData] = useState(null);
   const user = route.params.user;
 
   const load = async () => {
     try {
       const data = await api.listPools(user.id);
       setPools(data);
+      
+      // Load savings summary data
+      const summaryResponse = await api.getSavingsSummary(user.id, '6months');
+      setSummaryData(summaryResponse.summary);
     } catch (error) {
-      console.error('Failed to load pools:', error);
+      console.error('Failed to load data:', error);
       // Mock data fallback for development
       setPools([
         {
@@ -91,6 +96,17 @@ export default function Pools({ navigation, route }){
           creator_id: user.id
         }
       ]);
+      
+      // Mock savings summary
+      setSummaryData({
+        totalSaved: 125000,
+        activeGoals: 3,
+        completedGoals: 2,
+        currentStreak: 14,
+        monthlyAverage: 35000,
+        savingsRate: 0.23,
+        nextMilestone: { amount: 150000, daysLeft: 12 }
+      });
     }
   };
   
@@ -99,15 +115,132 @@ export default function Pools({ navigation, route }){
   }, []);
   
   useEffect(()=>{ const s = navigation.addListener('focus', load); return s; },[navigation]);
+  
+  // Listen for refresh parameter
+  useEffect(() => {
+    if (route.params?.refresh) {
+      load();
+    }
+  }, [route.params?.refresh]);
+
+  const getSavingsEquivalent = (amount) => {
+    const amountInDollars = amount / 100;
+    const equivalents = [
+      { threshold: 5000, text: `1 epic European adventure`, icon: '✈️' },
+      { threshold: 3000, text: `${Math.floor(amountInDollars / 500)} round-trip flights to Japan`, icon: '🇯🇵' },
+      { threshold: 2000, text: `${Math.floor(amountInDollars / 500)} round-trip flights to Mexico`, icon: '🇲🇽' },
+      { threshold: 1000, text: `${Math.floor(amountInDollars / 200)} weekend getaways`, icon: '🏖️' },
+      { threshold: 500, text: `${Math.floor(amountInDollars / 150)} concert tickets`, icon: '🎵' },
+      { threshold: 200, text: `${Math.floor(amountInDollars / 50)} fancy dinners`, icon: '🍽️' },
+      { threshold: 0, text: `${Math.floor(amountInDollars / 5)} coffee runs`, icon: '☕' }
+    ];
+    return equivalents.find(eq => amountInDollars >= eq.threshold) || equivalents[equivalents.length - 1];
+  };
 
   return (
     <ScrollView style={{ flex:1, backgroundColor: '#FAFCFF' }}>
-      <View style={{ backgroundColor: colors.primary, paddingTop: 80, paddingBottom: 20, paddingHorizontal: 24 }}>
-        <Text style={{ color: 'white', fontSize: 24, fontWeight: '700' }}>Your Pools</Text>
-        <Text style={{ color: 'white', fontSize: 16, opacity: 0.9, marginTop: 4 }}>
-          Track your savings progress
-        </Text>
-      </View>
+      {/* Savings Summary Hero */}
+      {summaryData && (
+        <View style={{ backgroundColor: colors.primary, paddingTop: 80, paddingBottom: 30, paddingHorizontal: 24 }}>
+          <Text style={{ color: 'white', fontSize: 16, opacity: 0.9, marginBottom: 8, textAlign: 'center' }}>
+            Total Saved
+          </Text>
+          <Text style={{ color: 'white', fontSize: 48, fontWeight: '700', textAlign: 'center', marginBottom: 16 }}>
+            ${(summaryData.totalSaved / 100).toFixed(2)}
+          </Text>
+          
+          {(() => {
+            const equivalent = getSavingsEquivalent(summaryData.totalSaved);
+            return (
+              <View style={{
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                borderRadius: 20,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                alignSelf: 'center'
+              }}>
+                <Text style={{ fontSize: 18, marginRight: 8 }}>{equivalent.icon}</Text>
+                <Text style={{ fontSize: 14, color: 'white', fontWeight: '600' }}>
+                  {equivalent.text}
+                </Text>
+              </View>
+            );
+          })()}
+        </View>
+      )}
+
+      {/* Quick Stats */}
+      {summaryData && (
+        <View style={{ paddingHorizontal: 20, marginTop: -20, marginBottom: 20 }}>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <View style={{
+              backgroundColor: 'white',
+              flex: 1,
+              padding: 16,
+              borderRadius: radius,
+              alignItems: 'center',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+              elevation: 3
+            }}>
+              <Text style={{ fontSize: 24, marginBottom: 4 }}>🎯</Text>
+              <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text }}>
+                {summaryData.activeGoals}
+              </Text>
+              <Text style={{ fontSize: 12, color: colors.textSecondary }}>
+                Active Goals
+              </Text>
+            </View>
+
+            <View style={{
+              backgroundColor: 'white',
+              flex: 1,
+              padding: 16,
+              borderRadius: radius,
+              alignItems: 'center',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+              elevation: 3
+            }}>
+              <Text style={{ fontSize: 24, marginBottom: 4 }}>🔥</Text>
+              <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text }}>
+                {summaryData.currentStreak}
+              </Text>
+              <Text style={{ fontSize: 12, color: colors.textSecondary }}>
+                Day Streak
+              </Text>
+            </View>
+
+            <View style={{
+              backgroundColor: 'white',
+              flex: 1,
+              padding: 16,
+              borderRadius: radius,
+              alignItems: 'center',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+              elevation: 3
+            }}>
+              <Text style={{ fontSize: 24, marginBottom: 4 }}>💪</Text>
+              <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text }}>
+                {(summaryData.savingsRate * 100).toFixed(0)}%
+              </Text>
+              <Text style={{ fontSize: 12, color: colors.textSecondary }}>
+                Savings Rate
+              </Text>
+            </View>
+          </View>
+        </View>
+      )}
       <View style={{ padding: 24 }}>
         {/* Quick Actions */}
         <View style={{ flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
@@ -122,15 +255,35 @@ export default function Pools({ navigation, route }){
         <View style={{ flexDirection: 'row', marginBottom: 16, gap: 12 }}>
           <TouchableOpacity 
             onPress={()=>navigation.navigate('CreatePool', { user })} 
-            style={{ flex: 1, backgroundColor: colors.purple, padding: 14, borderRadius: radius, alignItems: 'center' }}
+            style={{ flex: 1, backgroundColor: colors.green, padding: 16, borderRadius: radius, alignItems: 'center' }}
           >
-            <Text style={{ color:'white', fontWeight:'700' }}>+ New Pool</Text>
+            <Text style={{ fontSize: 18, marginBottom: 4 }}>🎯</Text>
+            <Text style={{ color:'white', fontWeight:'700', fontSize: 16 }}>New Goal</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            onPress={()=>navigation.navigate('Badges', { user })} 
-            style={{ flex: 1, backgroundColor: '#FF6B6B', padding: 14, borderRadius: 12, alignItems: 'center', justifyContent: 'center', minHeight: 48 }}
+            onPress={()=>navigation.navigate('SoloSavings', { user })} 
+            style={{ flex: 1, backgroundColor: colors.purple, padding: 16, borderRadius: radius, alignItems: 'center' }}
           >
-            <Text style={{ color:'white', fontWeight:'700', fontSize: 16 }}>🏆 Badges</Text>
+            <Text style={{ fontSize: 18, marginBottom: 4 }}>💰</Text>
+            <Text style={{ color:'white', fontWeight:'700', fontSize: 16 }}>Solo Goal</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Secondary Actions */}
+        <View style={{ flexDirection: 'row', marginBottom: 20, gap: 12 }}>
+          <TouchableOpacity 
+            onPress={()=>navigation.navigate('Badges', { user })} 
+            style={{ flex: 1, backgroundColor: '#FF6B6B', padding: 16, borderRadius: radius, alignItems: 'center' }}
+          >
+            <Text style={{ fontSize: 18, marginBottom: 4 }}>🏆</Text>
+            <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>Badges</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={()=>navigation.navigate('SavingsSummary', { userId: user.id })} 
+            style={{ flex: 1, backgroundColor: colors.coral, padding: 16, borderRadius: radius, alignItems: 'center' }}
+          >
+            <Text style={{ fontSize: 18, marginBottom: 4 }}>📊</Text>
+            <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>View Details</Text>
           </TouchableOpacity>
         </View>
 
@@ -161,43 +314,99 @@ export default function Pools({ navigation, route }){
             </TouchableOpacity>
           </View>
         )}
-        <View style={styles.quickStats}>
-          <Text style={styles.quickStatsTitle}>Your Progress</Text>
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{user.profile?.level || 1}</Text>
-              <Text style={styles.statLabel}>Level</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>🔥 {user.profile?.current_streak || 0}</Text>
-              <Text style={styles.statLabel}>Streak</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{user.profile?.total_points || 0}</Text>
-              <Text style={styles.statLabel}>Points</Text>
-            </View>
-          </View>
-          <View style={styles.quickActions}>
+        
+        {/* Group Activity */}
+        <View style={{ marginTop: 24 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text }}>🔥 Group Activity</Text>
             <TouchableOpacity 
-              style={styles.quickActionButton}
-              onPress={() => navigation.navigate('Profile', { userId: user.id })}
+              onPress={() => navigation.navigate('GroupActivity', { user })}
+              style={{ backgroundColor: colors.blue + '20', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 }}
             >
-              <Text style={styles.quickActionText}>👤 Profile</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.quickActionButton}
-              onPress={() => navigation.navigate('SoloSavings', { userId: user.id })}
-            >
-              <Text style={styles.quickActionText}>🎯 Solo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.quickActionButton}
-              onPress={() => navigation.navigate('SocialFeed', { userId: user.id })}
-            >
-              <Text style={styles.quickActionText}>💬 Social</Text>
+              <Text style={{ color: colors.blue, fontSize: 14, fontWeight: '600' }}>View All →</Text>
             </TouchableOpacity>
           </View>
+          
+          <View style={{ backgroundColor: 'white', padding: 20, borderRadius: radius + 4, marginBottom: 12, ...shadow }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ 
+                width: 48, 
+                height: 48, 
+                borderRadius: 24, 
+                backgroundColor: colors.green + '20', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                marginRight: 16
+              }}>
+                <Text style={{ fontSize: 20 }}>👩‍💻</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 4 }}>
+                  Sarah crushed it! 💪
+                </Text>
+                <Text style={{ fontSize: 14, color: colors.textSecondary, marginBottom: 2 }}>
+                  Saved $150 in Tokyo Trip group
+                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 12, color: colors.green, fontWeight: '600' }}>+$150</Text>
+                  <Text style={{ fontSize: 12, color: colors.textSecondary, marginLeft: 8 }}>2h ago</Text>
+                </View>
+              </View>
+              <View style={{ alignItems: 'center' }}>
+                <Text style={{ fontSize: 24 }}>🎉</Text>
+              </View>
+            </View>
+          </View>
+          
+          <View style={{ backgroundColor: 'white', padding: 20, borderRadius: radius + 4, marginBottom: 12, ...shadow }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ 
+                width: 48, 
+                height: 48, 
+                borderRadius: 24, 
+                backgroundColor: colors.purple + '20', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                marginRight: 16
+              }}>
+                <Text style={{ fontSize: 20 }}>👨‍💻</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 4 }}>
+                  Mike hit a milestone! 🚀
+                </Text>
+                <Text style={{ fontSize: 14, color: colors.textSecondary, marginBottom: 2 }}>
+                  Reached 50% in Tokyo Trip group
+                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 12, color: colors.purple, fontWeight: '600' }}>50% Complete</Text>
+                  <Text style={{ fontSize: 12, color: colors.textSecondary, marginLeft: 8 }}>5h ago</Text>
+                </View>
+              </View>
+              <View style={{ alignItems: 'center' }}>
+                <Text style={{ fontSize: 24 }}>🎯</Text>
+              </View>
+            </View>
+          </View>
+
+          <TouchableOpacity 
+            style={{ 
+              backgroundColor: colors.blue + '10', 
+              padding: 16, 
+              borderRadius: radius, 
+              borderWidth: 1, 
+              borderColor: colors.blue + '30',
+              alignItems: 'center',
+              marginTop: 8
+            }}
+            onPress={() => navigation.navigate('GroupActivity', { user })}
+          >
+            <Text style={{ color: colors.blue, fontSize: 14, fontWeight: '600' }}>
+              See more group activity 👥
+            </Text>
+          </TouchableOpacity>
         </View>
+
       </View>
     </ScrollView>
   );

@@ -98,6 +98,37 @@ export default function PoolDetail({ navigation, route }){
 
   const pct = Math.min(100, Math.round((pool.saved_cents / pool.goal_cents)*100));
 
+  const calculateMonthlySavings = () => {
+    if (!pool) return null;
+    
+    const goalAmount = pool.goal_cents / 100;
+    const members = pool.members?.length || 1;
+    const targetDate = pool.trip_date ? new Date(pool.trip_date) : null;
+    const currentSaved = pool.saved_cents / 100;
+    const remainingGoal = goalAmount - currentSaved;
+    
+    if (remainingGoal <= 0 || members <= 0) return null;
+    
+    let monthsRemaining = 12; // Default to 12 months if no date
+    if (targetDate) {
+      const today = new Date();
+      const diffTime = targetDate.getTime() - today.getTime();
+      monthsRemaining = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30.44)));
+    }
+    
+    const perPersonPerMonth = remainingGoal / members / monthsRemaining;
+    
+    return {
+      totalGoal: goalAmount,
+      remainingGoal: remainingGoal,
+      currentSaved: currentSaved,
+      members: members,
+      monthsRemaining: monthsRemaining,
+      perPersonPerMonth: perPersonPerMonth,
+      targetDate: targetDate
+    };
+  };
+
   const contribute = async ()=>{
     try {
       const result = await api.contribute(poolId, { 
@@ -164,6 +195,66 @@ export default function PoolDetail({ navigation, route }){
             </Text>
           )}
         </View>
+
+        {/* Savings Calculator */}
+        {(() => {
+          const calculation = calculateMonthlySavings();
+          if (!calculation) return null;
+          
+          return (
+            <View style={{ 
+              backgroundColor: colors.green + '15', 
+              padding: 20, 
+              borderRadius: radius, 
+              marginBottom: 16,
+              borderLeftWidth: 4,
+              borderLeftColor: colors.green
+            }}>
+              <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 }}>
+                🧮 Updated Calculator
+              </Text>
+              
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                <Text style={{ fontSize: 14, color: colors.text, fontWeight: '500' }}>Remaining Goal:</Text>
+                <Text style={{ fontSize: 14, color: colors.text, fontWeight: '700' }}>${calculation.remainingGoal.toLocaleString()}</Text>
+              </View>
+              
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                <Text style={{ fontSize: 14, color: colors.text, fontWeight: '500' }}>Current Members:</Text>
+                <Text style={{ fontSize: 14, color: colors.text, fontWeight: '700' }}>{calculation.members} people</Text>
+              </View>
+              
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                <Text style={{ fontSize: 14, color: colors.text, fontWeight: '500' }}>Time Remaining:</Text>
+                <Text style={{ fontSize: 14, color: colors.text, fontWeight: '700' }}>
+                  {calculation.monthsRemaining} month{calculation.monthsRemaining !== 1 ? 's' : ''}
+                </Text>
+              </View>
+              
+              <View style={{ 
+                backgroundColor: 'white', 
+                padding: 16, 
+                borderRadius: radius, 
+                marginTop: 12,
+                alignItems: 'center'
+              }}>
+                <Text style={{ fontSize: 16, color: colors.text, fontWeight: '600', marginBottom: 4 }}>
+                  Each person needs to save:
+                </Text>
+                <Text style={{ fontSize: 24, color: colors.green, fontWeight: '700' }}>
+                  ${calculation.perPersonPerMonth.toFixed(2)}/month
+                </Text>
+                <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4 }}>
+                  That's just ${(calculation.perPersonPerMonth / 30).toFixed(2)} per day!
+                </Text>
+              </View>
+              
+              <Text style={{ fontSize: 12, color: colors.text, marginTop: 12, textAlign: 'center', fontStyle: 'italic' }}>
+                💡 This automatically updates when members join or leave your group
+              </Text>
+            </View>
+          );
+        })()}
 
         {/* Contribution Section */}
         <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius, marginBottom: 16 }}>
