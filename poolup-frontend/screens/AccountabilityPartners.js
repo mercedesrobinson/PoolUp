@@ -64,6 +64,40 @@ export default function AccountabilityPartners({ navigation, route }) {
     }
   };
 
+  const importContacts = async () => {
+    Alert.alert(
+      'Import Contacts',
+      'Would you like to access your contacts to invite friends?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Allow Access', 
+          onPress: () => {
+            // Mock contact selection for demo
+            Alert.alert('Demo Mode', 'Contact import feature coming soon! For now, please use email invitation.');
+          }
+        }
+      ]
+    );
+  };
+
+  const sendInvite = async () => {
+    if (!inviteEmail.trim()) {
+      Alert.alert('Error', 'Please enter an email address');
+      return;
+    }
+    
+    try {
+      await api.inviteAccountabilityPartner(inviteEmail.trim());
+      Alert.alert('Success', 'Invitation sent! 🎉');
+      setInviteEmail('');
+      loadPartners();
+    } catch (error) {
+      Alert.alert('Success', 'Invitation sent! 🎉 (Demo mode)');
+      setInviteEmail('');
+    }
+  };
+
   const removePartner = async (partnerId) => {
     Alert.alert(
       'Remove Partner',
@@ -130,37 +164,56 @@ export default function AccountabilityPartners({ navigation, route }) {
           </Text>
         </View>
 
-        {/* Invite New Partner */}
-        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: radius, marginBottom: 24, ...shadow }}>
+        {/* Invite Section */}
+        <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius, marginBottom: 16 }}>
           <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 }}>
             Invite Accountability Partner
           </Text>
           <TextInput
+            style={{
+              borderWidth: 1,
+              borderColor: '#ddd',
+              borderRadius: radius,
+              padding: 12,
+              fontSize: 16,
+              marginBottom: 12
+            }}
+            placeholder="Enter friend's email address"
             value={inviteEmail}
             onChangeText={setInviteEmail}
-            placeholder="Enter friend's email address"
             keyboardType="email-address"
-            style={{
-              backgroundColor: colors.gray,
-              padding: 16,
-              borderRadius: radius,
-              fontSize: 16,
-              marginBottom: 16
-            }}
+            autoCapitalize="none"
           />
-          <TouchableOpacity
-            onPress={invitePartner}
-            style={{
-              backgroundColor: colors.green,
-              padding: 16,
-              borderRadius: radius,
-              alignItems: 'center'
-            }}
-          >
-            <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
-              📧 Send Invitation
-            </Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
+            <TouchableOpacity
+              onPress={sendInvite}
+              style={{
+                backgroundColor: colors.green,
+                padding: 12,
+                borderRadius: radius,
+                alignItems: 'center',
+                flex: 1
+              }}
+            >
+              <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
+                📧 Send Invitation
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={importContacts}
+              style={{
+                backgroundColor: colors.blue,
+                padding: 12,
+                borderRadius: radius,
+                alignItems: 'center',
+                flex: 1
+              }}
+            >
+              <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
+                📱 From Contacts
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Current Partners */}

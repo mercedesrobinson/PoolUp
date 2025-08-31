@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { colors, radius } from '../theme';
 import { api } from '../services/api';
 import bankingService from '../services/banking';
@@ -171,6 +171,13 @@ export default function DebitCard({ navigation, route }) {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#FAFCFF' }}>
+      {/* Header */}
+      <View style={{ backgroundColor: colors.primary, paddingTop: 80, paddingBottom: 20, paddingHorizontal: 24 }}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 16 }}>
+          <Text style={{ color: 'white', fontSize: 16 }}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={{ color: 'white', fontSize: 24, fontWeight: '700' }}>PoolUp Card</Text>
+      </View>
       {/* Card Display */}
       <View style={{ padding: 24, paddingTop: 16 }}>
         <View style={{ 

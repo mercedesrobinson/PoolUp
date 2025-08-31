@@ -181,11 +181,40 @@ app.get('/api/users/:userId/badges', async (req, res) => {
   ]);
 });
 
+// Create pool endpoint
+app.post('/api/pools', async (req, res) => {
+  try {
+    const { userId, name, goalCents, destination, tripDate, poolType } = req.body;
+    if (!userId || !name || !goalCents) {
+      return res.status(400).json({ error: 'userId, name, and goalCents are required' });
+    }
+
+    const result = await db.run(
+      'INSERT INTO pools (name, goal_cents, saved_cents, creator_id, destination, trip_date, pool_type, created_at) VALUES (?, ?, 0, ?, ?, ?, ?, ?)',
+      [name, goalCents, userId, destination, tripDate, poolType || 'group', new Date().toISOString()]
+    );
+
+    res.json({ 
+      id: result.lastID, 
+      name, 
+      goalCents, 
+      destination, 
+      tripDate, 
+      poolType,
+      success: true 
+    });
+  } catch (error) {
+    console.error('Pool creation error:', error);
+    res.status(500).json({ error: 'Failed to create pool' });
+  }
+});
+
 app.get('/api/users/:userId/pools', async (req, res) => {
   try {
     const pools = await db.all('SELECT * FROM pools WHERE creator_id = ?', [req.params.userId]);
     res.json(pools);
   } catch (error) {
+    console.error('Get pools error:', error);
     res.json([]);
   }
 });

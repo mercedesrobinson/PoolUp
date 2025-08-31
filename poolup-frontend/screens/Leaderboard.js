@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { colors, radius } from '../theme';
 import { api } from '../services/api';
 
@@ -187,8 +187,12 @@ export default function Leaderboard({ navigation, route }) {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#FAFCFF' }}>
       {/* Header */}
-      <View style={{ padding: 24, backgroundColor: colors.purple, paddingTop: 60 }}>
-        <Text style={{ fontSize: 24, fontWeight: '800', color: 'white', textAlign: 'center' }}>
+      <View style={{ backgroundColor: colors.primary, paddingTop: 80, paddingBottom: 20, paddingHorizontal: 24 }}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 16 }}>
+          <Text style={{ color: 'white', fontSize: 16 }}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={{ color: 'white', fontSize: 24, fontWeight: '700' }}>Leaderboard</Text>
+        <Text style={{ fontSize: 16, color: 'rgba(255,255,255,0.9)', textAlign: 'center', marginTop: 4 }}>
           {poolName}
         </Text>
         <Text style={{ fontSize: 16, color: 'rgba(255,255,255,0.9)', textAlign: 'center', marginTop: 4 }}>

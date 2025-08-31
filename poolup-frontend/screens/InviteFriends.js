@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Share, Clipboard, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Share, Clipboard, Alert, ScrollView } from 'react-native';
 import { colors, radius } from '../theme';
 import { api } from '../services/api';
 
@@ -104,7 +104,7 @@ export default function InviteFriends({ navigation, route }) {
         </Text>
       </View>
 
-      <View style={{ padding: 20 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }}>
         {/* Invite Code Section */}
         <View style={{
           backgroundColor: 'white',
@@ -302,7 +302,7 @@ export default function InviteFriends({ navigation, route }) {
             </Text>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }

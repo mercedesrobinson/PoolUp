@@ -87,9 +87,9 @@ export default function ProfilePhotoUpload({ navigation, route }) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 16 }}>
           <Text style={{ color: 'white', fontSize: 16 }}>← Back</Text>
         </TouchableOpacity>
-        <Text style={{ color: 'white', fontSize: 24, fontWeight: '700' }}>Profile Photo</Text>
+        <Text style={{ color: 'white', fontSize: 24, fontWeight: '700' }}>Upload Photo</Text>
         <Text style={{ color: 'white', fontSize: 16, opacity: 0.9, marginTop: 4 }}>
-          Add a personal touch to your profile
+          Add a profile photo to personalize your account
         </Text>
       </View>
 
@@ -150,7 +150,7 @@ export default function ProfilePhotoUpload({ navigation, route }) {
             }}
           >
             <Text style={{ color: 'white', fontSize: 18, fontWeight: '600' }}>
-              📷 {selectedImage ? 'Change Photo' : 'Select Photo'}
+              {selectedImage ? 'Change Photo' : 'Select Photo'}
             </Text>
           </TouchableOpacity>
 
@@ -173,22 +173,6 @@ export default function ProfilePhotoUpload({ navigation, route }) {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate('AvatarBuilder')}
-            style={{
-              backgroundColor: 'white',
-              padding: 16,
-              borderRadius: radius,
-              alignItems: 'center',
-              borderWidth: 2,
-              borderColor: colors.primary,
-              ...shadow
-            }}
-          >
-            <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '600' }}>
-              🎨 Create Avatar Instead
-            </Text>
-          </TouchableOpacity>
         </View>
 
         {/* Tips */}

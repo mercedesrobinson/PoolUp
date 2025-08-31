@@ -63,12 +63,16 @@ export const api = {
     try {
       const response = await fetch(`${API_BASE}/pools`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-id': getCurrentUserId()
+        },
         body: JSON.stringify({ userId, name, goalCents, destination, tripDate, poolType }),
       });
       if (!response.ok) throw new Error('Failed to create pool');
       return response.json();
     } catch (error) {
+      console.log('Pool creation API error, using mock data:', error);
       // Mock successful pool creation for demo
       return {
         id: Date.now(),
@@ -78,7 +82,8 @@ export const api = {
         tripDate,
         poolType,
         userId,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        success: true
       };
     }
   },
@@ -98,6 +103,7 @@ export const api = {
       if (!response.ok) throw new Error('Profile not found');
       return response.json();
     } catch (error) {
+      console.log('getUserProfile API error, using mock data:', error);
       // Return mock data if backend not available
       return {
         id: userId,
@@ -186,14 +192,6 @@ export const api = {
     return response.json();
   },
 
-  async createPool(ownerId, name, goalCents, destination, tripDate, poolType = 'group') {
-    const res = await fetch(`${BASE_URL}/api/pools`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ownerId, name, goalCents, destination, tripDate, poolType })
-    });
-    return res.json();
-  },
 
   // Solo savings
   getPublicSoloPools: async (limit = 20) => {
@@ -251,10 +249,17 @@ export const api = {
   },
 
   async listPools(userId) {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/pools`, {
-      headers: { 'x-user-id': getCurrentUserId() }
-    });
-    return res.json();
+    try {
+      const res = await fetch(`${BASE_URL}/api/users/${userId}/pools`, {
+        headers: { 'x-user-id': getCurrentUserId() }
+      });
+      if (!res.ok) throw new Error('Failed to fetch pools');
+      return res.json();
+    } catch (error) {
+      console.log('listPools API error, using mock data:', error);
+      // Return mock data for development
+      return [];
+    }
   },
 
   async getPool(poolId) {

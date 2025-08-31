@@ -1,10 +1,12 @@
 export const colors = {
   bg: '#FFFFFF',
   text: '#0B1221',
+  primary: '#2D8CFF',
   blue: '#2D8CFF',
   green: '#00C38A',
   purple: '#7B61FF',
   coral: '#FF6F61',
+  red: '#FF6F61',
   gray: '#EEF2F6',
 };
 

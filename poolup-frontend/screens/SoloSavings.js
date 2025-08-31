@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl, A
 import { api } from '../services/api';
 
 export default function SoloSavings({ route, navigation }) {
-  const { userId } = route.params;
+  const { userId } = route.params || {};
   const [publicPools, setPublicPools] = useState([]);
   const [streakLeaderboard, setStreakLeaderboard] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -133,9 +133,13 @@ export default function SoloSavings({ route, navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Solo Savings</Text>
+    <ScrollView style={{ flex: 1, backgroundColor: '#FAFCFF' }}>
+      {/* Header */}
+      <View style={{ backgroundColor: '#4285F4', paddingTop: 60, paddingBottom: 20, paddingHorizontal: 24 }}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 16 }}>
+          <Text style={{ color: 'white', fontSize: 16 }}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={{ color: 'white', fontSize: 24, fontWeight: '700' }}>Solo Savings</Text>
         <TouchableOpacity style={styles.createButton} onPress={createSoloPool}>
           <Text style={styles.createButtonText}>+ Solo Goal</Text>
         </TouchableOpacity>
@@ -160,9 +164,8 @@ export default function SoloSavings({ route, navigation }) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView 
+      <View 
         style={styles.content}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {activeTab === 'discover' ? (
           <View>
@@ -199,8 +202,8 @@ export default function SoloSavings({ route, navigation }) {
             )}
           </View>
         )}
-      </ScrollView>
-    </View>
+      </View>
+    </ScrollView>
   );
 }
 

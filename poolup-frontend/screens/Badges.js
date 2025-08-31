@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, FlatList } from 'react-native';
+import { View, Text, ScrollView, FlatList, TouchableOpacity } from 'react-native';
 import { colors, radius } from '../theme';
 import { api } from '../services/api';
 
@@ -133,7 +133,10 @@ export default function Badges({ navigation, route }) {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#FAFCFF' }}>
       {/* Header */}
-      <View style={{ padding: 24, backgroundColor: colors.purple, paddingTop: 60 }}>
+      <View style={{ padding: 24, backgroundColor: colors.purple, paddingTop: 80 }}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 16 }}>
+          <Text style={{ color: 'white', fontSize: 16 }}>← Back</Text>
+        </TouchableOpacity>
         <Text style={{ fontSize: 28, fontWeight: '800', color: 'white', textAlign: 'center' }}>
           🏆 Badge Collection
         </Text>

@@ -31,6 +31,15 @@ export default function CreatePool({ navigation, route }){
 
   return (
     <ScrollView style={{ flex:1, backgroundColor:'#FAFCFF' }}>
+      <View style={{ backgroundColor: colors.primary, paddingTop: 80, paddingBottom: 20, paddingHorizontal: 24 }}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 16 }}>
+          <Text style={{ color: 'white', fontSize: 16 }}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={{ color: 'white', fontSize: 24, fontWeight: '700' }}>Create Pool</Text>
+        <Text style={{ color: 'white', fontSize: 16, opacity: 0.9, marginTop: 4 }}>
+          Start your savings journey
+        </Text>
+      </View>
       <View style={{ padding: 24 }}>
         <View style={{ marginBottom: 20 }}>
           <Text style={{ fontSize:18, fontWeight:'700', color: colors.text, marginBottom:12 }}>Pool Type</Text>
@@ -126,34 +135,53 @@ export default function CreatePool({ navigation, route }){
         </View>
         
         {poolType === 'group' && (
-          <View style={{ backgroundColor: colors.green + '20', padding: 16, borderRadius: radius, marginBottom: 16 }}>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 8 }}>
+          <ScrollView style={{ backgroundColor: '#E8F5E8', padding: 16, borderRadius: radius, marginBottom: 16, maxHeight: 200 }}>
+            <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: 8 }}>
               👥 Group Pool Features:
             </Text>
             <Text style={{ fontSize: 14, color: '#666', marginBottom: 4 }}>• Invite friends after creation</Text>
             <Text style={{ fontSize: 14, color: '#666', marginBottom: 4 }}>• Shared progress tracking</Text>
             <Text style={{ fontSize: 14, color: '#666', marginBottom: 4 }}>• Team challenges and rewards</Text>
-            <Text style={{ fontSize: 14, color: '#666' }}>• Group chat and encouragement</Text>
-          </View>
+            <Text style={{ fontSize: 14, color: '#666', marginBottom: 4 }}>• Group chat and encouragement</Text>
+            <Text style={{ fontSize: 14, color: '#666', marginBottom: 4 }}>• Leaderboards and social competition</Text>
+            <Text style={{ fontSize: 14, color: '#666', marginBottom: 4 }}>• Progress unlockables and milestones</Text>
+            <Text style={{ fontSize: 14, color: '#666' }}>• Streak tracking and badges</Text>
+          </ScrollView>
         )}
         
+        {poolType === 'group' && (
+          <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius, marginBottom: 16 }}>
+            <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: 12 }}>
+              👥 Add Members (Optional)
+            </Text>
+            <Text style={{ fontSize: 14, color: '#666', marginBottom: 12 }}>
+              You can invite friends now or add them later
+            </Text>
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('InviteFriends', { poolName: name || 'New Pool' })}
+              style={{ backgroundColor: colors.blue, padding: 12, borderRadius: radius, alignItems: 'center' }}
+            >
+              <Text style={{ color: 'white', fontSize: 14, fontWeight: '600' }}>
+                📧 Send Invites Now
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         <TouchableOpacity onPress={create} style={{ backgroundColor: colors.purple, padding:16, borderRadius:radius, alignItems:'center' }}>
           <Text style={{ color:'white', fontSize:18, fontWeight:'700' }}>
-            {poolType === 'group' ? 'Create Group Pool' : 'Create Solo Goal'}
+            {poolType === 'group' ? 'Create Pool' : 'Create Solo Goal'}
           </Text>
         </TouchableOpacity>
         
         {poolType === 'group' && (
-          <TouchableOpacity 
-            onPress={() => navigation.navigate('InviteFriends', { poolName: name || 'New Pool' })}
-            style={{ backgroundColor: colors.green, padding:16, borderRadius:radius, alignItems:'center', marginTop: 12 }}
-          >
-            <Text style={{ color:'white', fontSize:16, fontWeight:'600' }}>
-              👥 Invite Members After Creation
+          <View style={{ backgroundColor: colors.green + '20', padding: 16, borderRadius: radius, marginTop: 12 }}>
+            <Text style={{ fontSize: 14, color: colors.green, textAlign: 'center', fontWeight: '500' }}>
+              💡 After creating your pool, you can invite more friends anytime from the pool details page
             </Text>
-          </TouchableOpacity>
+          </View>
         )}
-        
+
         {poolType === 'solo' && (
           <TouchableOpacity 
             onPress={() => navigation.navigate('AccountabilityPartners')}

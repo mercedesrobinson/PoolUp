@@ -161,7 +161,7 @@ export default function Profile({ navigation, route }) {
     // Show loading state with basic user info
     return (
       <ScrollView style={{ flex: 1, backgroundColor: '#FAFCFF' }}>
-        <View style={{ padding: 24, backgroundColor: colors.purple, paddingTop: 60 }}>
+        <View style={{ padding: 24, backgroundColor: colors.purple, paddingTop: 80 }}>
           <View style={{ alignItems: 'center' }}>
             <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.3)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
               <Text style={{ fontSize: 32, color: 'white' }}>👤</Text>
@@ -213,33 +213,18 @@ export default function Profile({ navigation, route }) {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#FAFCFF' }}>
       {/* Header */}
-      <View style={{ padding: 24, backgroundColor: colors.purple, paddingTop: 60 }}>
+      <View style={{ padding: 24, backgroundColor: colors.purple, paddingTop: 80 }}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 16 }}>
+          <Text style={{ color: 'white', fontSize: 16 }}>← Back</Text>
+        </TouchableOpacity>
         <View style={styles.avatarSection}>
-          <TouchableOpacity 
-            style={styles.avatar}
-            onPress={() => navigation.navigate('AvatarBuilder', { userId: user?.id, currentAvatar: profile?.avatar })}
-          >
-            <Text style={styles.avatarText}>
-              {profile?.avatar_type === 'generated' && profile?.avatar_data ? 
-                ((() => {
-                  try {
-                    return JSON.parse(profile.avatar_data).hairStyle?.emoji || '👤';
-                  } catch (e) {
-                    return '👤';
-                  }
-                })()) : '👤'}
-            </Text>
-            <View style={styles.editBadge}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>👤</Text>
+            <TouchableOpacity style={styles.editBadge} onPress={() => navigation.navigate('ProfilePhotoUpload')}>
               <Text style={styles.editBadgeText}>✏️</Text>
-            </View>
-          </TouchableOpacity>
-          <Text style={styles.userName}>{profile?.name || user?.name || 'User'}</Text>
-          <TouchableOpacity 
-            style={styles.customizeButton}
-            onPress={() => navigation.navigate('AvatarBuilder', { userId: user?.id, currentAvatar: profile?.avatar })}
-          >
-            <Text style={styles.customizeButtonText}>Customize Avatar</Text>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.userName}>{profile.name}</Text>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 8 }}>
           <Text style={{ fontSize: 18, color: 'white', opacity: 0.9 }}>Level {level}</Text>
@@ -268,42 +253,6 @@ export default function Profile({ navigation, route }) {
           <StatCard title="Badges" value={profile?.badge_count || 0} color={colors.green} />
         </View>
 
-        {/* Debit Card Section */}
-        <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius, marginBottom: 16 }}>
-          <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 }}>
-            💳 PoolUp Debit Card
-          </Text>
-          {card ? (
-            <View>
-              <Text style={{ fontSize: 16, color: colors.text, marginBottom: 8 }}>
-                Card ending in {card.cardNumber.slice(-4)}
-              </Text>
-              <Text style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>
-                {card.cashbackRate}% cashback on all purchases
-              </Text>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={{ fontSize: 14, color: '#666' }}>
-                  Total Cashback: ${(card.stats.total_cashback_cents / 100).toFixed(2)}
-                </Text>
-                <TouchableOpacity onPress={() => navigation.navigate('DebitCard', { user, card })}>
-                  <Text style={{ color: colors.blue, fontWeight: '600' }}>Manage →</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : (
-            <View>
-              <Text style={{ fontSize: 14, color: '#666', marginBottom: 12 }}>
-                Get 2% cashback on all purchases and earn points for every transaction!
-              </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('ProfilePhotoUpload')} style={{ backgroundColor: colors.blue, padding: 12, borderRadius: radius, alignItems: 'center', marginBottom: 8 }}>
-                <Text style={{ color: 'white', fontWeight: '600' }}>📸 Upload Photo</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate('AvatarBuilder')} style={{ backgroundColor: colors.purple, padding: 12, borderRadius: radius, alignItems: 'center' }}>
-                <Text style={{ color: 'white', fontWeight: '600' }}>🎨 Create Avatar</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
 
         {/* Badges Section */}
         <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius, marginBottom: 16 }}>
@@ -319,31 +268,74 @@ export default function Profile({ navigation, route }) {
             <BadgeItem key={badge.id} badge={badge} />
           ))}
           {badges.length === 0 && (
-            <Text style={{ color: '#666', textAlign: 'center', padding: 20 }}>
-              No badges yet. Start contributing to earn your first badge! 🎯
-            </Text>
-          )}
-        </View>
-
-        {/* Quick Actions */}
-        <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius }}>
-          <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 }}>
-            Quick Actions
+          <Text style={{ color: '#666', textAlign: 'center', padding: 20 }}>
+            No badges yet. Start contributing to earn your first badge! 🎯
           </Text>
-          <TouchableOpacity 
-            onPress={() => navigation.navigate('Pools', { user })}
-            style={{ backgroundColor: colors.green, padding: 12, borderRadius: radius, marginBottom: 8 }}
-          >
-            <Text style={{ color: 'white', fontWeight: '700', textAlign: 'center' }}>View Pools</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            onPress={() => navigation.navigate('CreatePool', { user })}
-            style={{ backgroundColor: colors.purple, padding: 12, borderRadius: radius }}
-          >
-            <Text style={{ color: 'white', fontWeight: '700', textAlign: 'center' }}>Create New Pool</Text>
-          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* Savings Progress */}
+      <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius, marginBottom: 16 }}>
+        <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 }}>
+          💰 Savings Progress
+        </Text>
+        <View style={{ marginBottom: 16 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+            <Text style={{ fontSize: 14, color: '#666' }}>Total Saved</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.green }}>$1,250</Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+            <Text style={{ fontSize: 14, color: '#666' }}>Monthly Goal</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.blue }}>$500</Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+            <Text style={{ fontSize: 14, color: '#666' }}>This Month</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.purple }}>$320</Text>
+          </View>
+          
+          {/* Progress Bar */}
+          <View style={{ backgroundColor: '#f0f0f0', height: 8, borderRadius: 4, marginBottom: 8 }}>
+            <View style={{ 
+              backgroundColor: colors.green, 
+              height: '100%', 
+              width: '64%', 
+              borderRadius: 4 
+            }} />
+          </View>
+          <Text style={{ fontSize: 12, color: '#666', textAlign: 'center' }}>
+            64% of monthly goal • $180 to go
+          </Text>
+        </View>
+        
+        {/* Projection */}
+        <View style={{ backgroundColor: colors.blue + '10', padding: 12, borderRadius: 8 }}>
+          <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 4 }}>
+            📈 12-Month Projection
+          </Text>
+          <Text style={{ fontSize: 12, color: '#666' }}>
+            At your current pace, you'll save <Text style={{ fontWeight: '700', color: colors.green }}>$6,000</Text> by next year
+          </Text>
         </View>
       </View>
-    </ScrollView>
-  );
+
+      {/* Quick Actions */}
+      <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius, marginBottom: 16 }}>
+        <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 }}>
+          Quick Actions
+        </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+          <TouchableOpacity onPress={() => navigation.navigate('CreatePool', { user })} style={{ backgroundColor: colors.green, padding: 12, borderRadius: radius, flex: 1, marginRight: 8, alignItems: 'center' }}>
+            <Text style={{ color: 'white', fontWeight: '600' }}>New Pool</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('SoloSavings')} style={{ backgroundColor: colors.blue, padding: 12, borderRadius: radius, flex: 1, marginLeft: 8, alignItems: 'center' }}>
+            <Text style={{ color: 'white', fontWeight: '600' }}>Solo Goal</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity onPress={() => navigation.navigate('Settings', { user })} style={{ backgroundColor: colors.gray, padding: 12, borderRadius: radius, alignItems: 'center' }}>
+          <Text style={{ color: colors.text, fontWeight: '600' }}>⚙️ Settings</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </ScrollView>
+);
 }

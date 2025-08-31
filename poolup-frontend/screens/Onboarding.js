@@ -55,46 +55,15 @@ export default function Onboarding({ navigation }){
     <View style={{ flex:1, backgroundColor: colors.bg, alignItems:'center', justifyContent:'center', padding:24 }}>
       {/* PoolUp Logo */}
       <View style={{ alignItems: 'center', marginBottom: 48 }}>
-        <View style={{ 
-          width: 120, 
-          height: 120, 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          marginBottom: 16,
-          position: 'relative'
-        }}>
-          {/* First circle (top-left) */}
-          <View style={{
-            width: 80,
-            height: 80,
-            borderRadius: 40,
-            backgroundColor: colors.green,
-            position: 'absolute',
-            top: 0,
-            left: 20,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 4
-          }} />
-          {/* Second circle (bottom-right) */}
-          <View style={{
-            width: 80,
-            height: 80,
-            borderRadius: 40,
-            backgroundColor: colors.green,
-            position: 'absolute',
-            bottom: 0,
-            right: 20,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 4
-          }} />
-        </View>
-        <Text style={{ fontSize: 18, color: '#666', textAlign: 'center', fontWeight: '500' }}>Your future, funded with friends.</Text>
+        <Image 
+          source={require('../assets/icon.png')}
+          style={{ 
+            width: 300, 
+            height: 200, 
+            marginBottom: 16,
+            resizeMode: 'contain'
+          }}
+        />
       </View>
       
       {/* Google Sign In */}
@@ -122,11 +91,21 @@ export default function Onboarding({ navigation }){
         <View style={{ flex: 1, height: 1, backgroundColor: '#ddd' }} />
       </View>
 
-      {/* Guest Sign Up */}
+      {/* Email Sign Up */}
       <TextInput value={name} onChangeText={setName} placeholder="Enter your name" 
         style={{ width:'100%', backgroundColor: colors.gray, borderRadius: radius, padding:16, marginBottom:12, fontSize: 16 }} />
+      <TextInput 
+        placeholder="Email address" 
+        keyboardType="email-address"
+        style={{ width:'100%', backgroundColor: colors.gray, borderRadius: radius, padding:16, marginBottom:12, fontSize: 16 }} 
+      />
+      <TextInput 
+        placeholder="Create password" 
+        secureTextEntry
+        style={{ width:'100%', backgroundColor: colors.gray, borderRadius: radius, padding:16, marginBottom:12, fontSize: 16 }} 
+      />
       <TouchableOpacity onPress={startWithGuest} style={{ width:'100%', backgroundColor: colors.blue, padding:16, borderRadius: radius, alignItems:'center', ...shadow }}>
-        <Text style={{ color:'white', fontWeight:'700', fontSize: 16 }}>Get Started</Text>
+        <Text style={{ color:'white', fontWeight:'700', fontSize: 16 }}>Create Account</Text>
       </TouchableOpacity>
       
       <Text style={{ fontSize: 12, color: '#999', textAlign: 'center', marginTop: 16, paddingHorizontal: 20 }}>

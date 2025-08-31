@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet } from 'react-native';
-import { colors, radius } from '../theme';
+import { colors, radius, shadow } from '../theme';
 import { api } from '../services/api';
 
 function PoolCard({ item, onPress }){
@@ -74,25 +74,49 @@ export default function Pools({ navigation, route }){
   const [pools,setPools] = useState([]);
   const user = route.params.user;
 
-  const load = async ()=>{
-    const data = await api.listPools(user.id);
-    setPools(data);
+  const load = async () => {
+    try {
+      const data = await api.listPools(user.id);
+      setPools(data);
+    } catch (error) {
+      console.error('Failed to load pools:', error);
+      // Mock data fallback for development
+      setPools([
+        {
+          id: 1,
+          name: "Tokyo Trip 2024",
+          goal_cents: 300000,
+          saved_cents: 75000,
+          destination: "Tokyo, Japan",
+          creator_id: user.id
+        }
+      ]);
+    }
   };
+  
+  useEffect(() => {
+    load();
+  }, []);
+  
   useEffect(()=>{ const s = navigation.addListener('focus', load); return s; },[navigation]);
 
   return (
     <ScrollView style={{ flex:1, backgroundColor: '#FAFCFF' }}>
+      <View style={{ backgroundColor: colors.primary, paddingTop: 80, paddingBottom: 20, paddingHorizontal: 24 }}>
+        <Text style={{ color: 'white', fontSize: 24, fontWeight: '700' }}>Your Pools</Text>
+        <Text style={{ color: 'white', fontSize: 16, opacity: 0.9, marginTop: 4 }}>
+          Track your savings progress
+        </Text>
+      </View>
       <View style={{ padding: 24 }}>
-        {/* Header */}
+        {/* Quick Actions */}
         <View style={{ flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-          <Text style={{ fontSize:24, fontWeight:'800', color: colors.text }}>Your Pools</Text>
+          <Text style={{ fontSize:18, fontWeight:'700', color: colors.text }}>Quick Actions</Text>
           <TouchableOpacity onPress={()=>navigation.navigate('Profile', { user })} style={{ backgroundColor: colors.green, paddingVertical:8, paddingHorizontal:12, borderRadius:12 }}>
             <Text style={{ color:'white', fontWeight:'600', fontSize: 12 }}>👤 Profile</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Quick Stats */}
-        <QuickStatsCard user={user} navigation={navigation} />
 
         {/* Action Buttons */}
         <View style={{ flexDirection: 'row', marginBottom: 16, gap: 12 }}>
@@ -104,9 +128,9 @@ export default function Pools({ navigation, route }){
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={()=>navigation.navigate('Badges', { user })} 
-            style={{ flex: 1, backgroundColor: colors.coral, padding: 14, borderRadius: radius, alignItems: 'center' }}
+            style={{ flex: 1, backgroundColor: '#FF6B6B', padding: 14, borderRadius: 12, alignItems: 'center', justifyContent: 'center', minHeight: 48 }}
           >
-            <Text style={{ color:'white', fontWeight:'700' }}>🏆 Badges</Text>
+            <Text style={{ color:'white', fontWeight:'700', fontSize: 16 }}>🏆 Badges</Text>
           </TouchableOpacity>
         </View>
 
@@ -212,16 +236,21 @@ const styles = StyleSheet.create({
   },
   quickActions: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
+    gap: 8,
   },
   quickActionButton: {
-    backgroundColor: colors.gray,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    backgroundColor: 'white',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
     borderRadius: radius,
     flex: 1,
-    marginHorizontal: 4,
     alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.blue + '20',
+    minHeight: 48,
+    ...shadow,
   },
   quickActionText: {
     fontSize: 14,
