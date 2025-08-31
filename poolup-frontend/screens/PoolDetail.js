@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, FlatList } from 'react-native';
-import { colors, radius } from '../theme';
-import { api } from '../services/api';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, TextInput } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { joinPool, contributeToPool, getPoolMembers } from '../services/api';
+import ProgressVisualization from '../components/ProgressVisualization';
+import BadgeSystem from '../components/BadgeSystem';
+import StreakDisplay from '../components/StreakDisplay';
 import io from 'socket.io-client';
 
 const SERVER = process.env.EXPO_PUBLIC_SERVER_URL || 'http://localhost:4000';
@@ -67,7 +70,7 @@ export default function PoolDetail({ navigation, route }){
   const [paymentMethod, setPaymentMethod] = useState('manual');
 
   const load = async ()=>{
-    const p = await api.getPool(poolId);
+    const p = await getPool(poolId);
     setPool(p);
   };
 

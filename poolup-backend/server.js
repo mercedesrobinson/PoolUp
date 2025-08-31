@@ -52,19 +52,50 @@ let db;
       goal_amount_cents INTEGER NOT NULL,
       current_amount_cents INTEGER DEFAULT 0,
       creator_id INTEGER NOT NULL,
+      visual_theme TEXT DEFAULT 'beach_vacation',
       created_at TEXT NOT NULL,
       FOREIGN KEY (creator_id) REFERENCES users (id)
     );
     
-    CREATE TABLE IF NOT EXISTS contributions (
+    CREATE TABLE IF NOT EXISTS user_streaks (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
+      pool_id INTEGER,
+      streak_count INTEGER DEFAULT 0,
+      last_contribution_date TEXT,
+      longest_streak INTEGER DEFAULT 0,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users (id),
+      FOREIGN KEY (pool_id) REFERENCES pools (id)
+    );
+    
+    CREATE TABLE IF NOT EXISTS badges (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      badge_type TEXT NOT NULL,
+      badge_name TEXT NOT NULL,
+      earned_at TEXT NOT NULL,
+      pool_id INTEGER,
+      FOREIGN KEY (user_id) REFERENCES users (id),
+      FOREIGN KEY (pool_id) REFERENCES pools (id)
+    );
+    
+    CREATE TABLE IF NOT EXISTS pool_milestones (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       pool_id INTEGER NOT NULL,
-      amount_cents INTEGER NOT NULL,
-      payment_method TEXT DEFAULT 'manual',
-      bank_account_id TEXT,
-      transaction_id TEXT,
-      status TEXT DEFAULT 'pending',
+      milestone_percentage INTEGER NOT NULL,
+      reached_at TEXT,
+      celebration_unlocked BOOLEAN DEFAULT 0,
+      FOREIGN KEY (pool_id) REFERENCES pools (id)
+    );
+    
+    CREATE TABLE IF NOT EXISTS user_streaks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      pool_id INTEGER,
+      streak_count INTEGER DEFAULT 0,
+      last_contribution_date TEXT,
+      longest_streak INTEGER DEFAULT 0,
       created_at TEXT NOT NULL,
       FOREIGN KEY (user_id) REFERENCES users (id),
       FOREIGN KEY (pool_id) REFERENCES pools (id)
@@ -154,6 +185,10 @@ app.post('/api/google-user', async (req, res) => {
 
 // Use banking API routes with auth middleware
 app.use('/api', authMiddleware, bankingRoutes);
+
+// Use gamification routes
+const gamificationRoutes = require('./gamification');
+app.use('/api/gamification', gamificationRoutes);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

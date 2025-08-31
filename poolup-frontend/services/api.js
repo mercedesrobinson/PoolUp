@@ -174,20 +174,6 @@ export const api = {
     return response.json();
   },
 
-  async createPool(ownerId, name, goalCents, destination, tripDate, poolType = 'group') {
-    const res = await fetch(`${BASE_URL}/api/pools`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ownerId, name, goalCents, destination, tripDate, poolType })
-    });
-    return res.json();
-  },
-
-  // Solo savings
-  getPublicSoloPools: async (limit = 20) => {
-    const response = await fetch(`${BASE_URL}/api/pools/solo/public?limit=${limit}`);
-    return response.json();
-  },
 
   getStreakLeaderboard: async (limit = 20) => {
     const response = await fetch(`${BASE_URL}/api/leaderboard/streaks?limit=${limit}`);

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { colors, radius } from '../theme';
-import { api } from '../services/api';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { createPool } from '../services/api';
+import VisualThemeSelector from '../components/VisualThemeSelector';
 
 export default function CreatePool({ navigation, route }){
   const { user } = route.params;
@@ -10,6 +11,7 @@ export default function CreatePool({ navigation, route }){
   const [destination, setDestination] = useState('');
   const [tripDate, setTripDate] = useState('');
   const [poolType, setPoolType] = useState(route.params?.poolType || 'group');
+  const [visualTheme, setVisualTheme] = useState('beach_vacation');
 
   const create = async ()=>{
     try {
@@ -17,7 +19,7 @@ export default function CreatePool({ navigation, route }){
       const goal = Math.round(parseFloat(goalCents) * 100);
       if(goal <= 0) return Alert.alert('Error','Valid goal amount required');
       
-      await api.createPool(user.id, name.trim(), goal, destination.trim(), tripDate, poolType);
+      await createPool(user.id, name.trim(), goal, destination.trim(), tripDate, poolType, visualTheme);
       const successMessage = poolType === 'solo' 
         ? 'Solo goal created! 🎯\n\n• Personal challenges activated\n• Public encouragement enabled\n• Streak tracking started'
         : 'Pool created with gamification features! 🎉\n\n• Challenges activated\n• Unlockables ready\n• Leaderboard initialized';
@@ -30,7 +32,7 @@ export default function CreatePool({ navigation, route }){
   };
 
   return (
-    <ScrollView style={{ flex:1, backgroundColor:'#FAFCFF' }}>
+    <ScrollView style={styles.container}>
       <View style={{ padding: 24 }}>
         <View style={{ marginBottom: 20 }}>
           <Text style={{ fontSize:18, fontWeight:'700', color: colors.text, marginBottom:12 }}>Pool Type</Text>
@@ -85,6 +87,12 @@ export default function CreatePool({ navigation, route }){
           keyboardType="numeric" 
           style={{ backgroundColor:'white', padding:16, borderRadius:radius, marginBottom:18, fontSize:16 }} 
           placeholder="1000" 
+        />
+
+        <VisualThemeSelector 
+          selectedTheme={visualTheme}
+          onThemeSelect={setVisualTheme}
+          goalType={name}
         />
 
         <Text style={{ fontSize:18, fontWeight:'700', color: colors.text, marginBottom:8 }}>
