@@ -1,6 +1,12 @@
 const API_BASE = 'http://localhost:3000/api';
 const BASE_URL = 'http://localhost:3000/api';
 
+// Get current user ID from storage
+const getCurrentUserId = () => {
+  // For development, use a default user ID
+  return '1756612920173';
+};
+
 // API service for PoolUp
 export const api = {
   // Guest user creation
@@ -78,13 +84,17 @@ export const api = {
   },
 
   listPools: async (userId) => {
-    const response = await fetch(`${API_BASE}/pools?userId=${userId}`);
+    const response = await fetch(`${API_BASE}/pools?userId=${userId}`, {
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
     return response.json();
   },
 
   getUserProfile: async (userId) => {
     try {
-      const response = await fetch(`${API_BASE}/users/${userId}/profile`);
+      const response = await fetch(`${API_BASE}/users/${userId}/profile`, {
+        headers: { 'x-user-id': getCurrentUserId() }
+      });
       if (!response.ok) throw new Error('Profile not found');
       return response.json();
     } catch (error) {
@@ -104,7 +114,9 @@ export const api = {
 
   getUserBadges: async (userId) => {
     try {
-      const response = await fetch(`${API_BASE}/users/${userId}/badges`);
+      const response = await fetch(`${API_BASE}/users/${userId}/badges`, {
+        headers: { 'x-user-id': getCurrentUserId() }
+      });
       if (!response.ok) throw new Error('Badges not found');
       return response.json();
     } catch (error) {
@@ -239,17 +251,21 @@ export const api = {
   },
 
   async listPools(userId) {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/pools`);
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/pools`, {
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
     return res.json();
   },
 
   async getPool(poolId) {
-    const res = await fetch(`${SERVER}/api/pools/${poolId}`);
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}`, {
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
     return res.json();
   },
 
   async contribute(poolId, { userId, amountCents, paymentMethod }) {
-    const res = await fetch(`${SERVER}/api/pools/${poolId}/contributions`, {
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/contributions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, amountCents, paymentMethod })
@@ -258,12 +274,12 @@ export const api = {
   },
 
   async getMessages(poolId) {
-    const res = await fetch(`${SERVER}/api/pools/${poolId}/messages`);
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/messages`);
     return res.json();
   },
 
   async sendMessage(poolId, { userId, body }) {
-    const res = await fetch(`${SERVER}/api/pools/${poolId}/messages`, {
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, body })
@@ -273,33 +289,37 @@ export const api = {
 
   // Gamification APIs
   async getUserProfile(userId) {
-    const res = await fetch(`${SERVER}/api/users/${userId}/profile`);
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/profile`, {
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
     return res.json();
   },
 
   async getUserBadges(userId) {
-    const res = await fetch(`${SERVER}/api/users/${userId}/badges`);
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/badges`, {
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
     return res.json();
   },
 
   async getLeaderboard(poolId) {
-    const res = await fetch(`${SERVER}/api/pools/${poolId}/leaderboard`);
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/leaderboard`);
     return res.json();
   },
 
   async getChallenges(poolId) {
-    const res = await fetch(`${SERVER}/api/pools/${poolId}/challenges`);
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/challenges`);
     return res.json();
   },
 
   async getUnlockables(poolId) {
-    const res = await fetch(`${SERVER}/api/pools/${poolId}/unlockables`);
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/unlockables`);
     return res.json();
   },
 
   // Debit Card APIs
   async createDebitCard(userId, cardHolderName) {
-    const res = await fetch(`${SERVER}/api/users/${userId}/debit-card`, {
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/debit-card`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cardHolderName })
@@ -308,12 +328,12 @@ export const api = {
   },
 
   async getDebitCard(userId) {
-    const res = await fetch(`${SERVER}/api/users/${userId}/debit-card`);
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/debit-card`);
     return res.json();
   },
 
   async processCardTransaction(cardId, amountCents, merchant, category) {
-    const res = await fetch(`${SERVER}/api/debit-card/${cardId}/transaction`, {
+    const res = await fetch(`${BASE_URL}/api/debit-card/${cardId}/transaction`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amountCents, merchant, category })
@@ -322,22 +342,22 @@ export const api = {
   },
 
   async getCardTransactions(userId, limit = 50) {
-    const res = await fetch(`${SERVER}/api/users/${userId}/card-transactions?limit=${limit}`);
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/card-transactions?limit=${limit}`);
     return res.json();
   },
 
   async getTravelPerks(userId) {
-    const res = await fetch(`${SERVER}/api/users/${userId}/travel-perks`);
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/travel-perks`);
     return res.json();
   },
 
   async getSpendingInsights(userId, days = 30) {
-    const res = await fetch(`${SERVER}/api/users/${userId}/spending-insights?days=${days}`);
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/spending-insights?days=${days}`);
     return res.json();
   },
 
   async toggleCardStatus(cardId, userId) {
-    const res = await fetch(`${SERVER}/api/debit-card/${cardId}/toggle`, {
+    const res = await fetch(`${BASE_URL}/api/debit-card/${cardId}/toggle`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId })
@@ -346,7 +366,7 @@ export const api = {
   },
 
   async processForfeit(poolId, userId, reason, amount) {
-    const res = await fetch(`${SERVER}/api/pools/${poolId}/forfeit`, {
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/forfeit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, reason, amount })
@@ -355,7 +375,7 @@ export const api = {
   },
 
   async peerBoost(poolId, boosterUserId, targetUserId, amountCents) {
-    const res = await fetch(`${SERVER}/api/pools/${poolId}/peer-boost`, {
+    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/peer-boost`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ boosterUserId, targetUserId, amountCents })
@@ -364,7 +384,7 @@ export const api = {
   },
 
   async calculateInterest(userId) {
-    const res = await fetch(`${SERVER}/api/users/${userId}/calculate-interest`, {
+    const res = await fetch(`${BASE_URL}/api/users/${userId}/calculate-interest`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     });

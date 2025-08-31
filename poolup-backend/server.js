@@ -83,7 +83,7 @@ app.get('/api/test', (req, res) => {
 });
 
 // Guest user creation
-app.post('/api/guest', async (req, res) => {
+app.post('/api/auth/guest', async (req, res) => {
   try {
     const { name } = req.body;
     const result = await db.run(
@@ -104,7 +104,7 @@ app.post('/api/guest', async (req, res) => {
 });
 
 // Google user creation/login
-app.post('/api/google-user', async (req, res) => {
+app.post('/api/auth/google', async (req, res) => {
   try {
     const { id: google_id, name, email, photo } = req.body;
     
@@ -152,7 +152,45 @@ app.post('/api/google-user', async (req, res) => {
   }
 });
 
-// Use banking API routes with auth middleware
+// Add basic API routes first (without auth)
+app.get('/api/users/:userId/profile', async (req, res) => {
+  try {
+    const user = await db.get('SELECT * FROM users WHERE id = ?', [req.params.userId]);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      xp: 150,
+      total_points: 250,
+      current_streak: 3,
+      badge_count: 2,
+      avatar_type: user.avatar_type || 'default',
+      avatar_data: user.avatar_data
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get profile' });
+  }
+});
+
+app.get('/api/users/:userId/badges', async (req, res) => {
+  res.json([
+    { id: 1, name: 'First Contribution', description: 'Made your first pool contribution', icon: '🎯' },
+    { id: 2, name: 'Streak Master', description: '7-day contribution streak', icon: '🔥' }
+  ]);
+});
+
+app.get('/api/users/:userId/pools', async (req, res) => {
+  try {
+    const pools = await db.all('SELECT * FROM pools WHERE creator_id = ?', [req.params.userId]);
+    res.json(pools);
+  } catch (error) {
+    res.json([]);
+  }
+});
+
+// Use banking API routes with auth middleware for protected routes
 app.use('/api', authMiddleware, bankingRoutes);
 
 const PORT = process.env.PORT || 3000;
