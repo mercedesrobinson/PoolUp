@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Share, Clipboard, Alert, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Share, Clipboard, Alert, ScrollView, Linking } from 'react-native';
 import { colors, radius } from '../theme';
 import { api } from '../services/api';
 
@@ -17,7 +17,7 @@ export default function InviteFriends({ navigation, route }) {
     setIsGenerating(true);
     try {
       const code = await api.generateInviteCode(poolId);
-      setInviteCode(code);
+      setInviteCode(code || '');
     } catch (error) {
       // Generate mock invite code for development
       const mockCode = `POOL${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
@@ -27,16 +27,26 @@ export default function InviteFriends({ navigation, route }) {
   };
 
   const shareInvite = async () => {
+    if (!inviteCode) {
+      Alert.alert('Error', 'Invite code not ready. Please wait a moment and try again.');
+      return;
+    }
+    
     const inviteUrl = `https://poolup.app/join/${inviteCode}`;
     const message = `🎯 Join my savings pool "${poolName}"! Let's save together and reach our goals faster.\n\nUse code: ${inviteCode}\nOr click: ${inviteUrl}\n\n💰 PoolUp - Save together, travel together!`;
     
     try {
-      await Share.share({
-        message,
+      const result = await Share.share({
+        message: message,
         title: `Join ${poolName} on PoolUp!`
       });
+      
+      if (result.action === Share.sharedAction) {
+        console.log('Successfully shared');
+      }
     } catch (error) {
       console.error('Error sharing:', error);
+      Alert.alert('Error', 'Could not share invite. Please try again.');
     }
   };
 
@@ -46,24 +56,31 @@ export default function InviteFriends({ navigation, route }) {
     Alert.alert('Copied!', 'Invite link copied to clipboard');
   };
 
-  const sendSMSInvite = () => {
-    const inviteUrl = `https://poolup.app/join/${inviteCode}`;
-    const message = `Join my savings pool "${poolName}" on PoolUp! Use code ${inviteCode} or visit ${inviteUrl}`;
-    const smsUrl = `sms:?body=${encodeURIComponent(message)}`;
-    
-    // This would open the SMS app with pre-filled message
-    console.log('SMS URL:', smsUrl);
-    Alert.alert('SMS Invite', 'Opening SMS app with invite message...');
+  const sendSMSInvite = async () => {
+    try {
+      const inviteUrl = `https://poolup.app/join/${inviteCode}`;
+      const message = `Join my savings pool "${poolName}" on PoolUp! Use code ${inviteCode} or visit ${inviteUrl}`;
+      const smsUrl = `sms:?body=${encodeURIComponent(message)}`;
+      
+      await Linking.openURL(smsUrl);
+    } catch (error) {
+      console.error('Error opening SMS:', error);
+      Alert.alert('Error', 'Could not open SMS app. Please try sharing via other methods.');
+    }
   };
 
-  const sendEmailInvite = () => {
-    const inviteUrl = `https://poolup.app/join/${inviteCode}`;
-    const subject = `Join my savings pool: ${poolName}`;
-    const body = `Hi!\n\nI'm using PoolUp to save for ${poolName} and I'd love for you to join me!\n\nPoolUp makes saving fun with friends - we can track our progress together, celebrate milestones, and keep each other motivated.\n\nJoin my pool:\n• Use invite code: ${inviteCode}\n• Or visit: ${inviteUrl}\n\nLet's reach our savings goals together! 🎯\n\nCheers!`;
-    
-    const emailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    console.log('Email URL:', emailUrl);
-    Alert.alert('Email Invite', 'Opening email app with invite message...');
+  const sendEmailInvite = async () => {
+    try {
+      const inviteUrl = `https://poolup.app/join/${inviteCode}`;
+      const subject = `Join my savings pool: ${poolName}`;
+      const body = `Hi!\n\nI'm using PoolUp to save for ${poolName} and I'd love for you to join me!\n\nPoolUp makes saving fun with friends - we can track our progress together, celebrate milestones, and keep each other motivated.\n\nJoin my pool:\n• Use invite code: ${inviteCode}\n• Or visit: ${inviteUrl}\n\nLet's reach our savings goals together! 🎯\n\nCheers!`;
+      
+      const emailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      await Linking.openURL(emailUrl);
+    } catch (error) {
+      console.error('Error opening email:', error);
+      Alert.alert('Error', 'Could not open email app. Please try sharing via other methods.');
+    }
   };
 
   return (

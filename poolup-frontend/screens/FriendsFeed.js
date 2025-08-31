@@ -306,7 +306,7 @@ export default function FriendsFeed({ navigation, route }) {
             </Text>
           </View>
         ) : (
-          activities.map(renderActivity)
+          Array.isArray(activities) ? activities.map(renderActivity) : null
         )}
       </ScrollView>
     </SafeAreaView>

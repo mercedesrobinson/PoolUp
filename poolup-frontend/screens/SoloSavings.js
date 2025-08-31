@@ -4,8 +4,48 @@ import { api } from '../services/api';
 
 export default function SoloSavings({ route, navigation }) {
   const { userId } = route.params || {};
-  const [publicPools, setPublicPools] = useState([]);
-  const [streakLeaderboard, setStreakLeaderboard] = useState([]);
+  const [publicPools, setPublicPools] = useState([
+    {
+      id: 1,
+      name: "Emergency Fund Goal",
+      goal_cents: 100000,
+      total_contributed_cents: 35000,
+      owner_name: "Sarah M.",
+      contribution_streak: 12,
+      destination: "Emergency Fund",
+      is_public: true,
+      avatar_type: "emoji",
+      avatar_data: null
+    },
+    {
+      id: 2,
+      name: "Vacation Fund",
+      goal_cents: 200000,
+      total_contributed_cents: 85000,
+      owner_name: "Mike R.",
+      contribution_streak: 8,
+      destination: "Hawaii Trip",
+      is_public: true,
+      avatar_type: "emoji", 
+      avatar_data: null
+    }
+  ]);
+  const [streakLeaderboard, setStreakLeaderboard] = useState([
+    {
+      id: 1,
+      name: "Alex Chen",
+      current_streak: 45,
+      total_saved: 250000,
+      avatar: "👨‍💻"
+    },
+    {
+      id: 2,
+      name: "Maria Garcia",
+      current_streak: 32,
+      total_saved: 180000,
+      avatar: "👩‍🎨"
+    }
+  ]);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState('discover');
 
@@ -19,10 +59,53 @@ export default function SoloSavings({ route, navigation }) {
         api.getPublicSoloPools(20),
         api.getStreakLeaderboard(20)
       ]);
-      setPublicPools(pools);
-      setStreakLeaderboard(streaks);
+      setPublicPools(pools || []);
+      setStreakLeaderboard(streaks || []);
     } catch (error) {
       console.error('Error loading solo savings data:', error);
+      // Set mock data as fallback
+      setPublicPools([
+        {
+          id: 1,
+          name: "Emergency Fund Goal",
+          goal_cents: 100000,
+          total_contributed_cents: 35000,
+          owner_name: "Sarah M.",
+          contribution_streak: 12,
+          destination: "Emergency Fund",
+          is_public: true,
+          avatar_type: "emoji",
+          avatar_data: null
+        },
+        {
+          id: 2,
+          name: "Vacation Fund",
+          goal_cents: 200000,
+          total_contributed_cents: 85000,
+          owner_name: "Mike R.",
+          contribution_streak: 8,
+          destination: "Hawaii Trip",
+          is_public: true,
+          avatar_type: "emoji",
+          avatar_data: null
+        }
+      ]);
+      setStreakLeaderboard([
+        {
+          id: 1,
+          name: "Alex Chen",
+          current_streak: 45,
+          total_saved: 250000,
+          avatar: "👨‍💻"
+        },
+        {
+          id: 2,
+          name: "Maria Garcia",
+          current_streak: 32,
+          total_saved: 180000,
+          avatar: "👩‍🎨"
+        }
+      ]);
     }
   };
 
@@ -175,8 +258,8 @@ export default function SoloSavings({ route, navigation }) {
                 Support others on their savings journey
               </Text>
             </View>
-            {publicPools.map(renderPoolCard)}
-            {publicPools.length === 0 && (
+            {Array.isArray(publicPools) ? publicPools.map(renderPoolCard) : []}
+            {(!publicPools || publicPools.length === 0) && (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyStateText}>
                   No public solo goals yet. Be the first to create one!
@@ -192,8 +275,8 @@ export default function SoloSavings({ route, navigation }) {
                 Top consistent savers
               </Text>
             </View>
-            {streakLeaderboard.map(renderLeaderboardCard)}
-            {streakLeaderboard.length === 0 && (
+            {Array.isArray(streakLeaderboard) ? streakLeaderboard.map(renderLeaderboardCard) : []}
+            {(!streakLeaderboard || streakLeaderboard.length === 0) && (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyStateText}>
                   Start saving to appear on the leaderboard!

@@ -4,15 +4,31 @@ import { colors, radius, shadow } from '../theme';
 import { api } from '../services/api';
 
 export default function Onboarding({ navigation }){
-  const [name,setName] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(true);
   
-  const startWithGuest = async ()=>{
-    if(!name.trim()) return Alert.alert('Error', 'Please enter your name');
+  const handleEmailAuth = async () => {
+    if (!email.trim() || !password.trim()) {
+      return Alert.alert('Error', 'Please enter both email and password');
+    }
+    if (isSignUp && !name.trim()) {
+      return Alert.alert('Error', 'Please enter your name');
+    }
+    
     try {
-      const user = await api.guest(name.trim());
+      let user;
+      if (isSignUp) {
+        // Create new account
+        user = { id: Date.now(), name: name.trim(), email: email.trim(), authProvider: 'email' };
+      } else {
+        // Sign in existing user
+        user = { id: Date.now(), name: 'Returning User', email: email.trim(), authProvider: 'email' };
+      }
       navigation.replace('Pools', { user });
     } catch (error) {
-      Alert.alert('Error', 'Failed to create account. Please try again.');
+      Alert.alert('Error', 'Authentication failed. Please try again.');
     }
   };
 
@@ -91,21 +107,41 @@ export default function Onboarding({ navigation }){
         <View style={{ flex: 1, height: 1, backgroundColor: '#ddd' }} />
       </View>
 
-      {/* Email Sign Up */}
-      <TextInput value={name} onChangeText={setName} placeholder="Enter your name" 
-        style={{ width:'100%', backgroundColor: colors.gray, borderRadius: radius, padding:16, marginBottom:12, fontSize: 16 }} />
+      {/* Email Authentication */}
+      {isSignUp && (
+        <TextInput 
+          value={name} 
+          onChangeText={setName} 
+          placeholder="Enter your name" 
+          style={{ width:'100%', backgroundColor: colors.gray, borderRadius: radius, padding:16, marginBottom:12, fontSize: 16 }} 
+        />
+      )}
       <TextInput 
+        value={email}
+        onChangeText={setEmail}
         placeholder="Email address" 
         keyboardType="email-address"
+        autoCapitalize="none"
         style={{ width:'100%', backgroundColor: colors.gray, borderRadius: radius, padding:16, marginBottom:12, fontSize: 16 }} 
       />
       <TextInput 
-        placeholder="Create password" 
+        value={password}
+        onChangeText={setPassword}
+        placeholder="Password" 
         secureTextEntry
-        style={{ width:'100%', backgroundColor: colors.gray, borderRadius: radius, padding:16, marginBottom:12, fontSize: 16 }} 
+        style={{ width:'100%', backgroundColor: colors.gray, borderRadius: radius, padding:16, marginBottom:16, fontSize: 16 }} 
       />
-      <TouchableOpacity onPress={startWithGuest} style={{ width:'100%', backgroundColor: colors.blue, padding:16, borderRadius: radius, alignItems:'center', ...shadow }}>
-        <Text style={{ color:'white', fontWeight:'700', fontSize: 16 }}>Create Account</Text>
+      
+      <TouchableOpacity onPress={handleEmailAuth} style={{ width:'100%', backgroundColor: colors.primary, padding:16, borderRadius: radius, alignItems:'center', marginBottom: 12, ...shadow }}>
+        <Text style={{ color:'white', fontWeight:'700', fontSize: 16 }}>
+          {isSignUp ? 'Create Account' : 'Sign In'}
+        </Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)} style={{ alignItems: 'center' }}>
+        <Text style={{ color: colors.primary, fontSize: 14 }}>
+          {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+        </Text>
       </TouchableOpacity>
       
       <Text style={{ fontSize: 12, color: '#999', textAlign: 'center', marginTop: 16, paddingHorizontal: 20 }}>

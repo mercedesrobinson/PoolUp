@@ -1,5 +1,5 @@
 const API_BASE = 'http://localhost:3000/api';
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = 'http://localhost:3000';
 
 // Get current user ID from storage
 const getCurrentUserId = () => {
@@ -59,7 +59,7 @@ export const api = {
   },
 
   // Pools
-  createPool: async (userId, name, goalCents, destination, tripDate, poolType) => {
+  createPool: async (userId, name, goalCents, destination, tripDate, poolType = 'group', penaltyData = null) => {
     try {
       const response = await fetch(`${API_BASE}/pools`, {
         method: 'POST',
@@ -67,7 +67,7 @@ export const api = {
           'Content-Type': 'application/json',
           'x-user-id': getCurrentUserId()
         },
-        body: JSON.stringify({ userId, name, goalCents, destination, tripDate, poolType }),
+        body: JSON.stringify({ userId, name, goalCents, destination, tripDate, poolType, penalty: penaltyData }),
       });
       if (!response.ok) throw new Error('Failed to create pool');
       return response.json();
@@ -396,13 +396,61 @@ export const api = {
     return res.json();
   },
 
-  async peerBoost(poolId, boosterUserId, targetUserId, amountCents) {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/peer-boost`, {
+  async peerBoost(poolId, fromUserId, toUserId, amountCents) {
+    const response = await fetch(`${BASE_URL}/api/pools/${poolId}/peer-boost`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ boosterUserId, targetUserId, amountCents })
+      body: JSON.stringify({ fromUserId, toUserId, amountCents })
     });
-    return res.json();
+    return response.json();
+  },
+
+  // Payday settings API
+  async getPaydaySettings(userId) {
+    const response = await fetch(`${BASE_URL}/api/users/${userId}/payday-settings`);
+    return response.json();
+  },
+
+  async updatePaydaySettings(userId, settings) {
+    const response = await fetch(`${BASE_URL}/api/users/${userId}/payday-settings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(settings)
+    });
+    return response.json();
+  },
+
+  async getUserStreak(userId) {
+    const response = await fetch(`${BASE_URL}/api/users/${userId}/streak`);
+    return response.json();
+  },
+
+  // Notification API
+  async storePushToken(userId, pushToken) {
+    const response = await fetch(`${BASE_URL}/api/users/${userId}/push-token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pushToken })
+    });
+    return response.json();
+  },
+
+  async updateNotificationPreferences(userId, preferences) {
+    const response = await fetch(`${BASE_URL}/api/users/${userId}/notification-preferences`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(preferences)
+    });
+    return response.json();
+  },
+
+  async sendTestNotification(userId, pushToken) {
+    const response = await fetch(`${BASE_URL}/api/notifications/send-test`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, pushToken })
+    });
+    return response.json();
   },
 
   async calculateInterest(userId) {
@@ -567,6 +615,21 @@ export const api = {
         'x-user-id': getCurrentUserId()
       },
       body: JSON.stringify(settings)
+    });
+    return response.json();
+  },
+
+  // Penalty system APIs
+  async get(endpoint) {
+    const response = await fetch(`${API_BASE}${endpoint}`);
+    return response.json();
+  },
+
+  async post(endpoint, data) {
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
     });
     return response.json();
   }

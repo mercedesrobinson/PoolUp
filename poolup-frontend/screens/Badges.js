@@ -165,18 +165,19 @@ export default function Badges({ navigation, route }) {
             <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 16 }}>
               ✨ Your Badges
             </Text>
-            {earnedBadges.map(badge => (
+            {Array.isArray(earnedBadges) ? earnedBadges.map(badge => (
               <BadgeCard key={badge.id} badge={badge} earned={true} />
-            ))}
+            )) : []}
           </>
         )}
 
         <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 16, marginTop: earnedCount > 0 ? 24 : 0 }}>
           🎯 Available Badges
         </Text>
-        {allBadges.filter(b => !earnedBadges.find(eb => eb.id === b.id)).map(badge => (
-          <BadgeCard key={badge.id} badge={badge} earned={false} />
-        ))}
+        {Array.isArray(allBadges) && Array.isArray(earnedBadges) ? 
+          allBadges.filter(b => !earnedBadges.find(eb => eb.id === b.id)).map(badge => (
+            <BadgeCard key={badge.id} badge={badge} earned={false} />
+          )) : []}
 
         {earnedCount === 0 && (
           <View style={{ backgroundColor: 'white', padding: 24, borderRadius: radius, alignItems: 'center' }}>

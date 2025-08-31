@@ -26,6 +26,15 @@ import RecurringPayments from './screens/RecurringPayments';
 import AccountabilityPartners from './screens/AccountabilityPartners';
 import ProfilePhotoUpload from './screens/ProfilePhotoUpload';
 import Settings from './screens/Settings';
+import PaymentMethods from './screens/PaymentMethods';
+import NotificationSettings from './screens/NotificationSettings';
+import GroupActivity from './screens/GroupActivity';
+// import PaydaySettings from './screens/PaydaySettings';
+// import NotificationSettings from './screens/NotificationSettings';
+// import InteractiveOnboarding from './screens/InteractiveOnboarding';
+// import AppInitializer from './screens/AppInitializer';
+import ProgressSharingSimple from './screens/ProgressSharingSimple';
+import SocialProofSimple from './screens/SocialProofSimple';
 
 // Import theme
 import { colors } from './theme';
@@ -56,6 +65,11 @@ export default function App() {
         <Stack.Screen name="AccountabilityPartners" component={AccountabilityPartners} />
         <Stack.Screen name="ProfilePhotoUpload" component={ProfilePhotoUpload} />
         <Stack.Screen name="Settings" component={Settings} />
+        <Stack.Screen name="PaymentMethods" component={PaymentMethods} />
+        <Stack.Screen name="NotificationSettings" component={NotificationSettings} />
+        <Stack.Screen name="GroupActivity" component={GroupActivity} />
+        <Stack.Screen name="ProgressSharingSimple" component={ProgressSharingSimple} />
+        <Stack.Screen name="SocialProofSimple" component={SocialProofSimple} />
       </Stack.Navigator>
     </NavigationContainer>
   );

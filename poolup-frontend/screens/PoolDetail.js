@@ -96,10 +96,12 @@ export default function PoolDetail({ navigation, route }){
 
   if(!pool) return <View style={{flex:1, backgroundColor: '#FAFCFF'}} />;
 
-  const pct = Math.min(100, Math.round((pool.saved_cents / pool.goal_cents)*100));
+  // Handle pools without goals (open-ended saving)
+  const hasGoal = pool.goal_cents && pool.goal_cents > 0;
+  const pct = hasGoal ? Math.min(100, Math.round((pool.saved_cents / pool.goal_cents)*100)) : 0;
 
   const calculateMonthlySavings = () => {
-    if (!pool) return null;
+    if (!pool || !hasGoal) return null;
     
     const goalAmount = pool.goal_cents / 100;
     const members = pool.members?.length || 1;

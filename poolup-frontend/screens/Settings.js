@@ -154,12 +154,28 @@ export default function Settings({ navigation, route }) {
             subtitle={`${paymentMethods.length} method${paymentMethods.length !== 1 ? 's' : ''} added`}
             onPress={() => navigation.navigate('PaymentMethods')}
           />
-          <SettingItem
-            icon="🔔"
-            title="Notifications"
-            subtitle="Manage your notification preferences"
-            onPress={() => navigation.navigate('NotificationSettings')}
-          />
+          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 20, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#f0f0f0' }} onPress={() => navigation.navigate('NotificationSettings')}>
+            <Text style={{ fontSize: 20, marginRight: 16, width: 24, textAlign: 'center' }}>🔔</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>Notification Settings</Text>
+            </View>
+            <Text style={{ fontSize: 16, color: '#ccc' }}>›</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 20, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#f0f0f0' }} onPress={() => navigation.navigate('ProgressSharingSimple')}>
+            <Text style={{ fontSize: 20, marginRight: 16, width: 24, textAlign: 'center' }}>📱</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>Share Progress</Text>
+            </View>
+            <Text style={{ fontSize: 16, color: '#ccc' }}>›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 20, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#f0f0f0' }} onPress={() => navigation.navigate('SocialProofSimple')}>
+            <Text style={{ fontSize: 20, marginRight: 16, width: 24, textAlign: 'center' }}>🌟</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>Community</Text>
+            </View>
+            <Text style={{ fontSize: 16, color: '#ccc' }}>›</Text>
+          </TouchableOpacity>
           <SettingItem
             icon="🔒"
             title="Privacy & Security"
@@ -194,6 +210,44 @@ export default function Settings({ navigation, route }) {
             subtitle="Configure missed contribution penalties"
             onPress={() => navigation.navigate('PenaltySettings')}
           />
+          <TouchableOpacity 
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingVertical: 16,
+              paddingHorizontal: 20,
+              backgroundColor: 'white',
+              borderBottomWidth: 1,
+              borderBottomColor: '#f0f0f0'
+            }}
+            onPress={() => navigation.navigate('PaydaySettings', { user })}
+          >
+            <Text style={{ fontSize: 20, marginRight: 16, width: 24, textAlign: 'center' }}>🔥</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>Payday & Streaks</Text>
+              <Text style={{ fontSize: 14, color: '#666', marginTop: 2 }}>Set your pay schedule for smart streak tracking</Text>
+            </View>
+            <Text style={{ fontSize: 16, color: '#ccc' }}>›</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingVertical: 16,
+              paddingHorizontal: 20,
+              backgroundColor: 'white',
+              borderBottomWidth: 1,
+              borderBottomColor: '#f0f0f0'
+            }}
+            onPress={() => navigation.navigate('NotificationSettings', { user })}
+          >
+            <Text style={{ fontSize: 20, marginRight: 16, width: 24, textAlign: 'center' }}>🔔</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>Notifications</Text>
+              <Text style={{ fontSize: 14, color: '#666', marginTop: 2 }}>Customize your reminders and alerts</Text>
+            </View>
+            <Text style={{ fontSize: 16, color: '#ccc' }}>›</Text>
+          </TouchableOpacity>
         </View>
 
         <SectionHeader title="Social" />

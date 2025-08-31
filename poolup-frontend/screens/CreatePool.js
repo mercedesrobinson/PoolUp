@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { colors, radius } from '../theme';
-import { api } from '../services/api';
+import api from '../services/api';
+import CustomCalendar from '../components/CustomCalendar';
 
 export default function CreatePool({ navigation, route }){
   const { user } = route.params;
@@ -9,6 +10,10 @@ export default function CreatePool({ navigation, route }){
   const [goalCents, setGoalCents] = useState('');
   const [destination, setDestination] = useState('');
   const [tripDate, setTripDate] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [calculatorKey, setCalculatorKey] = useState(0);
+  const [enablePenalty, setEnablePenalty] = useState(false);
+  const [penaltyPercentage, setPenaltyPercentage] = useState('');
   const [poolType, setPoolType] = useState(route.params?.poolType || 'group');
   const [savingPurpose, setSavingPurpose] = useState('');
   const [customPurpose, setCustomPurpose] = useState('');
@@ -22,24 +27,40 @@ export default function CreatePool({ navigation, route }){
       // Major US Cities
       'detroit': "🎵 Detroit is the birthplace of Motown! Berry Gordy Jr. founded Motown Records here in 1959, launching legends like Stevie Wonder, Diana Ross, and The Jackson 5.",
       'new york': "🗽 NYC has over 800 languages spoken—it's the most linguistically diverse city in the world!",
+      'nyc': "🗽 NYC has over 800 languages spoken—it's the most linguistically diverse city in the world!",
       'los angeles': "🌟 LA produces more entertainment content than anywhere else on Earth—you might spot a celebrity!",
+      'la': "🌟 LA produces more entertainment content than anywhere else on Earth—you might spot a celebrity!",
       'chicago': "🏗️ Chicago invented the skyscraper! The Home Insurance Building (1885) was the world's first.",
       'miami': "🏖️ Miami Beach's Art Deco District has the world's largest collection of Art Deco architecture!",
-      'las vegas': "🎰 Vegas uses more electricity per capita than anywhere in the US—all those neon lights!",
+      'las vegas': "🎰 Vegas has more neon signs than anywhere else—the city uses enough electricity to power 1.3 million homes!",
       'san francisco': "🌉 The Golden Gate Bridge's International Orange color was chosen to enhance visibility in fog!",
       'seattle': "☕ Seattle has more coffee shops per capita than any other US city—caffeine paradise!",
       'austin': "🎸 Austin's slogan 'Keep Austin Weird' started as a bumper sticker to support local businesses!",
       'nashville': "🎤 Nashville's Grand Ole Opry is the longest-running radio show in history (since 1925)!",
+      'orlando': "🎢 Orlando is home to more theme parks than anywhere else on Earth—the ultimate fun destination!",
+      'new orleans': "🎷 New Orleans is the birthplace of jazz music and has the most festivals of any US city!",
       
       // International Destinations
       'tokyo': "🍣 Tokyo has more Michelin-starred restaurants than any other city in the world!",
       'paris': "🥐 Paris has over 400 parks and gardens—perfect for picnics with fresh croissants!",
-      'london': "☂️ London's red double-decker buses were originally painted different colors for different routes!",
+      'london': "☂️ London has more green space than any other major city—over 40% is parks and gardens!",
       'rome': "🏛️ Rome has more fountains than any other city—legend says tossing a coin in Trevi guarantees your return!",
       'barcelona': "🏛️ Gaudí's Sagrada Família has been under construction for over 140 years and counting!",
       'amsterdam': "🚲 Amsterdam has more bikes than residents—over 880,000 bicycles for 820,000 people!",
+      'cartagena': "🏰 Colombia's Cartagena has the most complete colonial walled city in South America—pure magic!",
+      'dubai': "🏗️ Dubai built the world's tallest building, largest mall, and biggest fountain—city of superlatives!",
+      'cancun': "🏖️ Mexico's Cancun sits on the world's second-largest coral reef system—underwater paradise!",
+      'bali': "🌺 Indonesia's Bali has over 20,000 temples and is known as the 'Island of the Gods'!",
+      'phuket': "🏝️ Thailand's Phuket has 32 beaches and the most beautiful sunsets in Southeast Asia!",
+      'maldives': "🐠 The Maldives has 1,192 coral islands and the clearest water on Earth—pure paradise!",
+      'santorini': "🌅 Greece's Santorini has the most spectacular sunsets and blue-domed churches in the world!",
+      'ibiza': "🎵 Spain's Ibiza is a UNESCO World Heritage site with the best electronic music scene globally!",
+      'rio de janeiro': "🎭 Brazil's Rio has the world's largest carnival celebration and most beautiful beaches!",
+      'bangkok': "🛺 Thailand's Bangkok has the most street food vendors and golden temples of any city!",
+      'machu picchu': "🏔️ Peru's Machu Picchu is one of the New Seven Wonders and sits 8,000 feet above sea level!",
+      'cape town': "🐧 South Africa's Cape Town is the only city where you can see penguins and go wine tasting!",
+      'accra': "🌟 Ghana's Accra is known as the Gateway to Africa with incredible hospitality and rich cultural heritage!",
       'thailand': "🐘 Thailand is home to over 3,000 elephants and has more Buddhist temples than any other country!",
-      'bali': "🌺 Bali has over 20,000 temples and is known as the 'Island of the Gods'!",
       'iceland': "🌋 Iceland runs almost entirely on renewable energy from geothermal and hydroelectric sources!",
       'japan': "🌸 Japan has a 99% literacy rate and vending machines that sell everything from hot coffee to fresh flowers!",
       'mexico': "🌮 Mexico gave the world chocolate, vanilla, and tomatoes—imagine Italian food without tomatoes!",
@@ -72,16 +93,46 @@ export default function CreatePool({ navigation, route }){
   const calculateMonthlySavings = () => {
     const goalAmount = parseFloat(goalCents) || 0;
     const members = poolType === 'solo' ? 1 : parseInt(expectedMembers) || 1;
-    const targetDate = tripDate ? new Date(tripDate) : null;
+    let targetDate = null;
+    let isValidDate = false;
+    
+    if (tripDate && tripDate.trim()) {
+      // Try to parse US format first (Month Day, Year)
+      targetDate = new Date(tripDate);
+      
+      // If invalid, try different parsing approaches
+      if (isNaN(targetDate.getTime())) {
+        // Try with explicit formatting
+        const cleanDate = tripDate.replace(/(\w+)\s+(\d+),\s+(\d+)/, '$1 $2, $3');
+        targetDate = new Date(cleanDate);
+        
+        // If still invalid, try MM/DD/YYYY format
+        if (isNaN(targetDate.getTime())) {
+          const parts = tripDate.split(/[\/\-\s,]+/);
+          if (parts.length >= 3) {
+            // Assume MM/DD/YYYY or similar
+            const month = parseInt(parts[0]) - 1; // Month is 0-indexed
+            const day = parseInt(parts[1]);
+            const year = parseInt(parts[2]);
+            targetDate = new Date(year, month, day);
+          }
+        }
+      }
+      
+      // Check if we have a valid future date
+      if (!isNaN(targetDate.getTime()) && targetDate > new Date()) {
+        isValidDate = true;
+      }
+    }
     
     if (goalAmount <= 0 || members <= 0) return null;
     
-    let monthsRemaining = 12; // Default to 12 months if no date
-    if (targetDate) {
-      const today = new Date();
-      const diffTime = targetDate.getTime() - today.getTime();
-      monthsRemaining = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30.44))); // Average days per month
-    }
+    // Only show calculator if we have a valid target date
+    if (!isValidDate || !targetDate) return null;
+    
+    const today = new Date();
+    const diffTime = targetDate.getTime() - today.getTime();
+    const monthsRemaining = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30.44))); // Average days per month
     
     const perPersonPerMonth = goalAmount / members / monthsRemaining;
     
@@ -90,7 +141,8 @@ export default function CreatePool({ navigation, route }){
       members: members,
       monthsRemaining: monthsRemaining,
       perPersonPerMonth: perPersonPerMonth,
-      targetDate: targetDate
+      targetDate: targetDate,
+      isValidDate: isValidDate
     };
   };
 
@@ -107,15 +159,37 @@ export default function CreatePool({ navigation, route }){
   const create = async ()=>{
     try {
       if(!name.trim()) return Alert.alert('Error','Pool name required');
-      const goal = Math.round(parseFloat(goalCents) * 100);
-      if(goal <= 0) return Alert.alert('Error','Valid goal amount required');
       
-      console.log('Creating pool with data:', { userId: user.id, name: name.trim(), goal, destination: destination.trim(), tripDate, poolType });
-      const result = await api.createPool(user.id, name.trim(), goal, destination.trim(), tripDate, poolType);
+      // Allow pools without goal amounts (open-ended saving)
+      let goal = 0;
+      if (goalCents && goalCents.trim()) {
+        goal = Math.round(parseFloat(goalCents) * 100);
+        if(goal < 0) return Alert.alert('Error','Goal amount cannot be negative');
+      }
+      
+      const penaltyData = enablePenalty ? {
+        enabled: true,
+        percentage: parseFloat(penaltyPercentage) || 5,
+        requiresConsensus: poolType === 'group'
+      } : { enabled: false };
+
+      console.log('Creating pool with data:', { 
+        userId: user.id, 
+        name: name.trim(), 
+        goal, 
+        destination: destination.trim(), 
+        tripDate, 
+        poolType,
+        penalty: penaltyData
+      });
+      
+      const result = await api.createPool(user.id, name.trim(), goal, destination.trim(), tripDate, poolType, penaltyData);
       console.log('Pool creation result:', result);
       const successMessage = poolType === 'solo' 
         ? 'Solo goal created! 🎯\n\n• Personal challenges activated\n• Public encouragement enabled\n• Streak tracking started'
-        : 'Pool created with gamification features! 🎉\n\n• Challenges activated\n• Unlockables ready\n• Leaderboard initialized';
+        : goal > 0 
+          ? 'Pool created with gamification features! 🎉\n\n• Challenges activated\n• Unlockables ready\n• Leaderboard initialized'
+          : 'Open savings pot created! 💰\n\n• No goal limit - save as much as you want\n• Perfect for flexible group saving\n• Add contributions anytime';
       Alert.alert('Success!', successMessage, [
         {
           text: 'OK',
@@ -352,18 +426,27 @@ export default function CreatePool({ navigation, route }){
         <TextInput 
           value={name} 
           onChangeText={setName} 
-          style={{ backgroundColor:'white', padding:16, borderRadius:radius, marginBottom:18, fontSize:16 }} 
-          placeholder="e.g. Tokyo Trip 2024" 
+          style={{ backgroundColor:'white', padding:16, borderRadius:radius, marginBottom:24, fontSize:16 }} 
+          placeholder={poolType === 'solo' ? 'My Savings Goal' : 'Barcelona Trip'} 
         />
-        
-        <Text style={{ fontSize:18, fontWeight:'700', color: colors.text, marginBottom:8 }}>Goal Amount</Text>
+
+        <Text style={{ fontSize:18, fontWeight:'700', color: colors.text, marginBottom:8 }}>
+          💰 Goal Amount (Optional)
+        </Text>
         <TextInput 
           value={goalCents} 
-          onChangeText={setGoalCents} 
+          onChangeText={(text) => {
+            setGoalCents(text);
+            // Force calculator re-render when goal changes
+            setCalculatorKey(prev => prev + 1);
+          }} 
           keyboardType="numeric" 
-          style={{ backgroundColor:'white', padding:16, borderRadius:radius, marginBottom:18, fontSize:16 }} 
+          style={{ backgroundColor:'white', padding:16, borderRadius:radius, marginBottom:6, fontSize:16 }} 
           placeholder="1000" 
         />
+        <Text style={{ fontSize:12, color:'#666', marginBottom:18 }}>
+          Leave blank for open-ended saving (no goal limit)
+        </Text>
 
         {poolType === 'group' && (
           <View style={{ marginBottom: 20 }}>
@@ -386,12 +469,8 @@ export default function CreatePool({ navigation, route }){
                   fontSize: 12,
                   fontWeight: '600',
                   color: enableCalculator ? 'white' : colors.textSecondary,
-                  marginRight: 4
                 }}>
                   {enableCalculator ? 'ON' : 'OFF'}
-                </Text>
-                <Text style={{ fontSize: 10 }}>
-                  {enableCalculator ? '✅' : '⚪'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -402,19 +481,25 @@ export default function CreatePool({ navigation, route }){
             
             {enableCalculator && (
               <>
-                <Text style={{ fontSize:16, fontWeight:'600', color: colors.text, marginBottom:8 }}>Expected Group Size</Text>
+                <Text style={{ fontSize:16, fontWeight:'600', color: colors.text, marginBottom:8 }}>
+                  Expected Group Size
+                </Text>
                 <TextInput 
                   value={expectedMembers} 
-                  onChangeText={setExpectedMembers} 
+                  onChangeText={(text) => {
+                    setExpectedMembers(text);
+                    // Force calculator re-render when group size changes
+                    setCalculatorKey(prev => prev + 1);
+                  }} 
                   keyboardType="numeric" 
-                  style={{ backgroundColor:'white', padding:16, borderRadius:radius, marginBottom:12, fontSize:16 }} 
-                  placeholder="7" 
+                  style={{ backgroundColor:'white', padding:16, borderRadius:radius, marginBottom:18, fontSize:16 }} 
+                  placeholder="6" 
                 />
-                <Text style={{ fontSize:12, color:'#666', marginBottom:16 }}>
-                  💡 This helps us calculate monthly contributions—don't worry if it changes later!
-                </Text>
               </>
             )}
+            <Text style={{ fontSize:12, color:'#666', marginBottom:16 }}>
+              💡 This helps us calculate monthly contributions—don't worry if it changes later!
+            </Text>
           </View>
         )}
 
@@ -448,32 +533,124 @@ export default function CreatePool({ navigation, route }){
         )}
 
         <Text style={{ fontSize:18, fontWeight:'700', color: colors.text, marginBottom:8 }}>
-          📅 Trip Date (Optional)
+          📅 Target Date (Optional)
         </Text>
-        <TextInput 
-          value={tripDate} 
-          onChangeText={setTripDate} 
-          style={{ backgroundColor:'white', padding:16, borderRadius:radius, marginBottom:24, fontSize:16 }} 
-          placeholder="e.g. 2024-12-25" 
-        />
-        <Text style={{ fontSize:12, color:'#666', marginBottom:24, marginTop:-18 }}>
-          Format: YYYY-MM-DD
-        </Text>
+        <TouchableOpacity 
+          onPress={() => setShowDatePicker(true)}
+          style={{ 
+            backgroundColor:'white', 
+            padding:16, 
+            borderRadius:radius, 
+            marginBottom:24, 
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderWidth: 1,
+            borderColor: '#e0e0e0'
+          }}
+        >
+          <Text style={{ fontSize:16, color: tripDate ? colors.text : '#999' }}>
+            {tripDate ? new Date(tripDate).toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            }) : 'Tap to select target date'}
+          </Text>
+          <Text style={{ fontSize: 16, color: '#999' }}>📅</Text>
+        </TouchableOpacity>
+        
+        {showDatePicker && (
+          <CustomCalendar
+            onDateSelect={(date) => {
+              setTripDate(date.toISOString());
+              setShowDatePicker(false);
+              setCalculatorKey(prev => prev + 1);
+            }}
+            onClose={() => setShowDatePicker(false)}
+            initialDate={tripDate && tripDate.trim() ? tripDate : null}
+          />
+        )}
+
+        {/* Early Withdrawal Penalty (Optional) */}
+        <View style={{ marginBottom: 24 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text }}>
+              ⚠️ Early Withdrawal Penalty
+            </Text>
+            <TouchableOpacity
+              onPress={() => setEnablePenalty(!enablePenalty)}
+              style={{
+                backgroundColor: enablePenalty ? colors.primary : '#f0f0f0',
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 20,
+                flexDirection: 'row',
+                alignItems: 'center'
+              }}
+            >
+              <Text style={{
+                fontSize: 12,
+                fontWeight: '600',
+                color: enablePenalty ? 'white' : colors.textSecondary,
+              }}>
+                {enablePenalty ? 'ON' : 'OFF'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          
+          <Text style={{ fontSize: 14, color: colors.textSecondary, marginBottom: 16, lineHeight: 20 }}>
+            {poolType === 'group' 
+              ? 'Add accountability by penalizing early withdrawals. All group members must agree to enable this feature.'
+              : 'Stay committed to your goal by adding a penalty for early withdrawals before your target date.'}
+          </Text>
+          
+          {enablePenalty && (
+            <>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: 8 }}>
+                Penalty Amount (%)
+              </Text>
+              <TextInput 
+                value={penaltyPercentage} 
+                onChangeText={setPenaltyPercentage}
+                keyboardType="numeric" 
+                style={{ backgroundColor: 'white', padding: 16, borderRadius: radius, marginBottom: 12, fontSize: 16 }} 
+                placeholder="5" 
+              />
+              <Text style={{ fontSize: 12, color: '#666', marginBottom: 16 }}>
+                Percentage of withdrawn amount that will be forfeited as penalty
+              </Text>
+
+              <View style={{ backgroundColor: colors.primaryLight, padding: 16, borderRadius: radius, borderLeftWidth: 4, borderLeftColor: colors.primary }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 8 }}>
+                  💡 How it works:
+                </Text>
+                <Text style={{ fontSize: 13, color: colors.text, lineHeight: 18 }}>
+                  • Withdraw early = pay {penaltyPercentage || '5'}% penalty on withdrawn amount{'\n'}
+                  • Penalty funds are forfeited (not returned){'\n'}
+                  • {poolType === 'group' ? 'All members must agree to enable penalties' : 'Only applies if you set a target date'}{'\n'}
+                  • Encourages commitment to your savings goal
+                </Text>
+              </View>
+            </>
+          )}
+        </View>
 
         {/* Savings Calculator */}
         {(() => {
           const calculation = calculateMonthlySavings();
-          if (!calculation || !enableCalculator) return null;
+          if (!calculation) return null;
           
           return (
-            <View style={{ 
-              backgroundColor: colors.green + '15', 
-              padding: 20, 
-              borderRadius: radius, 
-              marginBottom: 24,
-              borderLeftWidth: 4,
-              borderLeftColor: colors.green
-            }}>
+            <View 
+              key={calculatorKey}
+              style={{ 
+                backgroundColor: colors.green + '15', 
+                padding: 20, 
+                borderRadius: radius, 
+                marginBottom: 24,
+                borderLeftWidth: 4,
+                borderLeftColor: colors.green
+              }}>
               <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 }}>
                 🧮 PoolUp's Smart Calculator
               </Text>
