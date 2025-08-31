@@ -391,8 +391,6 @@ export const api = {
     return res.json();
   },
 
-  // Phase 1 MVP Features
-  
   // Friends Feed
   async getFriendsFeed(userId, filter = 'all') {
     const res = await fetch(`${BASE_URL}/api/users/${userId}/friends-feed?filter=${filter}`, {
@@ -509,5 +507,45 @@ export const api = {
       body: JSON.stringify(settings)
     });
     return res.json();
+  },
+
+  // Accountability partners
+  async getAccountabilityPartners() {
+    const response = await fetch(`${BASE_URL}/accountability-partners`, {
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
+    return response.json();
+  },
+
+  async inviteAccountabilityPartner(email) {
+    const response = await fetch(`${BASE_URL}/accountability-partners/invite`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': getCurrentUserId()
+      },
+      body: JSON.stringify({ email })
+    });
+    return response.json();
+  },
+
+  async removeAccountabilityPartner(partnerId) {
+    const response = await fetch(`${BASE_URL}/accountability-partners/${partnerId}`, {
+      method: 'DELETE',
+      headers: { 'x-user-id': getCurrentUserId() }
+    });
+    return response.json();
+  },
+
+  async updateNotificationSettings(settings) {
+    const response = await fetch(`${BASE_URL}/notification-settings`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': getCurrentUserId()
+      },
+      body: JSON.stringify(settings)
+    });
+    return response.json();
   }
 };

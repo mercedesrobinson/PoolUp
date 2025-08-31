@@ -17,7 +17,7 @@ import AvatarBuilder from './screens/AvatarBuilder';
 import SoloSavings from './screens/SoloSavings';
 import SocialFeed from './screens/SocialFeed';
 
-// Phase 1 MVP Screens
+// Social Features
 import FriendsFeed from './screens/FriendsFeed';
 import InviteFriends from './screens/InviteFriends';
 import GroupManagement from './screens/GroupManagement';
@@ -26,6 +26,8 @@ import TransactionHistory from './screens/TransactionHistory';
 import SavingsSummary from './screens/SavingsSummary';
 import PenaltySettings from './screens/PenaltySettings';
 import RecurringPayments from './screens/RecurringPayments';
+import AccountabilityPartners from './screens/AccountabilityPartners';
+import ProfilePhotoUpload from './screens/ProfilePhotoUpload';
 
 // Import theme
 import { colors } from './theme';
@@ -74,7 +76,7 @@ export default function App() {
         <Stack.Screen name="SoloSavings" component={SoloSavings} />
         <Stack.Screen name="SocialFeed" component={SocialFeed} />
         
-        {/* Phase 1 MVP Screens */}
+        {/* Social Features */}
         <Stack.Screen name="FriendsFeed" component={FriendsFeed} options={{ headerShown: false }} />
         <Stack.Screen name="InviteFriends" component={InviteFriends} options={{ headerShown: false }} />
         <Stack.Screen name="GroupManagement" component={GroupManagement} options={{ headerShown: false }} />
@@ -83,6 +85,8 @@ export default function App() {
         <Stack.Screen name="SavingsSummary" component={SavingsSummary} options={{ headerShown: false }} />
         <Stack.Screen name="PenaltySettings" component={PenaltySettings} options={{ headerShown: false }} />
         <Stack.Screen name="RecurringPayments" component={RecurringPayments} options={{ headerShown: false }} />
+        <Stack.Screen name="AccountabilityPartners" component={AccountabilityPartners} options={{ headerShown: false }} />
+        <Stack.Screen name="ProfilePhotoUpload" component={ProfilePhotoUpload} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

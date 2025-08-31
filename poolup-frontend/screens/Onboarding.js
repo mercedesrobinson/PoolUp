@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 import { colors, radius, shadow } from '../theme';
 import { api } from '../services/api';
-import authService from '../services/auth';
 
 export default function Onboarding({ navigation }){
   const [name,setName] = useState('');

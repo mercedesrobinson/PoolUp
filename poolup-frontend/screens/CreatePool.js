@@ -142,6 +142,28 @@ export default function CreatePool({ navigation, route }){
             {poolType === 'group' ? 'Create Group Pool' : 'Create Solo Goal'}
           </Text>
         </TouchableOpacity>
+        
+        {poolType === 'group' && (
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('InviteFriends', { poolName: name || 'New Pool' })}
+            style={{ backgroundColor: colors.green, padding:16, borderRadius:radius, alignItems:'center', marginTop: 12 }}
+          >
+            <Text style={{ color:'white', fontSize:16, fontWeight:'600' }}>
+              👥 Invite Members After Creation
+            </Text>
+          </TouchableOpacity>
+        )}
+        
+        {poolType === 'solo' && (
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('AccountabilityPartners')}
+            style={{ backgroundColor: colors.blue, padding:16, borderRadius:radius, alignItems:'center', marginTop: 12 }}
+          >
+            <Text style={{ color:'white', fontSize:16, fontWeight:'600' }}>
+              🤝 Add Accountability Partners
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     </ScrollView>
   );

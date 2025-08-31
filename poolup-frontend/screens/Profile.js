@@ -295,11 +295,11 @@ export default function Profile({ navigation, route }) {
               <Text style={{ fontSize: 14, color: '#666', marginBottom: 12 }}>
                 Get 2% cashback on all purchases and earn points for every transaction!
               </Text>
-              <TouchableOpacity 
-                onPress={createCard}
-                style={{ backgroundColor: colors.blue, padding: 12, borderRadius: radius, alignItems: 'center' }}
-              >
-                <Text style={{ color: 'white', fontWeight: '700' }}>Create Card</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('ProfilePhotoUpload')} style={{ backgroundColor: colors.blue, padding: 12, borderRadius: radius, alignItems: 'center', marginBottom: 8 }}>
+                <Text style={{ color: 'white', fontWeight: '600' }}>📸 Upload Photo</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('AvatarBuilder')} style={{ backgroundColor: colors.purple, padding: 12, borderRadius: radius, alignItems: 'center' }}>
+                <Text style={{ color: 'white', fontWeight: '600' }}>🎨 Create Avatar</Text>
               </TouchableOpacity>
             </View>
           )}
