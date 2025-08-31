@@ -61,44 +61,81 @@ let db;
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
       pool_id INTEGER,
-      streak_count INTEGER DEFAULT 0,
-      last_contribution_date TEXT,
+      current_streak INTEGER DEFAULT 0,
       longest_streak INTEGER DEFAULT 0,
-      created_at TEXT NOT NULL,
-      FOREIGN KEY (user_id) REFERENCES users (id),
-      FOREIGN KEY (pool_id) REFERENCES pools (id)
+      last_contribution_date TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (pool_id) REFERENCES pools(id)
     );
-    
+
     CREATE TABLE IF NOT EXISTS badges (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
-      badge_type TEXT NOT NULL,
-      badge_name TEXT NOT NULL,
-      earned_at TEXT NOT NULL,
-      pool_id INTEGER,
-      FOREIGN KEY (user_id) REFERENCES users (id),
-      FOREIGN KEY (pool_id) REFERENCES pools (id)
+      name TEXT NOT NULL,
+      description TEXT,
+      icon TEXT,
+      type TEXT NOT NULL,
+      requirement_value INTEGER,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
-    
+
+    CREATE TABLE IF NOT EXISTS user_badges (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      badge_id INTEGER NOT NULL,
+      earned_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (badge_id) REFERENCES badges(id)
+    );
+
     CREATE TABLE IF NOT EXISTS pool_milestones (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       pool_id INTEGER NOT NULL,
-      milestone_percentage INTEGER NOT NULL,
-      reached_at TEXT,
-      celebration_unlocked BOOLEAN DEFAULT 0,
-      FOREIGN KEY (pool_id) REFERENCES pools (id)
+      milestone_type TEXT NOT NULL,
+      target_amount_cents INTEGER,
+      target_percentage REAL,
+      achieved BOOLEAN DEFAULT FALSE,
+      achieved_at TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (pool_id) REFERENCES pools(id)
     );
-    
-    CREATE TABLE IF NOT EXISTS user_streaks (
+
+    CREATE TABLE IF NOT EXISTS forfeits (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pool_id INTEGER NOT NULL,
       user_id INTEGER NOT NULL,
-      pool_id INTEGER,
-      streak_count INTEGER DEFAULT 0,
-      last_contribution_date TEXT,
-      longest_streak INTEGER DEFAULT 0,
-      created_at TEXT NOT NULL,
-      FOREIGN KEY (user_id) REFERENCES users (id),
-      FOREIGN KEY (pool_id) REFERENCES pools (id)
+      amount_cents INTEGER NOT NULL,
+      reason TEXT,
+      charity_id TEXT,
+      donation_id TEXT,
+      status TEXT DEFAULT 'pending',
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      processed_at TEXT,
+      FOREIGN KEY (pool_id) REFERENCES pools(id),
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS peer_boosts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pool_id INTEGER NOT NULL,
+      booster_id INTEGER NOT NULL,
+      target_user_id INTEGER NOT NULL,
+      amount_cents INTEGER NOT NULL,
+      message TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (pool_id) REFERENCES pools(id),
+      FOREIGN KEY (booster_id) REFERENCES users(id),
+      FOREIGN KEY (target_user_id) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS charities (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      description TEXT,
+      website_url TEXT,
+      stripe_account_id TEXT,
+      active BOOLEAN DEFAULT TRUE,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
   `);
   
@@ -189,6 +226,7 @@ app.use('/api', authMiddleware, bankingRoutes);
 // Use gamification routes
 app.use('/api/gamification', require('./gamification'));
 app.use('/api/social', require('./social'));
+app.use('/api/accountability', require('./accountability'));
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

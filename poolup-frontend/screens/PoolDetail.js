@@ -144,7 +144,21 @@ export default function PoolDetail({ navigation, route }){
   return (
     <ScrollView style={{ flex:1, backgroundColor: '#FAFCFF' }}>
       <View style={{ padding: 24 }}>
-        {/* Pool Header */}
+        {/* Pool Header with Progress Visualization */}
+        <ProgressVisualization 
+          theme={pool.visual_theme || 'beach_vacation'}
+          progress={pool.current_amount_cents / pool.goal_amount_cents}
+          goalAmount={pool.goal_amount_cents}
+          currentAmount={pool.current_amount_cents}
+          isAnimating={true}
+        />
+        
+        <StreakDisplay 
+          userId={user.id}
+          poolId={pool.id}
+          onStreakUpdate={(newStreak) => console.log('Streak updated:', newStreak)}
+        />
+
         <View style={{ backgroundColor: 'white', padding: 20, borderRadius: radius, marginBottom: 16 }}>
           <Text style={{ fontSize:24, fontWeight:'800', color: colors.text }}>{pool.name}</Text>
           {pool.destination && (
