@@ -137,6 +137,35 @@ let db;
       active BOOLEAN DEFAULT TRUE,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS pool_templates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT,
+      category TEXT NOT NULL,
+      default_name TEXT,
+      suggested_goal_cents INTEGER,
+      default_destination TEXT,
+      default_theme TEXT DEFAULT 'beach_vacation',
+      pool_type TEXT DEFAULT 'group',
+      popularity_score INTEGER DEFAULT 0,
+      usage_count INTEGER DEFAULT 0,
+      suggested_by INTEGER,
+      status TEXT DEFAULT 'active',
+      active BOOLEAN DEFAULT TRUE,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (suggested_by) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS template_votes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      template_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      vote_type TEXT NOT NULL,
+      voted_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (template_id) REFERENCES pool_templates(id),
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
   `);
   
   console.log('Database initialized successfully');
@@ -223,10 +252,11 @@ app.post('/api/google-user', async (req, res) => {
 // Use banking API routes with auth middleware
 app.use('/api', authMiddleware, bankingRoutes);
 
-// Use gamification routes
+// Routes
 app.use('/api/gamification', require('./gamification'));
 app.use('/api/social', require('./social'));
 app.use('/api/accountability', require('./accountability'));
+app.use('/api/templates', require('./templates'));
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
