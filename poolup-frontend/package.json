@@ -16,6 +16,7 @@
     "expo": "~51.0.28",
     "expo-auth-session": "^6.2.1",
     "expo-crypto": "^14.1.5",
+    "expo-image-picker": "^16.1.4",
     "expo-status-bar": "~1.12.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
