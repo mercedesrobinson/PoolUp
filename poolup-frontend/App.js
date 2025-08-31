@@ -16,6 +16,8 @@ import Leaderboard from './screens/Leaderboard';
 import AvatarBuilder from './screens/AvatarBuilder';
 import SoloSavings from './screens/SoloSavings';
 import SocialFeed from './screens/SocialFeed';
+import GamificationHub from './screens/GamificationHub';
+import MiniGames from './screens/MiniGames';
 
 // Import theme
 import { colors } from './theme';
@@ -63,6 +65,8 @@ export default function App() {
         <Stack.Screen name="AvatarBuilder" component={AvatarBuilder} />
         <Stack.Screen name="SoloSavings" component={SoloSavings} />
         <Stack.Screen name="SocialFeed" component={SocialFeed} />
+        <Stack.Screen name="GamificationHub" component={GamificationHub} />
+        <Stack.Screen name="MiniGames" component={MiniGames} />
       </Stack.Navigator>
     </NavigationContainer>
   );
