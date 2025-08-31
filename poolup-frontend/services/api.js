@@ -25,30 +25,23 @@ export const api = {
       const response = await fetch(`${BASE_URL}/auth/google`, {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${googleUser.accessToken}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           google_id: googleUser.id,
           name: googleUser.name,
           email: googleUser.email,
           profile_image: googleUser.photo,
+          id_token: googleUser.idToken,
           access_token: googleUser.accessToken
         })
       });
       if (!response.ok) throw new Error('Network response was not ok');
-      return await response.json();
+      const result = await response.json();
+      return result;
     } catch (error) {
-      console.log('Google API Error - using mock data:', error);
-      return {
-        id: Date.now(),
-        name: googleUser.name,
-        email: googleUser.email,
-        profileImage: googleUser.photo,
-        authProvider: 'google',
-        bankAccounts: [],
-        virtualCard: null
-      };
+      console.log('Google API Error:', error);
+      throw error;
     }
   },
 

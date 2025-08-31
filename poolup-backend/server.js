@@ -4,6 +4,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const sqlite3 = require('sqlite3').verbose();
 const { open } = require('sqlite');
+const { OAuth2Client } = require('google-auth-library');
 require('dotenv').config();
 
 // Import banking API routes
@@ -21,6 +22,9 @@ const io = socketIo(server, {
 
 app.use(cors());
 app.use(express.json());
+
+// Initialize Google OAuth client
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Initialize database
 let db;
@@ -83,7 +87,7 @@ app.get('/api/test', (req, res) => {
 });
 
 // Guest user creation
-app.post('/api/guest', async (req, res) => {
+app.post('/api/auth/guest', async (req, res) => {
   try {
     const { name } = req.body;
     const result = await db.run(
@@ -103,10 +107,24 @@ app.post('/api/guest', async (req, res) => {
   }
 });
 
-// Google user creation/login
-app.post('/api/google-user', async (req, res) => {
+// Google OAuth authentication
+app.post('/api/auth/google', async (req, res) => {
   try {
-    const { id: google_id, name, email, photo } = req.body;
+    const { google_id, name, email, profile_image, id_token } = req.body;
+    
+    // Verify Google ID token (in production, uncomment this)
+    // try {
+    //   const ticket = await client.verifyIdToken({
+    //     idToken: id_token,
+    //     audience: process.env.GOOGLE_CLIENT_ID,
+    //   });
+    //   const payload = ticket.getPayload();
+    //   if (payload.sub !== google_id) {
+    //     return res.status(401).json({ error: 'Invalid Google token' });
+    //   }
+    // } catch (error) {
+    //   return res.status(401).json({ error: 'Google token verification failed' });
+    // }
     
     // Check if user exists
     let user = await db.get('SELECT * FROM users WHERE google_id = ? OR email = ?', [google_id, email]);
@@ -115,7 +133,7 @@ app.post('/api/google-user', async (req, res) => {
       // Create new Google user
       const result = await db.run(
         'INSERT INTO users (google_id, name, email, profile_image, auth_provider, created_at) VALUES (?, ?, ?, ?, ?, ?)',
-        [google_id, name, email, photo, 'google', new Date().toISOString()]
+        [google_id, name, email, profile_image, 'google', new Date().toISOString()]
       );
       
       user = {
@@ -123,7 +141,7 @@ app.post('/api/google-user', async (req, res) => {
         google_id,
         name,
         email,
-        profileImage: photo,
+        profileImage: profile_image,
         authProvider: 'google'
       };
     } else {
@@ -131,7 +149,7 @@ app.post('/api/google-user', async (req, res) => {
       if (!user.google_id) {
         await db.run(
           'UPDATE users SET google_id = ?, profile_image = ?, auth_provider = ? WHERE id = ?',
-          [google_id, photo, 'google', user.id]
+          [google_id, profile_image, 'google', user.id]
         );
       }
       
@@ -140,15 +158,15 @@ app.post('/api/google-user', async (req, res) => {
         google_id: user.google_id || google_id,
         name: user.name,
         email: user.email,
-        profileImage: user.profile_image || photo,
+        profileImage: user.profile_image || profile_image,
         authProvider: user.auth_provider
       };
     }
     
     res.json(user);
   } catch (error) {
-    console.error('Google user creation error:', error);
-    res.status(500).json({ error: 'Failed to create/login Google user' });
+    console.error('Google authentication error:', error);
+    res.status(500).json({ error: 'Failed to authenticate with Google' });
   }
 });
 

@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-nat
 import { colors, radius, shadow } from '../theme';
 import { api } from '../services/api';
 import authService from '../services/auth';
+import googleAuthService from '../services/googleAuth';
 
 export default function Onboarding({ navigation }){
   const [name,setName] = useState('');
@@ -19,33 +20,13 @@ export default function Onboarding({ navigation }){
 
   const signInWithGoogle = async () => {
     try {
-      // For development, simulate Google sign-in since we need real OAuth setup
-      Alert.alert(
-        'Google Sign-In',
-        'Google OAuth requires setup with real credentials. For now, this will create a demo Google user.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Continue with Demo', 
-            onPress: async () => {
-              try {
-                const demoUser = {
-                  id: 'google_' + Date.now(),
-                  name: 'Demo Google User',
-                  email: 'demo@gmail.com',
-                  photo: 'https://via.placeholder.com/150',
-                  authProvider: 'google'
-                };
-                
-                const response = await api.createGoogleUser(demoUser);
-                navigation.replace('Pools', { user: response });
-              } catch (error) {
-                Alert.alert('Error', 'Failed to create demo user');
-              }
-            }
-          }
-        ]
-      );
+      const googleUser = await googleAuthService.signIn();
+      const response = await api.createGoogleUser(googleUser);
+      
+      // Store user session
+      await authService.storeUser(response);
+      
+      navigation.replace('Pools', { user: response });
     } catch (error) {
       console.error('Google sign-in error:', error);
       Alert.alert('Error', error.message || 'Google sign-in failed. Please try again.');
