@@ -9,6 +9,8 @@ require('dotenv').config();
 // Import banking API routes
 const bankingRoutes = require('./banking-api');
 const authMiddleware = require('./auth-middleware');
+const custodialRoutes = require('./custodial-api');
+const webhookRoutes = require('./webhooks');
 
 const app = express();
 const server = http.createServer(app);
@@ -68,6 +70,46 @@ let db;
       created_at TEXT NOT NULL,
       FOREIGN KEY (user_id) REFERENCES users (id),
       FOREIGN KEY (pool_id) REFERENCES pools (id)
+    );
+
+    CREATE TABLE IF NOT EXISTS custodial_transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      stripe_payment_intent_id TEXT UNIQUE,
+      amount_cents INTEGER NOT NULL,
+      currency TEXT DEFAULT 'usd',
+      status TEXT DEFAULT 'pending',
+      type TEXT NOT NULL,
+      description TEXT,
+      created_at TEXT NOT NULL,
+      captured_at TEXT,
+      refunded_at TEXT,
+      failed_at TEXT,
+      FOREIGN KEY (user_id) REFERENCES users (id)
+    );
+
+    CREATE TABLE IF NOT EXISTS transfers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      from_user_id INTEGER NOT NULL,
+      to_user_id INTEGER NOT NULL,
+      amount_cents INTEGER NOT NULL,
+      stripe_transfer_id TEXT UNIQUE,
+      description TEXT,
+      status TEXT DEFAULT 'pending',
+      created_at TEXT NOT NULL,
+      updated_at TEXT,
+      FOREIGN KEY (from_user_id) REFERENCES users (id),
+      FOREIGN KEY (to_user_id) REFERENCES users (id)
+    );
+
+    CREATE TABLE IF NOT EXISTS disputes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      stripe_dispute_id TEXT UNIQUE,
+      charge_id TEXT,
+      amount_cents INTEGER,
+      reason TEXT,
+      status TEXT,
+      created_at TEXT NOT NULL
     );
   `);
   
@@ -152,8 +194,12 @@ app.post('/api/google-user', async (req, res) => {
   }
 });
 
-// Use banking API routes with auth middleware
+// Webhooks (before body parsing middleware)
+app.use('/webhooks', webhookRoutes);
+
+// Use API routes with auth middleware
 app.use('/api', authMiddleware, bankingRoutes);
+app.use('/api/custodial', authMiddleware, custodialRoutes);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
