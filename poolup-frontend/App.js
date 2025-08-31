@@ -16,6 +16,8 @@ import Leaderboard from './screens/Leaderboard';
 import AvatarBuilder from './screens/AvatarBuilder';
 import SoloSavings from './screens/SoloSavings';
 import SocialFeed from './screens/SocialFeed';
+import BankingHub from './screens/BankingHub';
+import Transfer from './screens/Transfer';
 
 // Import theme
 import { colors } from './theme';
@@ -63,6 +65,8 @@ export default function App() {
         <Stack.Screen name="AvatarBuilder" component={AvatarBuilder} />
         <Stack.Screen name="SoloSavings" component={SoloSavings} />
         <Stack.Screen name="SocialFeed" component={SocialFeed} />
+        <Stack.Screen name="BankingHub" component={BankingHub} />
+        <Stack.Screen name="Transfer" component={Transfer} />
       </Stack.Navigator>
     </NavigationContainer>
   );

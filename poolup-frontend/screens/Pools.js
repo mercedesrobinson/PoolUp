@@ -155,22 +155,32 @@ export default function Pools({ navigation, route }){
           </View>
           <View style={styles.quickActions}>
             <TouchableOpacity 
-              style={styles.quickActionButton}
+              style={styles.quickAction}
               onPress={() => navigation.navigate('Profile', { userId: user.id })}
             >
-              <Text style={styles.quickActionText}>👤 Profile</Text>
+              <Text style={styles.quickActionEmoji}>👤</Text>
+              <Text style={styles.quickActionText}>Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              style={styles.quickActionButton}
-              onPress={() => navigation.navigate('SoloSavings', { userId: user.id })}
+              style={styles.quickAction}
+              onPress={() => navigation.navigate('SoloSavings')}
             >
-              <Text style={styles.quickActionText}>🎯 Solo</Text>
+              <Text style={styles.quickActionEmoji}>🎯</Text>
+              <Text style={styles.quickActionText}>Solo Savings</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              style={styles.quickActionButton}
-              onPress={() => navigation.navigate('SocialFeed', { userId: user.id })}
+              style={styles.quickAction}
+              onPress={() => navigation.navigate('BankingHub', { userId: user?.id })}
             >
-              <Text style={styles.quickActionText}>💬 Social</Text>
+              <Text style={styles.quickActionEmoji}>🏦</Text>
+              <Text style={styles.quickActionText}>Banking</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.quickAction}
+              onPress={() => navigation.navigate('SocialFeed')}
+            >
+              <Text style={styles.quickActionEmoji}>📱</Text>
+              <Text style={styles.quickActionText}>Social Feed</Text>
             </TouchableOpacity>
           </View>
         </View>
