@@ -187,8 +187,8 @@ app.post('/api/google-user', async (req, res) => {
 app.use('/api', authMiddleware, bankingRoutes);
 
 // Use gamification routes
-const gamificationRoutes = require('./gamification');
-app.use('/api/gamification', gamificationRoutes);
+app.use('/api/gamification', require('./gamification'));
+app.use('/api/social', require('./social'));
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
