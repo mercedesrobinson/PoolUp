@@ -26,7 +26,7 @@ export default function Onboarding({ navigation }){
         // Sign in existing user
         user = { id: Date.now(), name: 'Returning User', email: email.trim(), authProvider: 'email' };
       }
-      navigation.replace('Pools', { user });
+      navigation.replace('MainTabs', { user });
     } catch (error) {
       Alert.alert('Error', 'Authentication failed. Please try again.');
     }
@@ -53,7 +53,8 @@ export default function Onboarding({ navigation }){
                 };
                 
                 const response = await api.createGoogleUser(demoUser);
-                navigation.replace('Pools', { user: response });
+                const mockUser = response;
+                navigation.navigate('MainTabs', { user: mockUser });
               } catch (error) {
                 Alert.alert('Error', 'Failed to create demo user');
               }

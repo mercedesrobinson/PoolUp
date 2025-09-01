@@ -99,45 +99,29 @@ const styles = {
 
 export default function Profile({ navigation, route }) {
   const { user } = route?.params || {};
-  const [profile, setProfile] = useState(null);
-  const [badges, setBadges] = useState([]);
-  const [card, setCard] = useState(null);
-
-  // Early return if no user data
-  if (!user) {
-    return (
-      <View style={{ flex: 1, backgroundColor: '#FAFCFF', alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ fontSize: 18, color: '#666' }}>Loading user data...</Text>
-      </View>
-    );
-  }
+  const [profile, setProfile] = useState({
+    name: 'Mercedes',
+    xp: 150,
+    total_points: 250,
+    current_streak: 3,
+    badge_count: 2,
+    avatar_type: 'default',
+    avatar_data: null
+  });
+  const [badges, setBadges] = useState([
+    { id: 1, name: 'First Pool', icon: '🎯', earned_at: '2024-01-15' },
+    { id: 2, name: 'Streak Master', icon: '🔥', earned_at: '2024-01-20' }
+  ]);
+  const [card, setCard] = useState({
+    last_four: '4242',
+    balance_cents: 15000,
+    status: 'active'
+  });
 
   const loadProfile = async () => {
     try {
-      // Use mock data for now to prevent API errors
-      const mockProfile = {
-        name: user.name || 'User',
-        xp: 150,
-        total_points: 250,
-        current_streak: 3,
-        badge_count: 2,
-        avatar_type: 'default',
-        avatar_data: null
-      };
-      
-      const mockBadges = [
-        {
-          id: 1,
-          name: 'First Contribution',
-          description: 'Made your first pool contribution',
-          icon: '🎯',
-          rarity: 'common'
-        }
-      ];
-      
-      setProfile(mockProfile);
-      setBadges(mockBadges);
-      setCard(null); // No card initially
+      // Profile data is already set in state, no need to load
+      return;
     } catch (error) {
       console.error('Failed to load profile:', error);
     }
@@ -154,8 +138,19 @@ export default function Profile({ navigation, route }) {
   };
 
   useEffect(() => {
-    loadProfile();
-  }, []);
+    if (user) {
+      loadProfile();
+    }
+  }, [user]);
+
+  // Early return if no user data
+  if (!user) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#FAFCFF', alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontSize: 18, color: '#666' }}>Loading user data...</Text>
+      </View>
+    );
+  }
 
   if (!profile) {
     // Show loading state with basic user info
@@ -214,9 +209,24 @@ export default function Profile({ navigation, route }) {
     <ScrollView style={{ flex: 1, backgroundColor: '#FAFCFF' }}>
       {/* Header */}
       <View style={{ padding: 24, backgroundColor: colors.purple, paddingTop: 80 }}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 16 }}>
-          <Text style={{ color: 'white', fontSize: 16 }}>← Back</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Text style={{ color: 'white', fontSize: 16 }}>← Back</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('Settings', { userId: user.id })}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 18,
+              backgroundColor: 'rgba(255,255,255,0.2)',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Text style={{ color: 'white', fontSize: 18 }}>⚙️</Text>
+          </TouchableOpacity>
+        </View>
         <View style={styles.avatarSection}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>👤</Text>

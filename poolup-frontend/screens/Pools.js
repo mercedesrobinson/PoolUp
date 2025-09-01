@@ -1,32 +1,84 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, RefreshControl } from 'react-native';
 import { colors, radius, shadow } from '../theme';
 import { api } from '../services/api';
+import { PoolCardSkeleton } from '../components/LoadingSkeleton';
+import { GoalCategoryBadge } from '../components/GoalCategories';
 
 function PoolCard({ item, onPress }){
   // Handle pools without goals (open-ended saving)
   const hasGoal = item.goal_cents && item.goal_cents > 0;
   const pct = hasGoal ? Math.min(100, Math.round((item.saved_cents / item.goal_cents)*100)) : 0;
   
+  // Calculate time to goal completion
+  const getTimeToGoal = () => {
+    if (!hasGoal || pct >= 100) return null;
+    
+    const remaining = item.goal_cents - item.saved_cents;
+    const weeklyContribution = 5000; // $50/week estimate
+    const weeksLeft = Math.ceil(remaining / weeklyContribution);
+    
+    if (weeksLeft <= 4) return `${weeksLeft} weeks left`;
+    if (weeksLeft <= 52) return `${Math.ceil(weeksLeft / 4)} months left`;
+    return `${Math.ceil(weeksLeft / 52)} years left`;
+  };
+
+  const getProgressColor = () => {
+    if (pct >= 75) return '#34A853'; // Green
+    if (pct >= 50) return '#FBBC04'; // Yellow
+    if (pct >= 25) return '#FF6B35'; // Orange
+    return colors.blue; // Blue
+  };
+  
   return (
-    <TouchableOpacity onPress={onPress} style={{ backgroundColor:'white', marginBottom:12, padding:16, borderRadius: radius }}>
+    <TouchableOpacity onPress={onPress} style={{ 
+      backgroundColor:'white', 
+      marginBottom:12, 
+      padding:16, 
+      borderRadius: radius,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3
+    }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
         <Text style={{ fontSize:18, fontWeight:'700', color: colors.text, flex: 1 }}>{item.name}</Text>
-        {item.destination && (
-          <Text style={{ fontSize: 12, color: colors.blue, backgroundColor: colors.blue + '20', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 }}>
-            🌍 {item.destination}
-          </Text>
-        )}
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          {item.category && <GoalCategoryBadge category={item.category} />}
+          {item.destination && (
+            <Text style={{ fontSize: 12, color: colors.blue, backgroundColor: colors.blue + '20', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 }}>
+              🌍 {item.destination}
+            </Text>
+          )}
+        </View>
       </View>
       
       {hasGoal && (
         <>
-          <View style={{ height:10, backgroundColor:'#e6eef7', borderRadius:8, overflow:'hidden', marginTop:8 }}>
-            <View style={{ width:`${pct}%`, backgroundColor: colors.blue, height:'100%' }} />
+          <View style={{ height:12, backgroundColor:'#e6eef7', borderRadius:8, overflow:'hidden', marginTop:8 }}>
+            <View style={{ 
+              width:`${pct}%`, 
+              backgroundColor: getProgressColor(), 
+              height:'100%',
+              borderRadius: 8
+            }} />
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
-            <Text style={{ color:'#556' }}>${(item.saved_cents/100).toFixed(2)} of ${(item.goal_cents/100).toFixed(2)}</Text>
-            <Text style={{ color: colors.purple, fontSize: 12, fontWeight: '600' }}>{pct}%</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+            <View>
+              <Text style={{ color:'#556', fontSize: 14 }}>${(item.saved_cents/100).toFixed(2)} of ${(item.goal_cents/100).toFixed(2)}</Text>
+              {getTimeToGoal() && (
+                <Text style={{ color: colors.blue, fontSize: 12, fontWeight: '600', marginTop: 2 }}>
+                  ⏰ {getTimeToGoal()}
+                </Text>
+              )}
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={{ color: getProgressColor(), fontSize: 16, fontWeight: '700' }}>{pct}%</Text>
+              {pct >= 100 && (
+                <Text style={{ fontSize: 12, color: '#34A853' }}>🎉 Complete!</Text>
+              )}
+            </View>
           </View>
         </>
       )}
@@ -53,6 +105,8 @@ function PoolCard({ item, onPress }){
 
 export default function Pools({ navigation, route }){
   const [pools,setPools] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [summaryData, setSummaryData] = useState({
     totalSaved: 125000,
     activeGoals: 3,
@@ -65,42 +119,56 @@ export default function Pools({ navigation, route }){
   const user = route.params?.user || { id: 1, name: 'Demo User' };
 
   const load = async () => {
-    // Set mock data immediately - no async calls that could hang
-    const mockData = {
-      totalSaved: 125000,
-      activeGoals: 3,
-      completedGoals: 2,
-      currentStreak: 14,
-      monthlyAverage: 35000,
-      savingsRate: 0.23,
-      nextMilestone: { amount: 150000, daysLeft: 12 }
-    };
-    setSummaryData(mockData);
+    try {
+      // Set mock data immediately - no async calls that could hang
+      const mockData = {
+        totalSaved: 125000,
+        activeGoals: 3,
+        completedGoals: 2,
+        currentStreak: 14,
+        monthlyAverage: 35000,
+        savingsRate: 0.23,
+        nextMilestone: { amount: 150000, daysLeft: 12 }
+      };
+      setSummaryData(mockData);
 
-    const mockPools = [
-      {
-        id: 1,
-        name: "Tokyo Trip 2024",
-        goal_cents: 300000,
-        saved_cents: 75000,
-        destination: "Tokyo, Japan",
-        creator_id: user.id,
-        bonus_pot_cents: 5000
-      },
-      {
-        id: 2,
-        name: "Emergency Fund",
-        goal_cents: 500000,
-        saved_cents: 125000,
-        destination: null,
-        creator_id: user.id,
-        bonus_pot_cents: 0
-      }
-    ];
-    setPools(mockPools);
+      const mockPools = [
+        {
+          id: 1,
+          name: "Tokyo Trip 2024",
+          goal_cents: 300000,
+          saved_cents: 75000,
+          destination: "Tokyo, Japan",
+          creator_id: user.id,
+          bonus_pot_cents: 5000,
+          category: { id: 'travel', name: 'Travel', icon: '✈️', color: '#4285F4' }
+        },
+        {
+          id: 2,
+          name: "Emergency Fund",
+          goal_cents: 500000,
+          saved_cents: 125000,
+          destination: null,
+          creator_id: user.id,
+          bonus_pot_cents: 0,
+          category: { id: 'emergency', name: 'Emergency Fund', icon: '🛡️', color: '#34A853' }
+        }
+      ];
+      setPools(mockPools);
 
-    // Skip API calls entirely for now to prevent hanging
-    console.log('Pools screen loaded with mock data');
+      // Skip API calls entirely for now to prevent hanging
+      console.log('Pools screen loaded with mock data');
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setRefreshing(false);
+      setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await load();
   };
   
   useEffect(() => {
@@ -138,7 +206,12 @@ export default function Pools({ navigation, route }){
   };
 
   return (
-    <ScrollView style={{ flex:1, backgroundColor: '#FAFCFF' }}>
+    <ScrollView 
+      style={{ flex:1, backgroundColor: '#FAFCFF' }}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       {/* Savings Summary Hero */}
       <View style={{ backgroundColor: colors.primary, paddingTop: 80, paddingBottom: 30, paddingHorizontal: 24 }}>
         <Text style={{ color: 'white', fontSize: 16, opacity: 0.9, marginBottom: 8, textAlign: 'center' }}>
@@ -255,14 +328,14 @@ export default function Pools({ navigation, route }){
             style={{ flex: 1, backgroundColor: colors.green, padding: 16, borderRadius: radius, alignItems: 'center' }}
           >
             <Text style={{ fontSize: 18, marginBottom: 4 }}>🎯</Text>
-            <Text style={{ color:'white', fontWeight:'700', fontSize: 16 }}>New Goal</Text>
+            <Text style={{ color:'white', fontWeight:'600', fontSize: 16 }}>New Goal</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={()=>navigation.navigate('SoloSavings', { user })} 
             style={{ flex: 1, backgroundColor: colors.purple, padding: 16, borderRadius: radius, alignItems: 'center' }}
           >
             <Text style={{ fontSize: 18, marginBottom: 4 }}>💰</Text>
-            <Text style={{ color:'white', fontWeight:'700', fontSize: 16 }}>Solo Goal</Text>
+            <Text style={{ color:'white', fontWeight:'600', fontSize: 16 }}>Friends Feed</Text>
           </TouchableOpacity>
         </View>
 
@@ -273,14 +346,14 @@ export default function Pools({ navigation, route }){
             style={{ flex: 1, backgroundColor: '#FF6B6B', padding: 16, borderRadius: radius, alignItems: 'center' }}
           >
             <Text style={{ fontSize: 18, marginBottom: 4 }}>🏆</Text>
-            <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>Badges</Text>
+            <Text style={{ color: 'white', fontWeight: '600', fontSize: 16 }}>Badges</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={()=>navigation.navigate('SavingsSummary', { userId: user.id })} 
             style={{ flex: 1, backgroundColor: colors.coral, padding: 16, borderRadius: radius, alignItems: 'center' }}
           >
             <Text style={{ fontSize: 18, marginBottom: 4 }}>📊</Text>
-            <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>Savings Summary</Text>
+            <Text style={{ color: 'white', fontWeight: '600', fontSize: 16 }}>Savings Summary</Text>
           </TouchableOpacity>
         </View>
 
@@ -289,7 +362,12 @@ export default function Pools({ navigation, route }){
           <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 }}>
             Your Pools
           </Text>
-          {pools.length > 0 ? (
+          {loading ? (
+            <>
+              <PoolCardSkeleton />
+              <PoolCardSkeleton />
+            </>
+          ) : pools.length > 0 ? (
             <FlatList 
               data={pools} 
               keyExtractor={i=>i.id} 

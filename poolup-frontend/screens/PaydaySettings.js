@@ -44,26 +44,24 @@ export default function PaydaySettings({ navigation, route }) {
   const saveSettings = async () => {
     try {
       const settings = {
-        frequency: paydayType,
+        type: paydayType,
         weekly_day: weeklyDay,
         biweekly_start: biweeklyStart,
         monthly_dates: monthlyDates,
-        reminders_enabled: enableStreaks,
-        reminder_days_before: reminderDays,
+        enable_streaks: enableStreaks,
+        reminder_days: reminderDays
       };
 
-      await api.updatePaydaySettings(user?.id || 'guest', settings);
+      await api.updatePaydaySettings(user.id, settings);
       
-      // Schedule payday reminders based on new settings
-      if (enableStreaks) {
-        await notificationService.schedulePaydayReminders(user?.id || 'guest', settings);
-      } else {
-        await notificationService.cancelNotificationsByType('payday_reminder');
-      }
+      // Schedule notifications based on settings
+      await notificationService.schedulePaydayReminders(settings);
       
-      Alert.alert('Success', 'Payday settings saved successfully!');
+      Alert.alert('Success', 'Payday settings saved successfully!', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]);
     } catch (error) {
-      console.error('Failed to save payday settings:', error);
+      console.error('Save settings error:', error);
       Alert.alert('Error', 'Failed to save settings. Please try again.');
     }
   };
@@ -484,7 +482,7 @@ export default function PaydaySettings({ navigation, route }) {
 
         {/* Save Button */}
         <TouchableOpacity
-          onPress={savePaydaySettings}
+          onPress={saveSettings}
           style={{
             backgroundColor: colors.primary,
             padding: 16,

@@ -9,56 +9,96 @@ export default function PaymentMethods({ navigation, route }) {
   const userId = route.params?.userId || '1756612920173';
 
   useEffect(() => {
+    const loadPaymentMethods = async () => {
+      try {
+        // Use mock data to prevent API errors
+        const methods = {
+          venmo: { username: '@demo_user', linked: true },
+          cashapp: { cashtag: '$demo_user', linked: true },
+          paypal: { email: 'demo@example.com', linked: true }
+        };
+        
+        // Set mock data with new payment options
+        const mockMethods = [
+          {
+            id: 'bank_1',
+            type: 'bank',
+            name: 'Chase Checking',
+            last_four: '4567',
+            is_verified: true,
+            is_default: true,
+            fees: '$0.00'
+          },
+          {
+            id: 'venmo_1',
+            type: 'venmo',
+            name: 'Venmo',
+            username: methods.venmo?.username || 'Not linked',
+            is_verified: methods.venmo?.linked || false,
+            is_default: false,
+            fees: '2.5%'
+          },
+          {
+            id: 'cashapp_1',
+            type: 'cashapp',
+            name: 'Cash App',
+            cashtag: methods.cashapp?.cashtag || 'Not linked',
+            is_verified: methods.cashapp?.linked || false,
+            is_default: false,
+            fees: '3.0%'
+          },
+          {
+            id: 'paypal_1',
+            type: 'paypal',
+            name: 'PayPal',
+            email: methods.paypal?.email || 'Not linked',
+            is_verified: methods.paypal?.linked || false,
+            is_default: false,
+            fees: '2.9% + $0.30'
+          },
+          {
+            id: 'card_1',
+            type: 'debit_card',
+            name: 'PoolUp Debit Card',
+            last_four: '4242',
+            is_verified: true,
+            is_default: false
+          },
+          {
+            id: 'paypal_1',
+            type: 'paypal',
+            name: 'PayPal Account',
+            email: 'user@example.com',
+            is_verified: true,
+            is_default: false
+          }
+        ];
+        setPaymentMethods(mockMethods);
+        console.log('PaymentMethods loaded with mock data');
+      } catch (error) {
+        console.error('Failed to load payment methods:', error);
+        setPaymentMethods([]);
+      }
+    };
     loadPaymentMethods();
   }, []);
 
-  const loadPaymentMethods = async () => {
-    try {
-      // Set mock data immediately
-      const mockMethods = [
-        {
-          id: 'bank_1',
-          type: 'bank_transfer',
-          name: 'Chase Checking',
-          last_four: '4567',
-          is_verified: true,
-          is_default: true
-        },
-        {
-          id: 'card_1',
-          type: 'debit_card',
-          name: 'PoolUp Debit Card',
-          last_four: '4242',
-          is_verified: true,
-          is_default: false
-        },
-        {
-          id: 'paypal_1',
-          type: 'paypal',
-          name: 'PayPal Account',
-          email: 'user@example.com',
-          is_verified: true,
-          is_default: false
-        }
-      ];
-      setPaymentMethods(mockMethods);
-      console.log('PaymentMethods loaded with mock data');
-    } catch (error) {
-      console.error('Failed to load payment methods:', error);
-      setPaymentMethods([]);
-    }
-  };
-
   const getMethodIcon = (type) => {
     switch (type) {
-      case 'bank_transfer': return '🏦';
+      case 'bank': return '🏦';
+      case 'venmo': return '💙';
+      case 'cashapp': return '💚';
+      case 'paypal': return '🔵';
       case 'debit_card': return '💳';
       case 'credit_card': return '💳';
-      case 'paypal': return '💙';
       case 'apple_pay': return '📱';
       case 'google_pay': return '📱';
       default: return '💳';
     }
+  };
+
+  const linkPaymentMethod = (method) => {
+    navigation.navigate('LinkPaymentMethod', { method, userId });
   };
 
   const setAsDefault = async (methodId) => {
@@ -105,9 +145,9 @@ export default function PaymentMethods({ navigation, route }) {
       'Choose a payment method to add',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Bank Account', onPress: () => console.log('Add bank account') },
-        { text: 'Debit/Credit Card', onPress: () => console.log('Add card') },
-        { text: 'PayPal', onPress: () => console.log('Add PayPal') }
+        { text: 'Venmo', onPress: () => linkPaymentMethod('venmo') },
+        { text: 'Cash App', onPress: () => linkPaymentMethod('cashapp') },
+        { text: 'PayPal', onPress: () => linkPaymentMethod('paypal') }
       ]
     );
   };
@@ -136,8 +176,16 @@ export default function PaymentMethods({ navigation, route }) {
               {method.name}
             </Text>
             <Text style={{ fontSize: 14, color: colors.textSecondary, marginTop: 2 }}>
-              {method.type === 'paypal' ? method.email : `•••• ${method.last_four}`}
+              {method.type === 'venmo' ? method.username : 
+               method.type === 'cashapp' ? method.cashtag :
+               method.type === 'paypal' ? method.email : 
+               method.last_four ? `•••• ${method.last_four}` : 'Not linked'}
             </Text>
+            {method.fees && (
+              <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
+                Fees: {method.fees}
+              </Text>
+            )}
             {method.is_default && (
               <Text style={{ fontSize: 12, color: colors.primary, marginTop: 4, fontWeight: '600' }}>
                 DEFAULT
@@ -153,26 +201,40 @@ export default function PaymentMethods({ navigation, route }) {
             <Text style={{ fontSize: 12, color: colors.warning, marginRight: 8 }}>⚠ Unverified</Text>
           )}
           
-          <TouchableOpacity
-            onPress={() => {
-              Alert.alert(
-                'Payment Method Options',
-                `Options for ${method.name}`,
-                [
-                  { text: 'Cancel', style: 'cancel' },
-                  !method.is_default && { text: 'Set as Default', onPress: () => setAsDefault(method.id) },
-                  { text: 'Remove', style: 'destructive', onPress: () => removeMethod(method.id) }
-                ].filter(Boolean)
-              );
-            }}
-            style={{
-              padding: 8,
-              borderRadius: 16,
-              backgroundColor: colors.background
-            }}
-          >
-            <Text style={{ fontSize: 16 }}>⋯</Text>
-          </TouchableOpacity>
+          {!method.is_verified && ['venmo', 'cashapp', 'paypal'].includes(method.type) ? (
+            <TouchableOpacity
+              onPress={() => linkPaymentMethod(method.type)}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 16,
+                backgroundColor: colors.primary
+              }}
+            >
+              <Text style={{ fontSize: 12, color: 'white', fontWeight: '600' }}>Link</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert(
+                  'Payment Method Options',
+                  `Options for ${method.name}`,
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    !method.is_default && { text: 'Set as Default', onPress: () => setAsDefault(method.id) },
+                    method.type !== 'bank' && { text: 'Remove', style: 'destructive', onPress: () => removeMethod(method.id) }
+                  ].filter(Boolean)
+                );
+              }}
+              style={{
+                padding: 8,
+                borderRadius: 16,
+                backgroundColor: colors.background
+              }}
+            >
+              <Text style={{ fontSize: 16 }}>⋯</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </View>

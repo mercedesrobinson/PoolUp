@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, Switch } from 'react-native';
 import { colors, radius } from '../theme';
-import api from '../services/api';
+import { api } from '../services/api';
+import { GoalCategorySelector } from '../components/GoalCategories';
 import CustomCalendar from '../components/CustomCalendar';
 
 export default function CreatePool({ navigation, route }){
@@ -12,6 +13,7 @@ export default function CreatePool({ navigation, route }){
   const [tripDate, setTripDate] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [calculatorKey, setCalculatorKey] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [enablePenalty, setEnablePenalty] = useState(false);
   const [penaltyPercentage, setPenaltyPercentage] = useState('');
   const [poolType, setPoolType] = useState(route.params?.poolType || 'group');
@@ -253,172 +255,53 @@ export default function CreatePool({ navigation, route }){
           </View>
         </View>
 
-        {/* Purpose for Saving */}
-        <View style={{ marginBottom: 20 }}>
-          <Text style={{ fontSize:18, fontWeight:'700', color: colors.text, marginBottom:12 }}>What are you saving for?</Text>
-          
-          <TouchableOpacity 
-            style={{ 
-              backgroundColor: 'white', 
-              padding: 16, 
-              borderRadius: radius, 
-              borderWidth: 1, 
-              borderColor: '#ddd',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}
-            onPress={() => {
-              const purposes = [
-                { id: 'trip', emoji: '✈️', label: 'Trip', color: colors.blue },
-                { id: 'wedding', emoji: '💍', label: 'Wedding', color: colors.coral },
-                { id: 'house', emoji: '🏡', label: 'House', color: colors.green },
-                { id: 'car', emoji: '🚗', label: 'Car', color: colors.purple },
-                { id: 'emergency', emoji: '🛡️', label: 'Emergency Fund', color: '#FF6B6B' },
-                { id: 'general', emoji: '💪', label: 'General Savings', color: colors.primary },
-                { id: 'education', emoji: '🎓', label: 'Education', color: '#9B59B6' },
-                { id: 'celebration', emoji: '🎉', label: 'Big Celebration', color: '#F39C12' },
-                { id: 'pet', emoji: '🐶', label: 'Pet', color: '#E67E22' },
-                { id: 'tech', emoji: '🎮', label: 'Tech / Gadgets', color: '#34495E' },
-                { id: 'hobbies', emoji: '🏀', label: 'Sports / Hobbies', color: '#E74C3C' },
-                { id: 'gifts', emoji: '🎁', label: 'Holiday Gifts', color: '#27AE60' },
-                { id: 'dining', emoji: '🍽️', label: 'Foodie / Dining', color: '#D35400' }
-              ];
-              
-              Alert.alert(
-                'Choose Your Saving Purpose',
-                'What are you working towards?',
-                purposes.map(purpose => ({
-                  text: `${purpose.emoji} ${purpose.label}`,
-                  onPress: () => setSavingPurpose(purpose.id)
-                })).concat([
-                  { 
-                    text: '✏️ Other (Custom)', 
-                    onPress: () => {
-                      Alert.prompt(
-                        'Custom Saving Purpose',
-                        'What are you saving for?',
-                        (text) => {
-                          if (text && text.trim()) {
-                            setCustomPurpose(text.trim());
-                            setSavingPurpose('custom');
-                          }
-                        },
-                        'plain-text',
-                        '',
-                        'default'
-                      );
-                    }
-                  },
-                  { text: 'Cancel', style: 'cancel' }
-                ])
-              );
-            }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              {savingPurpose ? (
-                <>
-                  <Text style={{ fontSize: 18, marginRight: 12 }}>
-                    {savingPurpose === 'trip' && '✈️'}
-                    {savingPurpose === 'wedding' && '💍'}
-                    {savingPurpose === 'house' && '🏡'}
-                    {savingPurpose === 'car' && '🚗'}
-                    {savingPurpose === 'emergency' && '🛡️'}
-                    {savingPurpose === 'general' && '💪'}
-                    {savingPurpose === 'education' && '🎓'}
-                    {savingPurpose === 'celebration' && '🎉'}
-                    {savingPurpose === 'pet' && '🐶'}
-                    {savingPurpose === 'tech' && '🎮'}
-                    {savingPurpose === 'hobbies' && '🏀'}
-                    {savingPurpose === 'gifts' && '🎁'}
-                    {savingPurpose === 'dining' && '🍽️'}
-                    {savingPurpose === 'custom' && '✏️'}
-                  </Text>
-                  <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>
-                    {savingPurpose === 'trip' && 'Trip'}
-                    {savingPurpose === 'wedding' && 'Wedding'}
-                    {savingPurpose === 'house' && 'House'}
-                    {savingPurpose === 'car' && 'Car'}
-                    {savingPurpose === 'emergency' && 'Emergency Fund'}
-                    {savingPurpose === 'general' && 'General Savings'}
-                    {savingPurpose === 'education' && 'Education'}
-                    {savingPurpose === 'celebration' && 'Big Celebration'}
-                    {savingPurpose === 'pet' && 'Pet'}
-                    {savingPurpose === 'tech' && 'Tech / Gadgets'}
-                    {savingPurpose === 'hobbies' && 'Sports / Hobbies'}
-                    {savingPurpose === 'gifts' && 'Holiday Gifts'}
-                    {savingPurpose === 'dining' && 'Foodie / Dining'}
-                    {savingPurpose === 'custom' && customPurpose}
-                  </Text>
-                </>
-              ) : (
-                <Text style={{ fontSize: 16, color: '#999' }}>Select a saving purpose...</Text>
-              )}
-            </View>
-            <Text style={{ fontSize: 16, color: '#999' }}>▼</Text>
-          </TouchableOpacity>
-          
-          {/* Purpose-specific messaging */}
-          {savingPurpose && (
-            <View style={{ 
-              backgroundColor: savingPurpose === 'trip' ? colors.blue + '20' : 
-                             savingPurpose === 'wedding' ? colors.coral + '20' :
-                             savingPurpose === 'house' ? colors.green + '20' :
-                             savingPurpose === 'car' ? colors.purple + '20' :
-                             savingPurpose === 'emergency' ? '#FF6B6B20' :
-                             savingPurpose === 'education' ? '#9B59B620' :
-                             savingPurpose === 'celebration' ? '#F39C1220' :
-                             savingPurpose === 'pet' ? '#E67E2220' :
-                             savingPurpose === 'tech' ? '#34495E20' :
-                             savingPurpose === 'hobbies' ? '#E74C3C20' :
-                             savingPurpose === 'gifts' ? '#27AE6020' :
-                             savingPurpose === 'dining' ? '#D3540020' :
-                             colors.primary + '20',
-              padding: 16, 
-              borderRadius: radius, 
-              marginTop: 12 
-            }}>
-              <Text style={{ fontSize: 14, color: colors.text, fontWeight: '500', textAlign: 'center' }}>
-                {savingPurpose === 'trip' && (poolType === 'group' 
-                  ? "🌍 Finally take that trip out of the group chat—let's make it real this time!"
-                  : "✈️ Your solo adventure awaits—pack your bags and your savings account!")}
-                {savingPurpose === 'wedding' && (poolType === 'group'
-                  ? "💕 From 'Will you?' to 'I do!'—every contribution brings the party closer."
-                  : "💍 Your dream wedding fund—because you deserve to walk down the aisle in style!")}
-                {savingPurpose === 'house' && (poolType === 'group'
-                  ? "🏡 Turning Zillow dreams into front-door keys—brick by brick, save by save."
-                  : "🏠 Your future home is calling—time to turn house hunting into house buying!")}
-                {savingPurpose === 'car' && (poolType === 'group'
-                  ? "🚗 Vroom vroom energy activated—your dream ride is fueling up one contribution at a time!"
-                  : "🚙 That car upgrade isn't going to finance itself—rev up those savings!")}
-                {savingPurpose === 'emergency' && "🛡️ Life happens. You'll be ready. Peace of mind is the best ROI."}
-                {savingPurpose === 'general' && "💪 Every dollar's a rep in the financial gym—keep flexing that savings muscle!"}
-                {savingPurpose === 'education' && (poolType === 'group'
-                  ? "📚 Degrees aren't cheap—but your future self will thank you for this tuition piggy bank."
-                  : "🎓 Investing in yourself is the best investment—your brain (and wallet) will thank you!")}
-                {savingPurpose === 'celebration' && (poolType === 'group'
-                  ? "🎉 Balloons, cake, and good vibes—let's party without the IOUs."
-                  : "🥳 Your special day deserves special funding—celebrate without the credit card regret!")}
-                {savingPurpose === 'pet' && "🐾 For the 'oops, my dog ate a sock' vet bills and the cutest splurges—because fur babies deserve the best."}
-                {savingPurpose === 'tech' && (poolType === 'group'
-                  ? "📱 That upgrade won't pay for itself—save now, unbox happiness later."
-                  : "💻 New tech, new you—time to upgrade your life one gadget at a time!")}
-                {savingPurpose === 'hobbies' && (poolType === 'group'
-                  ? "🏀 Gear up, level up, glow up—whether it's sneakers, golf clubs, or guitars, your hobby fund is in play."
-                  : "⚽ Your passion project needs funding—time to invest in what makes you happy!")}
-                {savingPurpose === 'gifts' && (poolType === 'group'
-                  ? "🎁 Santa called—he said budgeting now beats maxing out the credit card later."
-                  : "🎀 Generous hearts need generous budgets—save now, give big later!")}
-                {savingPurpose === 'dining' && (poolType === 'group'
-                  ? "🍣 Because sushi dates and taco Tuesdays hit different when they're guilt-free."
-                  : "🍽️ Your foodie adventures deserve proper funding—eat well, save smart!")}
-                {savingPurpose === 'custom' && (poolType === 'group'
-                  ? "💡 Custom goals deserve custom wins—you're building something uniquely yours together!"
-                  : "✨ Your unique goal, your unique journey—time to make it happen!")}
-              </Text>
-            </View>
-          )}
-        </View>
+        {/* Goal Category Selection */}
+        <GoalCategorySelector 
+          selectedCategory={selectedCategory}
+          onSelect={setSelectedCategory}
+          style={{ marginBottom: 20 }}
+        />
+
+        {/* Category-specific messaging */}
+        {selectedCategory && (
+          <View style={{ 
+            backgroundColor: selectedCategory.color + '20',
+            padding: 16, 
+            borderRadius: radius, 
+            marginBottom: 20 
+          }}>
+            <Text style={{ fontSize: 14, color: colors.text, fontWeight: '500', textAlign: 'center' }}>
+              {selectedCategory.id === 'travel' && (poolType === 'group' 
+                ? "🌍 Finally take that trip out of the group chat—let's make it real this time!"
+                : "✈️ Your solo adventure awaits—pack your bags and your savings account!")}
+              {selectedCategory.id === 'emergency' && "🛡️ Life happens. You'll be ready. Peace of mind is the best ROI."}
+              {selectedCategory.id === 'car' && (poolType === 'group'
+                ? "🚗 Vroom vroom energy activated—your dream ride is fueling up one contribution at a time!"
+                : "🚙 That car upgrade isn't going to finance itself—rev up those savings!")}
+              {selectedCategory.id === 'home' && (poolType === 'group'
+                ? "🏡 Turning Zillow dreams into front-door keys—brick by brick, save by save."
+                : "🏠 Your future home is calling—time to turn house hunting into house buying!")}
+              {selectedCategory.id === 'education' && (poolType === 'group'
+                ? "📚 Degrees aren't cheap—but your future self will thank you for this tuition piggy bank."
+                : "🎓 Investing in yourself is the best investment—your brain (and wallet) will thank you!")}
+              {selectedCategory.id === 'wedding' && (poolType === 'group'
+                ? "💕 From 'Will you?' to 'I do!'—every contribution brings the party closer."
+                : "💍 Your dream wedding fund—because you deserve to walk down the aisle in style!")}
+              {selectedCategory.id === 'tech' && (poolType === 'group'
+                ? "📱 That upgrade won't pay for itself—save now, unbox happiness later."
+                : "💻 New tech, new you—time to upgrade your life one gadget at a time!")}
+              {selectedCategory.id === 'health' && (poolType === 'group'
+                ? "💪 Stronger together—your wellness journey deserves proper funding!"
+                : "🏃‍♀️ Invest in your health—your future self will thank you!")}
+              {selectedCategory.id === 'business' && (poolType === 'group'
+                ? "💼 Turning business dreams into reality—one contribution at a time!"
+                : "🚀 Your entrepreneurial journey starts with smart saving!")}
+              {selectedCategory.id === 'other' && (poolType === 'group'
+                ? "🎯 Custom goals deserve custom wins—you're building something uniquely yours together!"
+                : "✨ Your unique goal, your unique journey—time to make it happen!")}
+            </Text>
+          </View>
+        )}
 
         <Text style={{ fontSize:18, fontWeight:'700', color: colors.text, marginBottom:8 }}>
           {poolType === 'solo' ? 'Goal Name' : 'Pool Name'}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Alert, Switch, ScrollView } from 'react-native';
 import { colors, radius } from '../theme';
 import { api } from '../services/api';
+import { CHARITIES } from '../data/charities';
 
 export default function PenaltySettings({ navigation, route }) {
   const [penaltyEnabled, setPenaltyEnabled] = useState(true);
@@ -47,13 +48,8 @@ export default function PenaltySettings({ navigation, route }) {
     }
   };
 
-  const charities = [
-    { id: 'red_cross', name: 'American Red Cross', description: 'Disaster relief and emergency assistance' },
-    { id: 'unicef', name: 'UNICEF', description: 'Children\'s rights and emergency relief' },
-    { id: 'doctors_without_borders', name: 'Doctors Without Borders', description: 'Medical humanitarian aid' },
-    { id: 'world_wildlife', name: 'World Wildlife Fund', description: 'Wildlife conservation' },
-    { id: 'feeding_america', name: 'Feeding America', description: 'Fighting hunger in America' }
-  ];
+  // Use imported charities from data file
+  const charities = CHARITIES;
 
   const getPenaltyPreview = () => {
     const amount = parseFloat(penaltyAmount) || 0;

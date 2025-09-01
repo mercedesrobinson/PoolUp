@@ -331,6 +331,31 @@ export default function PoolDetail({ navigation, route }){
           </TouchableOpacity>
         </View>
 
+        {/* Payment Actions */}
+        <View style={{ flexDirection: 'row', marginBottom: 16, gap: 12 }}>
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('PaymentMethods', { userId: user.id })} 
+            style={{ flex: 1, backgroundColor: colors.blue, padding: 14, borderRadius: radius, alignItems: 'center' }}
+          >
+            <Text style={{ color: 'white', fontWeight: '700' }}>💳 Payment Methods</Text>
+          </TouchableOpacity>
+          {pool.pool_type === 'solo' ? (
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('SoloGoalPrivacy', { userId: user.id, poolId })} 
+              style={{ flex: 1, backgroundColor: colors.purple, padding: 14, borderRadius: radius, alignItems: 'center' }}
+            >
+              <Text style={{ color: 'white', fontWeight: '700' }}>🔒 Privacy</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('PeerTransfer', { poolId, poolName: pool.name, userId: user.id })} 
+              style={{ flex: 1, backgroundColor: colors.green, padding: 14, borderRadius: radius, alignItems: 'center' }}
+            >
+              <Text style={{ color: 'white', fontWeight: '700' }}>💸 Send Money</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
         {/* Pool Members */}
         <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius, marginBottom: 16 }}>
           <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 }}>
