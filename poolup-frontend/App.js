@@ -139,6 +139,7 @@ export default function App() {
         <Stack.Screen name="ProgressSharingSimple" component={ProgressSharingSimple} />
         <Stack.Screen name="SoloSavings" component={SoloSavings} />
         <Stack.Screen name="Settings" component={Settings} />
+        <Stack.Screen name="Pools" component={Pools} />
         <Stack.Screen name="SocialProofSimple" component={SocialProofSimple} />
       </Stack.Navigator>
     </NavigationContainer>

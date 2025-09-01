@@ -866,5 +866,27 @@ export const api = {
       console.error('Save notification settings error:', error);
       throw error;
     }
+  },
+
+  getFriendsFeed: async (userId, filter = 'all') => {
+    try {
+      // Mock implementation - return empty array to trigger fallback
+      throw new Error('Mock API - use fallback data');
+    } catch (error) {
+      console.error('Get friends feed error:', error);
+      throw error;
+    }
+  },
+
+  generateInviteCode: async (poolId) => {
+    try {
+      // Mock implementation to prevent errors
+      const mockCode = `POOL${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      console.log('Generated invite code:', mockCode);
+      return mockCode;
+    } catch (error) {
+      console.error('Generate invite code error:', error);
+      throw error;
+    }
   }
 };
