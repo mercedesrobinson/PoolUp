@@ -6,6 +6,7 @@ export interface User {
   avatar_data?: string;
   profile_image_url?: string;
   google_id?: string;
+  authProvider?: string;
   created_at: string;
 }
 
@@ -14,12 +15,21 @@ export interface Pool {
   name: string;
   description: string;
   goal_amount: number;
+  goal_cents: number;
   current_amount: number;
+  saved_cents: number;
   target_date: string;
+  trip_date?: string;
+  destination?: string;
   created_by: string;
   pool_type: 'group' | 'solo';
   public_visibility: boolean;
   created_at: string;
+  member_count?: number;
+  members?: User[];
+  progress_percentage?: number;
+  bonus_pot_cents?: number;
+  contributions?: Contribution[];
 }
 
 export interface PoolMembership {
@@ -35,8 +45,12 @@ export interface Contribution {
   pool_id: string;
   user_id: string;
   amount: number;
+  amount_cents: number;
   description?: string;
   created_at: string;
+  points_earned?: number;
+  streak_bonus?: number;
+  user?: User;
 }
 
 export interface Message {

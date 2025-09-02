@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 // Import screens
 import Onboarding from './screens/Onboarding';
@@ -38,12 +38,51 @@ import PremiumUpgrade from './screens/PremiumUpgrade';
 import ProgressSharingSimple from './screens/ProgressSharingSimple';
 import SocialProofSimple from './screens/SocialProofSimple';
 
-// Import theme and types
+// Import theme
 import { colors } from './theme';
-import { RootStackParamList, MainTabParamList } from './types/navigation';
+
+// Type definitions
+export type RootStackParamList = {
+  Onboarding: undefined;
+  MainTabs: undefined;
+  CreatePool: undefined;
+  Leaderboard: undefined;
+  Badges: undefined;
+  DebitCard: undefined;
+  FriendsFeed: undefined;
+  InviteFriends: undefined;
+  GroupManagement: undefined;
+  PrivacySettings: undefined;
+  TransactionHistory: undefined;
+  SavingsSummary: undefined;
+  PenaltySettings: undefined;
+  RecurringPayments: undefined;
+  AccountabilityPartners: undefined;
+  ProfilePhotoUpload: undefined;
+  PaymentMethods: undefined;
+  LinkPaymentMethod: undefined;
+  PeerTransfer: undefined;
+  ContributionSettings: undefined;
+  SoloGoalPrivacy: undefined;
+  NotificationSettings: undefined;
+  GroupActivity: undefined;
+  PremiumUpgrade: undefined;
+  ProgressSharingSimple: undefined;
+  SoloSavings: undefined;
+  Settings: undefined;
+  Pools: undefined;
+  SocialProofSimple: undefined;
+};
+
+export type TabParamList = {
+  Goals: undefined;
+  Feed: undefined;
+  Profile: undefined;
+  More: undefined;
+};
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-const Tab = createBottomTabNavigator<MainTabParamList>();
+const Tab = createBottomTabNavigator<TabParamList>();
 
 // Main Tab Navigator
 function MainTabs(): React.JSX.Element {

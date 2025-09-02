@@ -7,7 +7,12 @@ export interface User {
   avatar_data?: string;
   profile_image_url?: string;
   google_id?: string;
+  authProvider?: string;
   created_at: string;
+  current_streak?: number;
+  total_saved?: number;
+  avatar?: string;
+  level?: number;
 }
 
 // Pool Types
@@ -16,14 +21,28 @@ export interface Pool {
   name: string;
   description: string;
   goal_amount: number;
+  goal_cents: number;
   current_amount: number;
+  saved_cents: number;
   target_date: string;
+  trip_date?: string;
+  destination?: string;
   created_by: string;
   pool_type: 'group' | 'solo';
   public_visibility: boolean;
   created_at: string;
   member_count?: number;
+  members?: User[];
   progress_percentage?: number;
+  bonus_pot_cents?: number;
+  contributions?: Contribution[];
+  contribution_count?: number;
+  owner_name?: string;
+  contribution_streak?: number;
+  is_public?: boolean;
+  avatar_type?: string;
+  avatar_data?: any;
+  privacy_settings?: any;
 }
 
 export interface PoolMembership {
@@ -40,8 +59,12 @@ export interface Contribution {
   pool_id: string;
   user_id: string;
   amount: number;
+  amount_cents: number;
   description?: string;
   created_at: string;
+  points_earned?: number;
+  streak_bonus?: number;
+  user?: User;
 }
 
 // Message Types
@@ -53,6 +76,23 @@ export interface Message {
   created_at: string;
   user?: User;
 }
+
+// Transaction Types
+export interface Transaction {
+  id: number;
+  type: 'contribution' | 'withdrawal' | 'penalty' | 'peer_transfer';
+  amount: number;
+  pool?: {
+    name: string;
+    destination: string;
+  };
+  timestamp: string;
+  status: string;
+  method?: string;
+  reason?: string;
+}
+
+export type FilterType = 'all' | 'contributions' | 'withdrawals' | 'penalties';
 
 // Banking Types
 export interface BankAccount {
