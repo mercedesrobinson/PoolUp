@@ -107,7 +107,7 @@ export default function ContributionSettings({ navigation, route }: Props): Reac
     title, 
     isActive 
   }: { 
-    frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly'; 
+    frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'semimonthly'; 
     title: string; 
     isActive: boolean; 
   }) => (
@@ -245,7 +245,7 @@ export default function ContributionSettings({ navigation, route }: Props): Reac
               isActive={settings.frequency === 'weekly'} 
             />
           </View>
-          <View style={{ flexDirection: 'row' }}>
+          <View style={{ flexDirection: 'row', marginBottom: 16 }}>
             <FrequencyButton 
               frequency="biweekly" 
               title="Bi-weekly" 
@@ -256,6 +256,14 @@ export default function ContributionSettings({ navigation, route }: Props): Reac
               title="Monthly" 
               isActive={settings.frequency === 'monthly'} 
             />
+          </View>
+          <View style={{ flexDirection: 'row' }}>
+            <FrequencyButton 
+              frequency="semimonthly" 
+              title="Semi-monthly" 
+              isActive={settings.frequency === 'semimonthly'} 
+            />
+            <View style={{ flex: 1 }} />
           </View>
         </View>
 

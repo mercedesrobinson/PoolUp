@@ -17,6 +17,8 @@ interface Props {
 interface PenaltySettings {
   penaltyAmount: number;
   penaltyType: 'forfeit' | 'pool' | 'charity';
+  penaltyMode: 'fixed' | 'percentage';
+  penaltyPercentage?: number;
   charityId?: string;
   charityName?: string;
   isEnabled: boolean;
@@ -26,6 +28,8 @@ export default function PenaltySettings({ navigation, route }: Props): React.JSX
   const [settings, setSettings] = useState<PenaltySettings>({
     penaltyAmount: 1000, // cents
     penaltyType: 'pool',
+    penaltyMode: 'fixed',
+    penaltyPercentage: 5,
     isEnabled: true,
   });
   const [loading, setLoading] = useState<boolean>(false);
@@ -198,32 +202,108 @@ export default function PenaltySettings({ navigation, route }: Props): React.JSX
           borderRadius: radius.medium,
         }}>
           <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 12 }}>
-            Penalty Amount
+            Penalty Mode
           </Text>
-          <TextInput
-            style={{
-              backgroundColor: '#f8f9fa',
-              padding: 12,
-              borderRadius: radius.medium,
-              fontSize: 18,
-              fontWeight: '600',
-              textAlign: 'center',
-              borderWidth: 1,
-              borderColor: '#e9ecef',
-            }}
-            value={formatAmount(settings.penaltyAmount)}
-            onChangeText={(text) => {
-              const amount = parseFloat(text.replace('$', '')) * 100;
-              if (!isNaN(amount)) {
-                setSettings(prev => ({ ...prev, penaltyAmount: Math.round(amount) }));
-              }
-            }}
-            keyboardType="numeric"
-            placeholder="$0.00"
-          />
-          <Text style={{ fontSize: 12, color: '#666', textAlign: 'center', marginTop: 8 }}>
-            Amount charged when you miss a contribution
-          </Text>
+          <View style={{ flexDirection: 'row', marginBottom: 20 }}>
+            <TouchableOpacity
+              onPress={() => setSettings(prev => ({ ...prev, penaltyMode: 'fixed' }))}
+              style={{
+                flex: 1,
+                padding: 12,
+                borderRadius: radius.medium,
+                backgroundColor: settings.penaltyMode === 'fixed' ? colors.primary : '#f8f9fa',
+                marginRight: 8,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{
+                color: settings.penaltyMode === 'fixed' ? 'white' : '#333',
+                fontWeight: '600',
+              }}>
+                Fixed Amount
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setSettings(prev => ({ ...prev, penaltyMode: 'percentage' }))}
+              style={{
+                flex: 1,
+                padding: 12,
+                borderRadius: radius.medium,
+                backgroundColor: settings.penaltyMode === 'percentage' ? colors.primary : '#f8f9fa',
+                marginLeft: 8,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{
+                color: settings.penaltyMode === 'percentage' ? 'white' : '#333',
+                fontWeight: '600',
+              }}>
+                Percentage
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {settings.penaltyMode === 'fixed' ? (
+            <>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 12 }}>
+                Penalty Amount
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: '#f8f9fa',
+                  padding: 12,
+                  borderRadius: radius.medium,
+                  fontSize: 18,
+                  fontWeight: '600',
+                  textAlign: 'center',
+                  borderWidth: 1,
+                  borderColor: '#e9ecef',
+                }}
+                value={formatAmount(settings.penaltyAmount)}
+                onChangeText={(text) => {
+                  const amount = parseFloat(text.replace('$', '')) * 100;
+                  if (!isNaN(amount)) {
+                    setSettings(prev => ({ ...prev, penaltyAmount: Math.round(amount) }));
+                  }
+                }}
+                keyboardType="numeric"
+                placeholder="$0.00"
+              />
+              <Text style={{ fontSize: 12, color: '#666', textAlign: 'center', marginTop: 8 }}>
+                Fixed amount charged when you miss a contribution
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 12 }}>
+                Penalty Percentage
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: '#f8f9fa',
+                  padding: 12,
+                  borderRadius: radius.medium,
+                  fontSize: 18,
+                  fontWeight: '600',
+                  textAlign: 'center',
+                  borderWidth: 1,
+                  borderColor: '#e9ecef',
+                }}
+                value={`${settings.penaltyPercentage || 5}%`}
+                onChangeText={(text) => {
+                  const percentage = parseFloat(text.replace('%', ''));
+                  if (!isNaN(percentage) && percentage >= 0 && percentage <= 100) {
+                    setSettings(prev => ({ ...prev, penaltyPercentage: percentage }));
+                  }
+                }}
+                keyboardType="numeric"
+                placeholder="5%"
+              />
+              <Text style={{ fontSize: 12, color: '#666', textAlign: 'center', marginTop: 8 }}>
+                Percentage of your contribution amount charged as penalty
+              </Text>
+            </>
+          )}
         </View>
 
         <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 16 }}>

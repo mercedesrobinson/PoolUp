@@ -295,10 +295,13 @@ export default function CreatePool({ navigation, route }: Props) {
               {selectedCategory?.id === 'travel' && (poolType === 'group' 
                 ? "🌍 Finally take that trip out of the group chat—let's make it real this time!"
                 : "✈️ Your solo adventure awaits—pack your bags and your savings account!")}
+              {selectedCategory?.id === 'emergency' && (poolType === 'group'
+                ? "🛡️ Building your safety net together—because life happens, but you'll be ready!"
+                : "🛡️ Your financial peace of mind starts here—3-6 months of expenses, one save at a time!")}
               {selectedCategory?.id === 'education' && "📚 Invest in yourself—it's the one investment that always pays dividends!"}
               {selectedCategory?.id === 'wedding' && (poolType === 'group'
-                ? "🚗 Vroom vroom energy activated—your dream ride is fueling up one contribution at a time!"
-                : "🚙 That car upgrade isn't going to finance itself—rev up those savings!")}
+                ? "💒 Your dream wedding deserves dream funding—let's make your special day perfect!"
+                : "💍 Walking down the aisle shouldn't break the bank—save smart for your big day!")}
               {selectedCategory?.id === 'home' && (poolType === 'group'
                 ? "🏡 Turning Zillow dreams into front-door keys—brick by brick, save by save."
                 : "🏠 Your future home is calling—time to turn house hunting into house buying!")}

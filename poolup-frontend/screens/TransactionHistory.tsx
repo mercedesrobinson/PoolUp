@@ -96,7 +96,7 @@ export default function TransactionHistory({ navigation, route }: Props): React.
     }
   };
 
-  const getTransactionIcon = (type) => {
+  const getTransactionIcon = (type: string) => {
     switch (type) {
       case 'contribution': return '💰';
       case 'withdrawal': return '💸';
@@ -106,7 +106,7 @@ export default function TransactionHistory({ navigation, route }: Props): React.
     }
   };
 
-  const getTransactionColor = (type) => {
+  const getTransactionColor = (type: string) => {
     switch (type) {
       case 'contribution': return colors.success;
       case 'withdrawal': return colors.warning;
@@ -116,7 +116,7 @@ export default function TransactionHistory({ navigation, route }: Props): React.
     }
   };
 
-  const getMethodIcon = (method) => {
+  const getMethodIcon = (method: string) => {
     switch (method) {
       case 'bank_transfer': return '🏦';
       case 'debit_card': return '💳';
@@ -141,14 +141,14 @@ export default function TransactionHistory({ navigation, route }: Props): React.
     });
   };
 
-  const getTotalByType = (type) => {
+  const getTotalByType = (type: string) => {
     if (!Array.isArray(transactions)) return 0;
     return transactions
       .filter(t => type === 'all' || t.type === type)
       .reduce((sum, t) => (Number(sum) || 0) + Math.abs(t.amount), 0);
   };
 
-  const renderTransaction = ({ item }) => (
+  const renderTransaction = ({ item }: { item: Transaction }) => (
     <View style={{
       backgroundColor: 'white',
       padding: 16,
