@@ -34,7 +34,8 @@ interface Contribution {
 }
 
 const API_BASE = 'http://localhost:3000/api';
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'https://poolup-api.onrender.com/api';
+const USE_MOCK_DATA = false;
 
 // Get current user ID from storage
 const getCurrentUserId = (): string => {
