@@ -181,3 +181,54 @@ export interface ProfileForm {
   avatar_data?: string;
   profile_image_url?: string;
 }
+
+// Friends Types
+export interface Friend {
+  id: string;
+  name: string;
+  email: string;
+  profile_image_url?: string;
+  friendship_id?: string;
+  created_at: string;
+  current_streak?: number;
+  level?: number;
+  total_saved?: number;
+  friendship_status?: string;
+}
+
+export interface FriendRequest {
+  id: string;
+  sender_id?: string;
+  receiver_id?: string;
+  sender_name?: string;
+  sender_email?: string;
+  status: 'pending' | 'accepted' | 'declined';
+  created_at: string;
+  from_user_id?: string;
+  from_user_name?: string;
+  from_user_email?: string;
+  to_user_id?: string;
+}
+
+// Milestone Types
+export interface Milestone {
+  id: string;
+  pool_id: string;
+  title: string;
+  description?: string;
+  target_amount_cents: number;
+  is_completed: boolean;
+  order_index: number;
+  created_at: string;
+}
+
+export interface MilestoneTemplate {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  target_amount_cents?: number;
+  percentage_of_goal: number;
+  order_index: number;
+  icon?: string;
+}

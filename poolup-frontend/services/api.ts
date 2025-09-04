@@ -34,8 +34,8 @@ interface Contribution {
 }
 
 const API_BASE = 'http://localhost:3000/api';
-const BASE_URL = 'https://poolup-api.onrender.com/api';
-const USE_MOCK_DATA = false;
+const BASE_URL = 'https://poolup-api.onrender.com';
+const USE_MOCK_DATA = true;
 
 // Get current user ID from storage
 const getCurrentUserId = (): string => {
@@ -826,17 +826,6 @@ export const api = {
   },
 
   // Peer Transfer APIs
-  getPoolMembers: async (poolId: string) => {
-    try {
-      const response = await fetch(`${API_BASE}/pools/${poolId}/members`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const text = await response.text();
-      return text ? JSON.parse(text) : [];
-    } catch (error) {
-      console.error('Get pool members error:', error);
-      return [];
-    }
-  },
 
   async processPeerTransfer(poolId, fromUserId, toUserId, amountCents, message = '') {
     try {
@@ -1035,5 +1024,149 @@ export const api = {
 
   updateSoloGoalPrivacySettings: async (userId: string, settings: any) => {
     return { success: true };
+  },
+
+  // Friends API
+  getUserFriends: async (userId: string) => {
+    if (USE_MOCK_DATA) {
+      return [
+        {
+          id: '2',
+          name: 'Sarah Chen',
+          email: 'sarah@example.com',
+          profile_image_url: 'https://via.placeholder.com/150',
+          friendship_id: 'f1',
+          created_at: '2024-01-01T00:00:00Z'
+        },
+        {
+          id: '3',
+          name: 'Mike Rodriguez',
+          email: 'mike@example.com',
+          profile_image_url: 'https://via.placeholder.com/150',
+          friendship_id: 'f2',
+          created_at: '2024-01-02T00:00:00Z'
+        }
+      ];
+    }
+    const response = await fetch(`${BASE_URL}/api/users/${userId}/friends`);
+    return response.json();
+  },
+
+  getFriendRequests: async (userId: string) => {
+    if (USE_MOCK_DATA) {
+      return [
+        {
+          id: '1',
+          sender_id: '4',
+          receiver_id: userId,
+          sender_name: 'Alex Chen',
+          sender_email: 'alex@example.com',
+          status: 'pending',
+          created_at: '2024-01-20T00:00:00Z'
+        }
+      ];
+    }
+    const response = await fetch(`${BASE_URL}/api/users/${userId}/friend-requests`);
+    return response.json();
+  },
+
+  sendFriendRequest: async (userId: string, friendEmail: string) => {
+    if (USE_MOCK_DATA) {
+      return { success: true, requestId: Date.now().toString() };
+    }
+    const response = await fetch(`${BASE_URL}/api/users/${userId}/friend-requests`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ friendEmail })
+    });
+    return response.json();
+  },
+
+  respondToFriendRequest: async (requestId: string, action: 'accept' | 'decline') => {
+    if (USE_MOCK_DATA) {
+      return { success: true };
+    }
+    const response = await fetch(`${BASE_URL}/api/friend-requests/${requestId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action })
+    });
+    return response.json();
+  },
+
+  removeFriend: async (userId: string, friendId: string) => {
+    if (USE_MOCK_DATA) {
+      return { success: true };
+    }
+    const response = await fetch(`${BASE_URL}/api/users/${userId}/friends/${friendId}`, {
+      method: 'DELETE'
+    });
+    return response.json();
+  },
+
+  // Milestones API
+  getPoolMilestones: async (poolId: string) => {
+    if (USE_MOCK_DATA) {
+      return [
+        {
+          id: '1',
+          pool_id: poolId,
+          title: 'Flights',
+          description: 'Book round-trip flights',
+          target_amount_cents: 120000,
+          is_completed: true,
+          order_index: 1,
+          created_at: '2024-01-01T00:00:00Z'
+        },
+        {
+          id: '2',
+          pool_id: poolId,
+          title: 'Accommodation',
+          description: 'Hotel booking for 7 nights',
+          target_amount_cents: 100000,
+          is_completed: false,
+          order_index: 2,
+          created_at: '2024-01-01T00:00:00Z'
+        }
+      ];
+    }
+    const response = await fetch(`${BASE_URL}/api/pools/${poolId}/milestones`);
+    return response.json();
+  },
+
+  createMilestone: async (milestone: any) => {
+    if (USE_MOCK_DATA) {
+      return { success: true, milestone: { ...milestone, id: Date.now().toString() } };
+    }
+    const response = await fetch(`${BASE_URL}/api/milestones`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(milestone)
+    });
+    return response.json();
+  },
+
+  updateMilestone: async (milestoneId: string, updates: any) => {
+    if (USE_MOCK_DATA) {
+      return { success: true };
+    }
+    const response = await fetch(`${BASE_URL}/api/milestones/${milestoneId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+    return response.json();
+  },
+
+  getPoolMembers: async (poolId: string) => {
+    if (USE_MOCK_DATA) {
+      return [
+        { id: '1756612920173', name: 'You' },
+        { id: '2', name: 'Sarah Chen' },
+        { id: '3', name: 'Mike Rodriguez' }
+      ];
+    }
+    const response = await fetch(`${BASE_URL}/api/pools/${poolId}/members`);
+    return response.json();
   }
 };

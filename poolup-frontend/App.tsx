@@ -10,8 +10,10 @@ import Onboarding from './screens/Onboarding';
 import Pools from './screens/Pools';
 import CreatePool from './screens/CreatePool';
 import Profile from './screens/Profile';
-import DebitCard from './screens/DebitCard';
 import Badges from './screens/Badges';
+import ExpenseSplitting from './screens/ExpenseSplitting';
+import ProgressVisualization from './screens/ProgressVisualization';
+import Notifications from './screens/Notifications';
 import Leaderboard from './screens/Leaderboard';
 import SoloSavings from './screens/SoloSavings';
 
@@ -48,7 +50,9 @@ export type RootStackParamList = {
   CreatePool: undefined;
   Leaderboard: undefined;
   Badges: undefined;
-  DebitCard: undefined;
+  ExpenseSplitting: { poolId?: string; userId?: string };
+  ProgressVisualization: { poolId?: string };
+  Notifications: undefined;
   FriendsFeed: undefined;
   InviteFriends: undefined;
   GroupManagement: undefined;
@@ -157,7 +161,9 @@ export default function App(): React.JSX.Element {
         <Stack.Screen name="CreatePool" component={CreatePool} />
         <Stack.Screen name="Leaderboard" component={Leaderboard} />
         <Stack.Screen name="Badges" component={Badges} />
-        <Stack.Screen name="DebitCard" component={DebitCard} />
+        <Stack.Screen name="ExpenseSplitting" component={ExpenseSplitting} />
+        <Stack.Screen name="ProgressVisualization" component={ProgressVisualization} />
+        <Stack.Screen name="Notifications" component={Notifications} />
         <Stack.Screen name="FriendsFeed" component={FriendsFeed} />
         <Stack.Screen name="InviteFriends" component={InviteFriends} />
         <Stack.Screen name="GroupManagement" component={GroupManagement} />
