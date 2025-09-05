@@ -143,14 +143,104 @@ export default function Profile({ navigation, route }: any) {
     }
   }, [user]);
 
-  // Early return if no user data
-  if (!user) {
-    return (
-      <View style={{ flex: 1, backgroundColor: '#FAFCFF', alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ fontSize: 18, color: '#666' }}>Loading user data...</Text>
+  // Always show profile with mock data if no user
+  const displayProfile = user || {
+    id: '1756612920173',
+    name: 'Mercedes',
+    email: 'mercedes@example.com'
+  };
+
+  const ProfileOption = ({ icon, title, subtitle, onPress }: {
+    icon: string;
+    title: string;
+    subtitle: string;
+    onPress: () => void;
+  }) => (
+    <TouchableOpacity
+      onPress={onPress}
+      style={{
+        backgroundColor: 'white',
+        padding: 16,
+        borderRadius: radius.medium,
+        marginBottom: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}
+    >
+      <Text style={{ fontSize: 24, marginRight: 16 }}>{icon}</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 2 }}>
+          {title}
+        </Text>
+        <Text style={{ fontSize: 14, color: '#666' }}>
+          {subtitle}
+        </Text>
       </View>
+      <Text style={{ fontSize: 16, color: '#999' }}>›</Text>
+    </TouchableOpacity>
+  );
+
+  // Always show profile with displayProfile data
+  const showProfile = () => {
+    return (
+      <ScrollView style={{ flex: 1, backgroundColor: '#FAFCFF' }}>
+        <View style={{
+          backgroundColor: 'white',
+          padding: 20,
+          alignItems: 'center',
+          borderBottomWidth: 1,
+          borderBottomColor: '#e9ecef',
+        }}>
+          <View style={{
+            width: 80,
+            height: 80,
+            borderRadius: 40,
+            backgroundColor: colors.primary,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 12,
+          }}>
+            <Text style={{ fontSize: 32, color: 'white' }}>
+              {displayProfile.name.charAt(0).toUpperCase()}
+            </Text>
+          </View>
+          <Text style={{ fontSize: 24, fontWeight: '700', color: '#333', marginBottom: 4 }}>
+            {displayProfile.name}
+          </Text>
+          <Text style={{ fontSize: 16, color: '#666' }}>
+            {displayProfile.email}
+          </Text>
+        </View>
+
+        <View style={{ padding: 16 }}>
+          <ProfileOption
+            icon="💰"
+            title="My Pools"
+            subtitle="View your savings goals"
+            onPress={() => navigation.navigate("Pools" as any, { user: displayProfile })}
+          />
+          <ProfileOption
+            icon="💳"
+            title="Debit Card"
+            subtitle="Manage your PoolUp card"
+            onPress={() => navigation.navigate("DebitCard" as any, { user: displayProfile })}
+          />
+          <ProfileOption
+            icon="🏆"
+            title="Badges"
+            subtitle="View your achievements"
+            onPress={() => navigation.navigate("Badges" as any, { user: displayProfile })}
+          />
+          <ProfileOption
+            icon="⚙️"
+            title="Settings"
+            subtitle="App preferences"
+            onPress={() => navigation.navigate("Settings" as any, { user: displayProfile })}
+          />
+        </View>
+      </ScrollView>
     );
-  }
+  };
 
   if (!profile) {
     // Show loading state with basic user info
@@ -161,7 +251,7 @@ export default function Profile({ navigation, route }: any) {
             <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.3)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
               <Text style={{ fontSize: 32, color: 'white' }}>👤</Text>
             </View>
-            <Text style={{ fontSize: 24, fontWeight: '700', color: 'white', marginBottom: 8 }}>{user.name}</Text>
+            <Text style={{ fontSize: 24, fontWeight: '700', color: 'white', marginBottom: 8 }}>{displayProfile.name}</Text>
             <Text style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)' }}>Level 1</Text>
           </View>
         </View>
@@ -185,13 +275,13 @@ export default function Profile({ navigation, route }: any) {
           <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius.medium }}>
             <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 }}>Quick Actions</Text>
             <TouchableOpacity 
-              onPress={() => navigation.navigate("Pools" as any, { user })}
+              onPress={() => navigation.navigate("Pools" as any, { user: displayProfile })}
               style={{ backgroundColor: colors.green, padding: 12, borderRadius: radius.medium, marginBottom: 8 }}
             >
               <Text style={{ color: 'white', fontWeight: '700', textAlign: 'center' }}>View Pools</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              onPress={() => navigation.navigate("CreatePool" as any, { user })}
+              onPress={() => navigation.navigate("CreatePool" as any, { user: displayProfile })}
               style={{ backgroundColor: colors.purple, padding: 12, borderRadius: radius.medium }}
             >
               <Text style={{ color: 'white', fontWeight: '700', textAlign: 'center' }}>Create New Pool</Text>

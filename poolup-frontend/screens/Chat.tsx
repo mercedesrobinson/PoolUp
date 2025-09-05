@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
 import { colors, radius } from '../theme';
 import { api } from '../services/api';
-import io from 'socket.io-client';
+// import io from 'socket.io-client'; // Removed - not needed for MVP
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types/navigation';
@@ -31,15 +31,8 @@ export default function Chat({ route }: Props): React.JSX.Element {
   useEffect(()=>{ load(); },[]);
 
   useEffect(() => {
-    const socket = io(SERVER);
-    
-    socket.on('message', (message) => {
-      if(message.poolId === poolId) setMessages(prev => [...prev, message]);
-    });
-    
-    return () => {
-      socket.disconnect();
-    };
+    // Real-time chat disabled for MVP
+    // Will implement with WebSocket later
   }, []);
 
   const send = async ()=>{

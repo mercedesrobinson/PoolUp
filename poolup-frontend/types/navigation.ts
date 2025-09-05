@@ -36,7 +36,7 @@ export type RootStackParamList = {
   Badges: { user: User };
   Leaderboard: { user: User };
   FriendsFeed: undefined;
-  InviteFriends: undefined;
+  InviteFriends: { poolName?: string };
   SocialFeed: undefined;
   WithdrawFunds: { poolId: string; userId?: string };
   InteractiveOnboarding: undefined;

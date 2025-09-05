@@ -6,7 +6,7 @@ import { colors, radius } from '../theme';
 import { api } from '../services/api';
 import { RootStackParamList } from '../types/navigation';
 import { Pool, User, Contribution } from '../types/index';
-import io from 'socket.io-client';
+// import io from 'socket.io-client'; // Removed - not needed for MVP
 
 const SERVER = process.env.EXPO_PUBLIC_SERVER_URL || 'http://localhost:4000';
 
@@ -111,38 +111,13 @@ export default function PoolDetail({ navigation, route }: Props): React.JSX.Elem
   useEffect(()=>{ load(); },[]);
 
   useEffect(() => {
-    const socket = io(SERVER);
-    
-    socket.on('message', (message) => {
-      if(message.poolId === poolId) setMessages(prev => [...prev, message]);
-    });
-    
-    return () => {
-      socket.disconnect();
-    };
+    // Real-time messaging disabled for MVP
+    // Will implement with WebSocket later
   }, [poolId]);
 
   useEffect(()=>{
-    const s = io(SERVER, { transports:['websocket'] });
-    s.emit('room:join', poolId);
-    s.on('contribution:new', (payload)=>{
-      if(payload.poolId === poolId) {
-        load();
-        if(payload.newBadges && payload.newBadges.length > 0) {
-          Alert.alert('New Badge Earned! 🏆', `You earned: ${payload.newBadges[0].name}`);
-        }
-      }
-    });
-    s.on('peer_boost:new', (payload) => {
-      if(payload.poolId === poolId) {
-        load();
-        Alert.alert('Peer Boost! 🤝', 'Someone helped cover a payment!');
-      }
-    });
-    setSocket(s);
-    return () => {
-      s.disconnect();
-    };
+    // Real-time contributions disabled for MVP
+    // Will implement with WebSocket later
   }, [poolId]);
 
   if(!pool) return <View style={{flex:1, backgroundColor: '#FAFCFF'}} />;

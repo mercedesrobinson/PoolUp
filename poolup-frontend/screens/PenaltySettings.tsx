@@ -17,6 +17,8 @@ interface Props {
 interface PenaltySettings {
   penaltyAmount: number;
   penaltyType: 'forfeit' | 'pool' | 'charity';
+  penaltyMode: 'fixed' | 'percentage';
+  penaltyPercentage?: number;
   charityId?: string;
   charityName?: string;
   isEnabled: boolean;
@@ -26,6 +28,8 @@ export default function PenaltySettings({ navigation, route }: Props): React.JSX
   const [settings, setSettings] = useState<PenaltySettings>({
     penaltyAmount: 1000, // cents
     penaltyType: 'pool',
+    penaltyMode: 'fixed',
+    penaltyPercentage: 5,
     isEnabled: true,
   });
   const [loading, setLoading] = useState<boolean>(false);
@@ -179,16 +183,23 @@ export default function PenaltySettings({ navigation, route }: Props): React.JSX
             marginBottom: 8,
             textAlign: 'center',
           }}>
-            Stay Accountable
+            Missed Payment Penalties
           </Text>
           <Text style={{
             fontSize: 15,
             color: '#666',
             textAlign: 'center',
             lineHeight: 22,
+            marginBottom: 12,
           }}>
-            Set up penalties to help you stick to your savings goals.
+            Set up penalties for when you miss scheduled contributions.
           </Text>
+          
+          <View style={{ backgroundColor: '#e7f3ff', padding: 12, borderRadius: radius.medium, borderLeftWidth: 4, borderLeftColor: '#007bff' }}>
+            <Text style={{ fontSize: 13, color: '#004085', textAlign: 'center', lineHeight: 18 }}>
+              💡 This is different from early withdrawal penalties (set when creating pools). These penalties apply when you miss your regular contribution schedule.
+            </Text>
+          </View>
         </View>
 
         <View style={{
@@ -198,32 +209,108 @@ export default function PenaltySettings({ navigation, route }: Props): React.JSX
           borderRadius: radius.medium,
         }}>
           <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 12 }}>
-            Penalty Amount
+            Penalty Mode
           </Text>
-          <TextInput
-            style={{
-              backgroundColor: '#f8f9fa',
-              padding: 12,
-              borderRadius: radius.medium,
-              fontSize: 18,
-              fontWeight: '600',
-              textAlign: 'center',
-              borderWidth: 1,
-              borderColor: '#e9ecef',
-            }}
-            value={formatAmount(settings.penaltyAmount)}
-            onChangeText={(text) => {
-              const amount = parseFloat(text.replace('$', '')) * 100;
-              if (!isNaN(amount)) {
-                setSettings(prev => ({ ...prev, penaltyAmount: Math.round(amount) }));
-              }
-            }}
-            keyboardType="numeric"
-            placeholder="$0.00"
-          />
-          <Text style={{ fontSize: 12, color: '#666', textAlign: 'center', marginTop: 8 }}>
-            Amount charged when you miss a contribution
-          </Text>
+          <View style={{ flexDirection: 'row', marginBottom: 20 }}>
+            <TouchableOpacity
+              onPress={() => setSettings(prev => ({ ...prev, penaltyMode: 'fixed' }))}
+              style={{
+                flex: 1,
+                padding: 12,
+                borderRadius: radius.medium,
+                backgroundColor: settings.penaltyMode === 'fixed' ? colors.primary : '#f8f9fa',
+                marginRight: 8,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{
+                color: settings.penaltyMode === 'fixed' ? 'white' : '#333',
+                fontWeight: '600',
+              }}>
+                Fixed Amount
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setSettings(prev => ({ ...prev, penaltyMode: 'percentage' }))}
+              style={{
+                flex: 1,
+                padding: 12,
+                borderRadius: radius.medium,
+                backgroundColor: settings.penaltyMode === 'percentage' ? colors.primary : '#f8f9fa',
+                marginLeft: 8,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{
+                color: settings.penaltyMode === 'percentage' ? 'white' : '#333',
+                fontWeight: '600',
+              }}>
+                Percentage
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {settings.penaltyMode === 'fixed' ? (
+            <>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 12 }}>
+                Penalty Amount
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: '#f8f9fa',
+                  padding: 12,
+                  borderRadius: radius.medium,
+                  fontSize: 18,
+                  fontWeight: '600',
+                  textAlign: 'center',
+                  borderWidth: 1,
+                  borderColor: '#e9ecef',
+                }}
+                value={formatAmount(settings.penaltyAmount)}
+                onChangeText={(text) => {
+                  const amount = parseFloat(text.replace('$', '')) * 100;
+                  if (!isNaN(amount)) {
+                    setSettings(prev => ({ ...prev, penaltyAmount: Math.round(amount) }));
+                  }
+                }}
+                keyboardType="numeric"
+                placeholder="$0.00"
+              />
+              <Text style={{ fontSize: 12, color: '#666', textAlign: 'center', marginTop: 8 }}>
+                Fixed amount charged when you miss a contribution
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 12 }}>
+                Penalty Percentage
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: '#f8f9fa',
+                  padding: 12,
+                  borderRadius: radius.medium,
+                  fontSize: 18,
+                  fontWeight: '600',
+                  textAlign: 'center',
+                  borderWidth: 1,
+                  borderColor: '#e9ecef',
+                }}
+                value={`${settings.penaltyPercentage || 5}%`}
+                onChangeText={(text) => {
+                  const percentage = parseFloat(text.replace('%', ''));
+                  if (!isNaN(percentage) && percentage >= 0 && percentage <= 100) {
+                    setSettings(prev => ({ ...prev, penaltyPercentage: percentage }));
+                  }
+                }}
+                keyboardType="numeric"
+                placeholder="5%"
+              />
+              <Text style={{ fontSize: 12, color: '#666', textAlign: 'center', marginTop: 8 }}>
+                Percentage of your contribution amount charged as penalty
+              </Text>
+            </>
+          )}
         </View>
 
         <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 16 }}>
@@ -252,7 +339,7 @@ export default function PenaltySettings({ navigation, route }: Props): React.JSX
           icon="❤️"
         />
 
-        {settings.penaltyType === 'charity' && (
+{settings.penaltyType === 'charity' && (
           <View style={{
             backgroundColor: 'white',
             padding: 16,
@@ -262,19 +349,61 @@ export default function PenaltySettings({ navigation, route }: Props): React.JSX
             <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 12 }}>
               Select Charity
             </Text>
-            <TouchableOpacity
-              style={{
-                backgroundColor: '#f8f9fa',
-                padding: 12,
-                borderRadius: radius.medium,
-                borderWidth: 1,
-                borderColor: '#e9ecef',
-              }}
-            >
-              <Text style={{ fontSize: 16, color: settings.charityName ? '#333' : '#666' }}>
-                {settings.charityName || 'Choose a charity...'}
-              </Text>
-            </TouchableOpacity>
+            
+            {/* Charity Options */}
+            {[
+              { id: 'aclu', name: 'ACLU', description: 'Defends civil rights and liberties (free speech, racial justice, LGBTQ+ rights)' },
+              { id: 'equal_justice_initiative', name: 'Equal Justice Initiative (EJI)', description: 'Founded by Bryan Stevenson, focuses on ending mass incarceration and racial inequality' },
+              { id: 'planned_parenthood', name: 'Planned Parenthood', description: 'Comprehensive reproductive health services and advocacy' },
+              { id: 'trevor_project', name: 'Trevor Project', description: 'Crisis intervention and suicide prevention for LGBTQ+ youth' },
+              { id: 'transgender_law_center', name: 'Transgender Law Center', description: 'Legal advocacy for transgender and gender nonconforming people' },
+              { id: 'splc', name: 'Southern Poverty Law Center (SPLC)', description: 'Fights hate and extremism, promotes civil rights' },
+              { id: 'doctors_without_borders', name: 'Doctors Without Borders', description: 'Provides emergency medical care in crisis zones worldwide' }
+            ].map((charity) => (
+              <TouchableOpacity
+                key={charity.id}
+                onPress={() => setSettings(prev => ({ 
+                  ...prev, 
+                  charityId: charity.id, 
+                  charityName: charity.name 
+                }))}
+                style={{
+                  backgroundColor: settings.charityId === charity.id ? colors.primary + '20' : '#f8f9fa',
+                  padding: 12,
+                  borderRadius: radius.medium,
+                  borderWidth: 1,
+                  borderColor: settings.charityId === charity.id ? colors.primary : '#e9ecef',
+                  marginBottom: 8,
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ 
+                      fontSize: 16, 
+                      fontWeight: '600',
+                      color: settings.charityId === charity.id ? colors.primary : '#333' 
+                    }}>
+                      {charity.name}
+                    </Text>
+                    <Text style={{ 
+                      fontSize: 14, 
+                      color: '#666', 
+                      marginTop: 2 
+                    }}>
+                      {charity.description}
+                    </Text>
+                  </View>
+                  <View style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: 10,
+                    borderWidth: 2,
+                    borderColor: settings.charityId === charity.id ? colors.primary : '#ccc',
+                    backgroundColor: settings.charityId === charity.id ? colors.primary : 'transparent',
+                  }} />
+                </View>
+              </TouchableOpacity>
+            ))}
           </View>
         )}
 

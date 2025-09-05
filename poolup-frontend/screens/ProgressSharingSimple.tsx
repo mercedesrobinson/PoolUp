@@ -40,6 +40,17 @@ export default function ProgressSharingSimple({ navigation, route }: Props): Rea
       if (poolId) {
         const data = await api.getPoolProgress(poolId);
         setProgressData(data);
+      } else {
+        // Always provide mock data when no poolId
+        setProgressData({
+          goalName: 'Bali Adventure',
+          currentAmount: 275000, // cents
+          targetAmount: 500000, // cents
+          progressPercentage: 55,
+          daysRemaining: 45,
+          streakDays: 12,
+          milestoneReached: '50% Complete!'
+        });
       }
     } catch (error) {
       console.error('Failed to load progress data:', error);

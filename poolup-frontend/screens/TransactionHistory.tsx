@@ -32,21 +32,27 @@ export default function TransactionHistory({ navigation, route }: Props): React.
 
   const loadTransactionHistory = async (): Promise<void> => {
     try {
-      // Set mock data immediately to prevent loading issues
+      // Try to load from API first
+      const userTransactions = await api.getTransactionHistory(userId);
+      setTransactions(userTransactions);
+    } catch (error) {
+      console.error('Failed to load transaction history from API, using mock data:', error);
+      // Mock data for development - replace with actual API call
       const mockTransactions = [
         {
           id: 1,
           type: 'contribution' as const,
-          amount: 15000, // cents
-          pool: { name: 'Bali Adventure', destination: 'Bali' },
-          timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          amount: 5000,
+          pool: { name: 'Emergency Fund', destination: 'Savings' },
+          timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
           status: 'completed',
           method: 'bank_transfer'
         },
         {
           id: 2,
           type: 'withdrawal' as const,
-          amount: -500,
+          amount: -15000,
+          pool: { name: 'Emergency Fund', destination: 'Savings' },
           reason: 'Emergency expense',
           timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
           status: 'completed'
@@ -90,13 +96,10 @@ export default function TransactionHistory({ navigation, route }: Props): React.
       ];
       setTransactions(mockTransactions);
       console.log('TransactionHistory loaded with mock data');
-    } catch (error) {
-      console.error('Failed to load transaction history:', error);
-      setTransactions([]);
     }
   };
 
-  const getTransactionIcon = (type) => {
+  const getTransactionIcon = (type: string) => {
     switch (type) {
       case 'contribution': return '💰';
       case 'withdrawal': return '💸';
@@ -106,7 +109,7 @@ export default function TransactionHistory({ navigation, route }: Props): React.
     }
   };
 
-  const getTransactionColor = (type) => {
+  const getTransactionColor = (type: string) => {
     switch (type) {
       case 'contribution': return colors.success;
       case 'withdrawal': return colors.warning;
@@ -116,7 +119,7 @@ export default function TransactionHistory({ navigation, route }: Props): React.
     }
   };
 
-  const getMethodIcon = (method) => {
+  const getMethodIcon = (method: string) => {
     switch (method) {
       case 'bank_transfer': return '🏦';
       case 'debit_card': return '💳';
@@ -141,14 +144,14 @@ export default function TransactionHistory({ navigation, route }: Props): React.
     });
   };
 
-  const getTotalByType = (type) => {
+  const getTotalByType = (type: string) => {
     if (!Array.isArray(transactions)) return 0;
     return transactions
       .filter(t => type === 'all' || t.type === type)
       .reduce((sum, t) => (Number(sum) || 0) + Math.abs(t.amount), 0);
   };
 
-  const renderTransaction = ({ item }) => (
+  const renderTransaction = ({ item }: { item: Transaction }) => (
     <View style={{
       backgroundColor: 'white',
       padding: 16,

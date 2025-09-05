@@ -49,7 +49,7 @@ export default function RecurringPayments({ navigation, route }: Props): React.J
           poolName: 'Bali Adventure',
           amount: 5000, // cents
           frequency: 'weekly',
-          nextPayment: '2024-01-15',
+          nextPayment: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           isActive: true,
           paymentMethod: 'Venmo'
         },
@@ -59,7 +59,7 @@ export default function RecurringPayments({ navigation, route }: Props): React.J
           poolName: 'Emergency Fund',
           amount: 10000, // cents
           frequency: 'monthly',
-          nextPayment: '2024-01-20',
+          nextPayment: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
           isActive: false,
           paymentMethod: 'Bank Account'
         },
@@ -69,7 +69,7 @@ export default function RecurringPayments({ navigation, route }: Props): React.J
           poolName: 'New Car',
           amount: 7500, // cents
           frequency: 'biweekly',
-          nextPayment: '2024-01-18',
+          nextPayment: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
           isActive: true,
           paymentMethod: 'Cash App'
         }
