@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
-import { LineChart } from 'react-native-chart-kit';
 import { colors, radius } from '../theme';
 import { api } from '../services/api';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -327,27 +326,34 @@ export default function SavingsSummary({ navigation, route }: Props): React.JSX.
             </View>
           </ScrollView>
 
-          <LineChart
-            data={chartData}
-            width={screenWidth - 80}
-            height={200}
-            chartConfig={{
+          {/* Simple Chart Replacement */}
+          <View style={{
+            backgroundColor: '#f8f9fa',
+            padding: 20,
+            borderRadius: 16,
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: 200,
+          }}>
+            <Text style={{ fontSize: 48, marginBottom: 12 }}>📈</Text>
+            <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: 8 }}>
+              Savings Growth Chart
+            </Text>
+            <Text style={{ fontSize: 14, color: '#666', textAlign: 'center' }}>
+              Your savings have grown consistently over the {timeframe} period
+            </Text>
+            <View style={{ 
+              flexDirection: 'row', 
+              marginTop: 16,
               backgroundColor: 'white',
-              backgroundGradientFrom: 'white',
-              backgroundGradientTo: 'white',
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(81, 150, 244, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity * 0.6})`,
-              style: { borderRadius: 16 },
-              propsForDots: {
-                r: '4',
-                strokeWidth: '2',
-                stroke: colors.primary
-              }
-            }}
-            bezier
-            style={{ borderRadius: 16 }}
-          />
+              padding: 12,
+              borderRadius: 8,
+            }}>
+              <Text style={{ fontSize: 14, color: colors.primary, fontWeight: '600' }}>
+                📊 Chart visualization coming soon
+              </Text>
+            </View>
+          </View>
         </View>
 
         {/* Fun Facts */}

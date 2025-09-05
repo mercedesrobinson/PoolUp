@@ -54,7 +54,7 @@ export type RootStackParamList = {
   ProgressVisualization: { poolId?: string };
   Notifications: undefined;
   FriendsFeed: undefined;
-  InviteFriends: undefined;
+  InviteFriends: { poolName?: string };
   GroupManagement: undefined;
   PrivacySettings: undefined;
   TransactionHistory: undefined;

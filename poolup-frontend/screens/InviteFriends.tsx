@@ -4,7 +4,7 @@ import { colors, radius } from '../theme';
 import { api } from '../services/api';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '../App';
+import { RootStackParamList } from '../types/navigation';
 
 type InviteFriendsNavigationProp = StackNavigationProp<RootStackParamList, 'InviteFriends'>;
 type InviteFriendsRouteProp = RouteProp<RootStackParamList, 'InviteFriends'>;

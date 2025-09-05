@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, RefreshControl } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, RefreshControl, Alert } from 'react-native';
 import { colors, radius, shadow } from '../theme';
 import { api } from '../services/api';
 import { PoolCardSkeleton } from '../components/LoadingSkeleton';
@@ -141,7 +141,8 @@ export default function Pools({ navigation, route }: any){
           destination: "Tokyo, Japan",
           creator_id: user.id,
           bonus_pot_cents: 5000,
-          category: { id: 'travel', name: 'Travel', icon: '✈️', color: '#4285F4' }
+          category: { id: 'travel', name: 'Travel', icon: '✈️', color: '#4285F4' },
+          isPrivate: false
         },
         {
           id: 2,
@@ -151,7 +152,41 @@ export default function Pools({ navigation, route }: any){
           destination: null,
           creator_id: user.id,
           bonus_pot_cents: 0,
-          category: { id: 'emergency', name: 'Emergency Fund', icon: '🛡️', color: '#34A853' }
+          category: { id: 'emergency', name: 'Emergency Fund', icon: '🛡️', color: '#34A853' },
+          isPrivate: true
+        },
+        {
+          id: 3,
+          name: "Bali Adventure",
+          goal_cents: 250000,
+          saved_cents: 45000,
+          destination: "Bali, Indonesia",
+          creator_id: user.id,
+          bonus_pot_cents: 2500,
+          category: { id: 'travel', name: 'Travel', icon: '✈️', color: '#4285F4' },
+          isPrivate: false
+        },
+        {
+          id: 4,
+          name: "Car Down Payment",
+          goal_cents: 800000,
+          saved_cents: 320000,
+          destination: null,
+          creator_id: user.id,
+          bonus_pot_cents: 15000,
+          category: { id: 'vehicle', name: 'Vehicle', icon: '🚗', color: '#FF6B35' },
+          isPrivate: true
+        },
+        {
+          id: 5,
+          name: "Wedding Fund",
+          goal_cents: 1500000,
+          saved_cents: 180000,
+          destination: null,
+          creator_id: user.id,
+          bonus_pot_cents: 8000,
+          category: { id: 'wedding', name: 'Wedding', icon: '💒', color: '#E91E63' },
+          isPrivate: false
         }
       ];
       setPools(mockPools);

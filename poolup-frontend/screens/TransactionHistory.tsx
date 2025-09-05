@@ -32,21 +32,27 @@ export default function TransactionHistory({ navigation, route }: Props): React.
 
   const loadTransactionHistory = async (): Promise<void> => {
     try {
-      // Set mock data immediately to prevent loading issues
+      // Try to load from API first
+      const userTransactions = await api.getTransactionHistory(userId);
+      setTransactions(userTransactions);
+    } catch (error) {
+      console.error('Failed to load transaction history from API, using mock data:', error);
+      // Mock data for development - replace with actual API call
       const mockTransactions = [
         {
           id: 1,
           type: 'contribution' as const,
-          amount: 15000, // cents
-          pool: { name: 'Bali Adventure', destination: 'Bali' },
-          timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          amount: 5000,
+          pool: { name: 'Emergency Fund', destination: 'Savings' },
+          timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
           status: 'completed',
           method: 'bank_transfer'
         },
         {
           id: 2,
           type: 'withdrawal' as const,
-          amount: -500,
+          amount: -15000,
+          pool: { name: 'Emergency Fund', destination: 'Savings' },
           reason: 'Emergency expense',
           timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
           status: 'completed'
@@ -90,9 +96,6 @@ export default function TransactionHistory({ navigation, route }: Props): React.
       ];
       setTransactions(mockTransactions);
       console.log('TransactionHistory loaded with mock data');
-    } catch (error) {
-      console.error('Failed to load transaction history:', error);
-      setTransactions([]);
     }
   };
 

@@ -150,25 +150,58 @@ const ExpenseSplitting: React.FC<ExpenseSplittingProps> = ({ navigation, route }
   const calculateBalance = () => {
     const balances: { [key: string]: number } = {};
     
-    // Initialize balances
-    poolMembers.forEach(member => {
-      balances[member.id] = 0;
-    });
-
-    // Calculate what each person owes/is owed
     expenses.forEach(expense => {
-      const amountPerPerson = expense.amount_cents / expense.split_between.length;
+      const perPersonAmount = expense.amount_cents / expense.split_between.length;
       
       // Person who paid gets credited
-      balances[expense.paid_by] += expense.amount_cents;
+      if (!balances[expense.paid_by]) balances[expense.paid_by] = 0;
+      balances[expense.paid_by] += expense.amount_cents - perPersonAmount;
       
-      // Everyone who should pay gets debited
-      expense.split_between.forEach(memberId => {
-        balances[memberId] -= amountPerPerson;
+      // Everyone else owes their share
+      expense.split_between.forEach(person => {
+        if (person !== expense.paid_by) {
+          if (!balances[person]) balances[person] = 0;
+          balances[person] -= perPersonAmount;
+        }
       });
     });
-
+    
     return balances;
+  };
+
+  const calculatePaybacks = () => {
+    const balances = calculateBalance();
+    const paybacks: Array<{from: string, to: string, amount: number, description: string}> = [];
+    
+    // Separate creditors (positive balance) and debtors (negative balance)
+    const creditors = Object.entries(balances).filter(([_, amount]) => (amount as number) > 0);
+    const debtors = Object.entries(balances).filter(([_, amount]) => (amount as number) < 0);
+    
+    // Calculate optimal paybacks to minimize transactions
+    creditors.forEach(([creditor, creditAmount]) => {
+      let remainingCredit = creditAmount as number;
+      debtors.forEach(([debtor, debtAmount]) => {
+        const debt = Math.abs(debtAmount as number);
+        if (debt > 0.01 && remainingCredit > 0.01) {
+          const paymentAmount = Math.min(remainingCredit, debt);
+          
+          if (paymentAmount > 0.01) {
+            paybacks.push({
+              from: debtor,
+              to: creditor,
+              amount: paymentAmount,
+              description: `${debtor} owes ${creditor}`
+            });
+            
+            // Update remaining balances
+            remainingCredit -= paymentAmount;
+            balances[debtor] = (balances[debtor] as number) + paymentAmount;
+          }
+        }
+      });
+    });
+    
+    return paybacks;
   };
 
   const renderExpense = ({ item }: { item: Expense }) => {
@@ -205,11 +238,11 @@ const ExpenseSplitting: React.FC<ExpenseSplittingProps> = ({ navigation, route }
         </TouchableOpacity>
       </View>
 
-      {/* Balances Summary */}
+      {/* Balance Summary */}
       <View style={styles.balancesSection}>
-        <Text style={styles.sectionTitle}>Balances</Text>
+        <Text style={styles.sectionTitle}>Balance Summary</Text>
         {poolMembers.map(member => {
-          const balance = balances[member.id] / 100;
+          const balance = balances[member.id] || 0;
           const isPositive = balance > 0;
           const isZero = Math.abs(balance) < 0.01;
           
@@ -220,11 +253,29 @@ const ExpenseSplitting: React.FC<ExpenseSplittingProps> = ({ navigation, route }
                 styles.balanceAmount,
                 isZero ? styles.balanceZero : isPositive ? styles.balancePositive : styles.balanceNegative
               ]}>
-                {isZero ? 'Settled' : `${isPositive ? '+' : ''}$${balance.toFixed(2)}`}
+                {isZero ? 'Settled' : `${isPositive ? '+' : ''}$${(balance / 100).toFixed(2)}`}
               </Text>
             </View>
           );
         })}
+      </View>
+
+      {/* Payback Suggestions */}
+      <View style={styles.paybackSection}>
+        <Text style={styles.sectionTitle}>Suggested Paybacks</Text>
+        {calculatePaybacks().map((payback, index) => (
+          <View key={index} style={styles.paybackItem}>
+            <Text style={styles.paybackText}>
+              {payback.from} owes {payback.to}
+            </Text>
+            <Text style={styles.paybackAmount}>
+              ${payback.amount.toFixed(2)}
+            </Text>
+          </View>
+        ))}
+        {calculatePaybacks().length === 0 && (
+          <Text style={styles.emptyText}>All settled up! 🎉</Text>
+        )}
       </View>
 
       {/* Expenses List */}
@@ -398,6 +449,30 @@ const styles = StyleSheet.create({
   },
   balanceZero: {
     color: colors.textSecondary,
+  },
+  paybackSection: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  paybackItem: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  paybackText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    flex: 1,
+  },
+  paybackAmount: {
+    color: colors.accent,
+    fontSize: 16,
+    fontWeight: '700',
   },
   expensesSection: {
     flex: 1,

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Switch, Alert, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Switch, Alert, SafeAreaView, Platform } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { colors, radius } from '../theme';
 import { api } from '../services/api';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -37,6 +38,7 @@ export default function ContributionSettings({ navigation, route }: Props): Reac
     isEnabled: true,
   });
   const [loading, setLoading] = useState<boolean>(false);
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
 
   const poolId = (route.params as any)?.poolId || '';
   const recurringPaymentId = (route.params as any)?.recurringPaymentId;
@@ -314,19 +316,47 @@ export default function ContributionSettings({ navigation, route }: Props): Reac
           <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 16 }}>
             Start Date
           </Text>
-          <TextInput
+          <TouchableOpacity
+            onPress={() => setShowDatePicker(true)}
             style={{
               backgroundColor: '#f8f9fa',
               padding: 12,
               borderRadius: radius.medium,
-              fontSize: 16,
               borderWidth: 1,
               borderColor: '#e9ecef',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
             }}
-            value={settings.startDate}
-            onChangeText={(text) => setSettings(prev => ({ ...prev, startDate: text }))}
-            placeholder="YYYY-MM-DD"
-          />
+          >
+            <Text style={{ fontSize: 16, color: '#333' }}>
+              {new Date(settings.startDate).toLocaleDateString('en-US', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              })}
+            </Text>
+            <Text style={{ fontSize: 16, color: '#666' }}>📅</Text>
+          </TouchableOpacity>
+          
+          {showDatePicker && (
+            <DateTimePicker
+              value={new Date(settings.startDate)}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={(event, selectedDate) => {
+                setShowDatePicker(Platform.OS === 'ios');
+                if (selectedDate) {
+                  setSettings(prev => ({ 
+                    ...prev, 
+                    startDate: selectedDate.toISOString() 
+                  }));
+                }
+              }}
+              minimumDate={new Date()}
+            />
+          )}
         </View>
 
         <TouchableOpacity

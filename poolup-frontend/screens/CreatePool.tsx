@@ -9,6 +9,7 @@ import { RouteProp } from '@react-navigation/native';
 
 type RootStackParamList = {
   CreatePool: { user: any; poolType?: string };
+  InviteFriends: { poolName?: string };
 };
 
 type CreatePoolNavigationProp = StackNavigationProp<RootStackParamList, 'CreatePool'>;
@@ -43,6 +44,7 @@ export default function CreatePool({ navigation, route }: Props) {
   const [destinationFact, setDestinationFact] = useState<string>('');
   const [expectedMembers, setExpectedMembers] = useState<string>('1');
   const [enableCalculator, setEnableCalculator] = useState<boolean>(false);
+  const [isPrivate, setIsPrivate] = useState<boolean>(false);
 
   const getDestinationFact = (dest: string) => {
     const location = dest.toLowerCase().trim();
@@ -206,7 +208,7 @@ export default function CreatePool({ navigation, route }: Props) {
         penalty: penaltyData
       });
       
-      const result = await api.createPool(user.id, name.trim(), goal, destination.trim(), tripDate, poolType, penaltyData);
+      const result = await api.createPool(user.id, name.trim(), goal, destination.trim(), tripDate, poolType, penaltyData, isPrivate);
       console.log('Pool creation result:', result);
       const successMessage = poolType === 'solo' 
         ? 'Solo goal created! 🎯\n\n• Personal challenges activated\n• Public encouragement enabled\n• Streak tracking started'
@@ -502,9 +504,18 @@ export default function CreatePool({ navigation, route }: Props) {
             </TouchableOpacity>
           </View>
           
+          <View style={{ backgroundColor: '#fff3cd', padding: 12, borderRadius: radius.medium, marginBottom: 16, borderLeftWidth: 4, borderLeftColor: '#ffc107' }}>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: '#856404', marginBottom: 4 }}>
+              💡 What's this penalty for?
+            </Text>
+            <Text style={{ fontSize: 13, color: '#856404', lineHeight: 18 }}>
+              This penalty applies when you withdraw money BEFORE reaching your goal or target date. It's different from missed payment penalties (which you can set up separately in Settings).
+            </Text>
+          </View>
+          
           <Text style={{ fontSize: 14, color: colors.textSecondary, marginBottom: 16, lineHeight: 20 }}>
             {poolType === 'group' 
-              ? 'Add accountability by penalizing early withdrawals. All group members must agree to enable this feature.'
+              ? 'Discourage early withdrawals by adding a penalty. Members will be notified of this setting and can choose whether to join or leave the pool.'
               : 'Stay committed to your goal by adding a penalty for early withdrawals before your target date.'}
           </Text>
           
@@ -605,6 +616,34 @@ export default function CreatePool({ navigation, route }: Props) {
           );
         })()}
 
+        {/* Privacy Settings */}
+        <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius.medium, marginBottom: 24 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>
+                🔒 Privacy Settings
+              </Text>
+              <Text style={{ fontSize: 14, color: '#666', marginTop: 4 }}>
+                {isPrivate ? 'Only you can see this goal' : 'Visible to friends in your feed'}
+              </Text>
+            </View>
+            <Switch
+              value={isPrivate}
+              onValueChange={setIsPrivate}
+              trackColor={{ false: '#e9ecef', true: colors.primary }}
+              thumbColor={isPrivate ? 'white' : '#f4f3f4'}
+            />
+          </View>
+          
+          <View style={{ backgroundColor: isPrivate ? '#fff3cd' : '#d1ecf1', padding: 12, borderRadius: radius.medium, borderLeftWidth: 4, borderLeftColor: isPrivate ? '#ffc107' : '#17a2b8' }}>
+            <Text style={{ fontSize: 14, color: isPrivate ? '#856404' : '#0c5460', lineHeight: 18 }}>
+              {isPrivate 
+                ? '🔐 Private goals are hidden from your friends feed and leaderboards. Only you can see your progress.'
+                : '👥 Public goals appear in your friends feed and can motivate others. You can change this anytime.'}
+            </Text>
+          </View>
+        </View>
+
         {/* Gamification Preview */}
         <View style={{ backgroundColor: colors.blue + '20', padding: 16, borderRadius: radius.medium, marginBottom: 24 }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 8 }}>
@@ -641,7 +680,7 @@ export default function CreatePool({ navigation, route }: Props) {
               You can invite friends now or add them later
             </Text>
             <TouchableOpacity 
-              onPress={() => navigation.navigate('InviteFriends' as any, { poolName: name })}
+              onPress={() => navigation.navigate('InviteFriends', { poolName: name })}
               style={{ backgroundColor: colors.blue, padding: 12, borderRadius: radius.medium, alignItems: 'center' }}
             >
               <Text style={{ color: 'white', fontSize: 14, fontWeight: '600' }}>

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, Linking, Image } from 'react-native';
-import { colors, radius, shadow } from '../theme';
+import { View, Text, ScrollView, TouchableOpacity, Alert, Image, Linking } from 'react-native';
+import { colors } from '../theme';
 import { api } from '../services/api';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../App';
+import { CurrencySelector } from '../components/CurrencySelector';
+import { getUserCurrency, getCurrencyInfo } from '../utils/currency';
 
 type SettingsNavigationProp = StackNavigationProp<RootStackParamList, 'Settings'>;
 type SettingsRouteProp = RouteProp<RootStackParamList, 'Settings'>;
@@ -30,8 +32,11 @@ interface User {
 }
 
 export default function Settings({ navigation, route }: Props): React.JSX.Element {
-  const { user } = (route?.params as any) || {};
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [selectedCurrency, setSelectedCurrency] = useState<string>(getUserCurrency());
+
+  const user = (route.params as any)?.user;
 
   useEffect(() => {
     loadPaymentMethods();
@@ -243,6 +248,41 @@ export default function Settings({ navigation, route }: Props): React.JSX.Elemen
             subtitle="Payday schedule, auto-contribute, and streaks"
             onPress={() => navigation.navigate("ContributionSettings" as any, { userId: user?.id })}
           />
+        </View>
+
+        <SectionHeader title="International" />
+        <View style={{ backgroundColor: 'white' }}>
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingVertical: 16,
+            paddingHorizontal: 20,
+            backgroundColor: 'white',
+            borderBottomWidth: 1,
+            borderBottomColor: '#f0f0f0'
+          }}>
+            <Text style={{ fontSize: 20, marginRight: 16, width: 24, textAlign: 'center' }}>💱</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>Currency</Text>
+              <Text style={{ fontSize: 14, color: '#666', marginTop: 2 }}>
+                {getCurrencyInfo(selectedCurrency)?.name || 'US Dollar'}
+              </Text>
+            </View>
+          </View>
+          <View style={{ paddingHorizontal: 20, paddingBottom: 16, backgroundColor: 'white' }}>
+            <CurrencySelector
+              selectedCurrency={selectedCurrency}
+              onCurrencyChange={(currency) => {
+                setSelectedCurrency(currency);
+                // In a real app, save to user preferences
+                console.log('Currency changed to:', currency);
+              }}
+            />
+          </View>
+        </View>
+
+        <SectionHeader title="Penalties" />
+        <View style={{ backgroundColor: 'white' }}>
           <SettingItem
             icon="⚠️"
             title="Penalty Settings"
