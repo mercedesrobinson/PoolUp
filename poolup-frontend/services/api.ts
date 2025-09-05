@@ -33,8 +33,8 @@ interface Contribution {
   [key: string]: any;
 }
 
-const API_BASE = "http://localhost:3000/api";
-const BASE_URL = "https://poolup-api.onrender.com/api";
+const API_BASE = process.env.EXPO_PUBLIC_API_URL || "https://poolup-api.onrender.com";
+const BASE_URL = `${API_BASE}/api`;
 const USE_MOCK_DATA = false;
 
 // Get current user ID from storage
