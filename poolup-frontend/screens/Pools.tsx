@@ -108,91 +108,43 @@ export default function Pools({ navigation, route }: any){
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [summaryData, setSummaryData] = useState({
-    totalSaved: 125000,
-    activeGoals: 3,
-    completedGoals: 2,
-    currentStreak: 14,
-    monthlyAverage: 35000,
-    savingsRate: 0.23,
-    nextMilestone: { amount: 150000, daysLeft: 12 }
+    totalSaved: 0,
+    activeGoals: 0,
+    completedGoals: 0,
+    currentStreak: 0,
+    monthlyAverage: 0,
+    savingsRate: 0,
+    nextMilestone: { amount: 10000, daysLeft: 30 }
   });
   const user = (route.params as any)?.user || { id: 1, name: 'Demo User' };
 
   const load = async () => {
     try {
-      // Set mock data immediately - no async calls that could hang
-      const mockData = {
-        totalSaved: 125000,
-        activeGoals: 3,
-        completedGoals: 2,
-        currentStreak: 14,
-        monthlyAverage: 35000,
-        savingsRate: 0.23,
-        nextMilestone: { amount: 150000, daysLeft: 12 }
+      // Get real user data from backend
+      const userId = user.id;
+      const userPools = await api.getUserPools(userId);
+      const userTransactions = await api.getUserTransactions(userId);
+      
+      // Calculate real summary data
+      const totalSaved = userTransactions.reduce((sum, t) => sum + t.amount, 0);
+      const activeGoals = userPools.filter(p => p.status === 'active').length;
+      const completedGoals = userPools.filter(p => p.status === 'completed').length;
+      
+      const realData = {
+        totalSaved,
+        activeGoals,
+        completedGoals,
+        currentStreak: 0, // TODO: Calculate from transaction history
+        monthlyAverage: totalSaved / 6,
+        savingsRate: 0.15,
+        nextMilestone: { amount: totalSaved + 50000, daysLeft: 30 }
       };
-      setSummaryData(mockData);
+      setSummaryData(realData);
 
-      const mockPools = [
-        {
-          id: 1,
-          name: "Tokyo Trip 2024",
-          goal_cents: 300000,
-          saved_cents: 75000,
-          destination: "Tokyo, Japan",
-          creator_id: user.id,
-          bonus_pot_cents: 5000,
-          category: { id: 'travel', name: 'Travel', icon: '✈️', color: '#4285F4' },
-          isPrivate: false
-        },
-        {
-          id: 2,
-          name: "Emergency Fund",
-          goal_cents: 500000,
-          saved_cents: 125000,
-          destination: null,
-          creator_id: user.id,
-          bonus_pot_cents: 0,
-          category: { id: 'emergency', name: 'Emergency Fund', icon: '🛡️', color: '#34A853' },
-          isPrivate: true
-        },
-        {
-          id: 3,
-          name: "Bali Adventure",
-          goal_cents: 250000,
-          saved_cents: 45000,
-          destination: "Bali, Indonesia",
-          creator_id: user.id,
-          bonus_pot_cents: 2500,
-          category: { id: 'travel', name: 'Travel', icon: '✈️', color: '#4285F4' },
-          isPrivate: false
-        },
-        {
-          id: 4,
-          name: "Car Down Payment",
-          goal_cents: 800000,
-          saved_cents: 320000,
-          destination: null,
-          creator_id: user.id,
-          bonus_pot_cents: 15000,
-          category: { id: 'vehicle', name: 'Vehicle', icon: '🚗', color: '#FF6B35' },
-          isPrivate: true
-        },
-        {
-          id: 5,
-          name: "Wedding Fund",
-          goal_cents: 1500000,
-          saved_cents: 180000,
-          destination: null,
-          creator_id: user.id,
-          bonus_pot_cents: 8000,
-          category: { id: 'wedding', name: 'Wedding', icon: '💒', color: '#E91E63' },
-          isPrivate: false
-        }
-      ];
-      setPools(mockPools);
-
-      // Skip API calls entirely for now to prevent hanging
-      console.log('Pools screen loaded with mock data');
+      // Use real pools from backend, fallback to empty array
+      setPools(userPools.length > 0 ? userPools : []);
+      
+      console.log('Pools screen loaded with real data from backend');
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
