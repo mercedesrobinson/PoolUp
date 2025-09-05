@@ -1,10 +1,12 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": false,
     "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx",
-    "lib": ["dom", "esnext"],
+    "lib": [
+      "dom",
+      "esnext"
+    ],
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
@@ -24,7 +26,10 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
     "target": "esnext",
-    "types": ["react", "react-native"]
+    "types": [
+      "react",
+      "react-native"
+    ]
   },
   "include": [
     "**/*.ts",
@@ -34,5 +39,6 @@
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "extends": "expo/tsconfig.base"
 }
