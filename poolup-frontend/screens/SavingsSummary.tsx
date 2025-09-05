@@ -51,31 +51,61 @@ export default function SavingsSummary({ navigation, route }: Props): React.JSX.
   }, [timeframe]);
 
   const loadSummaryData = async (): Promise<void> => {
-    // Set mock data immediately to prevent loading freeze
-    const mockSummary = {
-      totalSaved: 125000, // cents
-      activeGoals: 3,
-      completedGoals: 2,
-      currentStreak: 14,
-      monthlyAverage: 35000,
-      savingsRate: 0.23, // 23%
-      nextMilestone: { amount: 150000, daysLeft: 12 }
-    };
+    try {
+      // Try to get real user data from backend
+      const userId = route?.params?.user?.id || '1';
+      
+      // Get user's pools and transactions
+      const userPools = await api.getUserPools(userId);
+      const userTransactions = await api.getUserTransactions(userId);
+      
+      // Calculate real summary data
+      const totalSaved = userTransactions.reduce((sum, t) => sum + t.amount, 0);
+      const activeGoals = userPools.filter(p => p.status === 'active').length;
+      const completedGoals = userPools.filter(p => p.status === 'completed').length;
+      
+      const realSummary = {
+        totalSaved,
+        activeGoals,
+        completedGoals,
+        currentStreak: 0, // TODO: Calculate from transaction history
+        monthlyAverage: totalSaved / 6, // Rough estimate
+        savingsRate: 0.15,
+        nextMilestone: { amount: totalSaved + 50000, daysLeft: 30 }
+      };
 
-    const mockChartData = {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-      datasets: [{
-        data: [200, 450, 280, 800, 990, 1250],
-        color: (opacity = 1) => `rgba(81, 150, 244, ${opacity})`,
-        strokeWidth: 3
-      }]
-    };
+      const realChartData = {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          data: userTransactions.slice(0, 6).map(t => t.amount / 100), // Convert to dollars
+          color: (opacity = 1) => `rgba(81, 150, 244, ${opacity})`,
+          strokeWidth: 3
+        }]
+      };
 
-    setSummaryData(mockSummary);
-    setChartData(mockChartData);
+      setSummaryData(realSummary);
+      setChartData(realChartData);
+      
+    } catch (error) {
+      console.error('Failed to load real data, using fallback:', error);
+      
+      // Fallback to basic data if API fails
+      const fallbackSummary = {
+        totalSaved: 0,
+        activeGoals: 0,
+        completedGoals: 0,
+        currentStreak: 0,
+        monthlyAverage: 0,
+        savingsRate: 0,
+        nextMilestone: { amount: 10000, daysLeft: 30 }
+      };
 
-    // Skip API calls to prevent hanging
-    console.log('SavingsSummary loaded with mock data');
+      setSummaryData(fallbackSummary);
+      setChartData({
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{ data: [0, 0, 0, 0, 0, 0], color: () => 'rgba(81, 150, 244, 1)', strokeWidth: 3 }]
+      });
+    }
   };
 
   const getEquivalent = (amountInCents): { threshold: number; text: string; icon: string } => {

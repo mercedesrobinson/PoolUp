@@ -39,7 +39,7 @@ const USE_MOCK_DATA = false;
 
 // Get current user ID from storage
 const getCurrentUserId = (): string => {
-  // For development, use a default user ID
+  // TODO: Get from AsyncStorage or user context
   return "1756612920173";
 };
 
@@ -96,6 +96,30 @@ export const api = {
         bankAccounts: [],
         virtualCard: null,
       };
+    }
+  },
+
+  // Get user's pools
+  getUserPools: async (userId: string) => {
+    try {
+      const response = await fetch(`${BASE_URL}/users/${userId}/pools`);
+      if (!response.ok) throw new Error('Failed to fetch pools');
+      return await response.json();
+    } catch (error) {
+      console.error('getUserPools error:', error);
+      return []; // Return empty array as fallback
+    }
+  },
+
+  // Get user's transactions
+  getUserTransactions: async (userId: string) => {
+    try {
+      const response = await fetch(`${BASE_URL}/users/${userId}/transactions`);
+      if (!response.ok) throw new Error('Failed to fetch transactions');
+      return await response.json();
+    } catch (error) {
+      console.error('getUserTransactions error:', error);
+      return []; // Return empty array as fallback
     }
   },
 

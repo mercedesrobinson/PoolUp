@@ -79,18 +79,36 @@ export default function Onboarding({ navigation }){
 
   const signInWithGoogle = async (): Promise<void> => {
     try {
-      // For now, directly create a demo user since Google OAuth needs proper setup
-      const demoUser = {
-        id: Date.now().toString(),
-        name: 'Demo User',
-        email: 'demo@poolup.com',
-        photo: null,
-        accessToken: 'demo_token'
-      };
-      
-      const response = await api.createGoogleUser(demoUser);
-      const mockUser = response;
-      navigation.navigate("MainTabs" as any, { user: mockUser });
+      // Prompt user for their email since we don't have real Google OAuth yet
+      Alert.prompt(
+        'Google Sign In',
+        'Enter your Gmail address:',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Sign In',
+            onPress: async (email) => {
+              if (email && email.includes('@gmail.com')) {
+                const googleUser = {
+                  id: Date.now().toString(),
+                  name: email.split('@')[0], // Use email prefix as name
+                  email: email.trim(),
+                  photo: null,
+                  accessToken: 'temp_token'
+                };
+                
+                const response = await api.createGoogleUser(googleUser);
+                navigation.navigate("MainTabs" as any, { user: response });
+              } else {
+                Alert.alert('Error', 'Please enter a valid Gmail address');
+              }
+            }
+          }
+        ],
+        'plain-text',
+        '',
+        'email-address'
+      );
     } catch (error) {
       console.error('Google sign-in error:', error);
       Alert.alert('Error', 'Failed to sign in. Please try again.');
