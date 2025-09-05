@@ -37,6 +37,10 @@ import GroupActivity from './screens/GroupActivity';
 import PremiumUpgrade from './screens/PremiumUpgrade';
 import ProgressSharingSimple from './screens/ProgressSharingSimple';
 import SocialProofSimple from './screens/SocialProofSimple';
+// Additional screens wired for navigation targets
+import Chat from './screens/Chat';
+import PoolDetail from './screens/PoolDetail';
+import Legal from './screens/Legal';
 
 // Import theme
 import { colors } from './theme';
@@ -72,6 +76,10 @@ export type RootStackParamList = {
   Settings: undefined;
   Pools: undefined;
   SocialProofSimple: undefined;
+  // Newly added targets referenced elsewhere
+  Chat: undefined;
+  PoolDetail: undefined;
+  Legal: undefined;
 };
 
 export type TabParamList = {
@@ -181,6 +189,10 @@ export default function App(): React.JSX.Element {
         <Stack.Screen name="Settings" component={Settings} />
         <Stack.Screen name="Pools" component={Pools} />
         <Stack.Screen name="SocialProofSimple" component={SocialProofSimple} />
+        {/* Newly wired screens */}
+        <Stack.Screen name="Chat" component={Chat} />
+        <Stack.Screen name="PoolDetail" component={PoolDetail} />
+        <Stack.Screen name="Legal" component={Legal} />
       </Stack.Navigator>
     </NavigationContainer>
   );
