@@ -102,53 +102,44 @@ function MainTabs(): React.JSX.Element {
         tabBarInactiveTintColor: '#666',
         tabBarStyle: {
           backgroundColor: 'white',
-          borderTopWidth: 1,
           borderTopColor: '#e9ecef',
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 88,
+          paddingBottom: 20,
+          paddingTop: 2,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
-          marginTop: 4,
+          marginTop: 0,
+          paddingBottom: 4,
         },
       }}
     >
-      <Tab.Screen 
-        name="Goals" 
+      <Tab.Screen
+        name='Goals'
         component={Pools}
         options={{
-          tabBarIcon: ({ color }: { color: string }) => (
-            <Text style={{ fontSize: 24, color }}>🎯</Text>
-          ),
+          tabBarIcon: ({ color }: { color: string }) => <Text style={{ fontSize: 25, color }}>🎯</Text>,
         }}
       />
-      <Tab.Screen 
-        name="Feed" 
+      <Tab.Screen
+        name='Feed'
         component={SoloSavings}
         options={{
-          tabBarIcon: ({ color }: { color: string }) => (
-            <Text style={{ fontSize: 24, color }}>👥</Text>
-          ),
+          tabBarIcon: ({ color }: { color: string }) => <Text style={{ fontSize: 25, color }}>👥</Text>,
         }}
       />
-      <Tab.Screen 
-        name="Profile" 
+      <Tab.Screen
+        name='Profile'
         component={Profile}
         options={{
-          tabBarIcon: ({ color }: { color: string }) => (
-            <Text style={{ fontSize: 24, color }}>👤</Text>
-          ),
+          tabBarIcon: ({ color }: { color: string }) => <Text style={{ fontSize: 25, color }}>👤</Text>,
         }}
       />
-      <Tab.Screen 
-        name="More" 
+      <Tab.Screen
+        name='More'
         component={Settings}
         options={{
-          tabBarIcon: ({ color }: { color: string }) => (
-            <Text style={{ fontSize: 24, color }}>⚙️</Text>
-          ),
+          tabBarIcon: ({ color }: { color: string }) => <Text style={{ fontSize: 25, color }}>⚙️</Text>,
         }}
       />
     </Tab.Navigator>
@@ -158,41 +149,40 @@ function MainTabs(): React.JSX.Element {
 export default function App(): React.JSX.Element {
   return (
     <NavigationContainer>
-      <StatusBar style="auto" />
-      <Stack.Navigator initialRouteName="Onboarding" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Onboarding" component={Onboarding} />
-        <Stack.Screen name="MainTabs" component={MainTabs} />
-        <Stack.Screen name="CreatePool" component={CreatePool} />
-        <Stack.Screen name="Leaderboard" component={Leaderboard} />
-        <Stack.Screen name="Badges" component={Badges} />
-        <Stack.Screen name="DebitCard" component={DebitCard} />
-        <Stack.Screen name="FriendsFeed" component={FriendsFeed} />
-        <Stack.Screen name="InviteFriends" component={InviteFriends} />
-        <Stack.Screen name="GroupManagement" component={GroupManagement} />
-        <Stack.Screen name="PrivacySettings" component={PrivacySettings} />
-        <Stack.Screen name="TransactionHistory" component={TransactionHistory} />
-        <Stack.Screen name="SavingsSummary" component={SavingsSummary} />
-        <Stack.Screen name="PenaltySettings" component={PenaltySettings} />
-        <Stack.Screen name="RecurringPayments" component={RecurringPayments} />
-        <Stack.Screen name="AccountabilityPartners" component={AccountabilityPartners} />
-        <Stack.Screen name="ProfilePhotoUpload" component={ProfilePhotoUpload} />
-        <Stack.Screen name="PaymentMethods" component={PaymentMethods} />
-        <Stack.Screen name="LinkPaymentMethod" component={LinkPaymentMethod} options={{ headerShown: false }} />
-        <Stack.Screen name="PeerTransfer" component={PeerTransfer} options={{ headerShown: false }} />
-        <Stack.Screen name="ContributionSettings" component={ContributionSettings} options={{ headerShown: false }} />
-        <Stack.Screen name="SoloGoalPrivacy" component={SoloGoalPrivacy} options={{ headerShown: false }} />
-        <Stack.Screen name="NotificationSettings" component={NotificationSettings} />
-        <Stack.Screen name="GroupActivity" component={GroupActivity} />
-        <Stack.Screen name="PremiumUpgrade" component={PremiumUpgrade} />
-        <Stack.Screen name="ProgressSharingSimple" component={ProgressSharingSimple} />
-        <Stack.Screen name="SoloSavings" component={SoloSavings} />
-        <Stack.Screen name="Settings" component={Settings} />
-        <Stack.Screen name="Pools" component={Pools} />
-        <Stack.Screen name="SocialProofSimple" component={SocialProofSimple} />
-        {/* Newly wired screens */}
-        <Stack.Screen name="Chat" component={Chat} />
-        <Stack.Screen name="PoolDetail" component={PoolDetail} />
-        <Stack.Screen name="Legal" component={Legal} />
+      <StatusBar style='auto' />
+      <Stack.Navigator initialRouteName='Onboarding' screenOptions={{ headerShown: false }}>
+        <Stack.Screen name='Onboarding' component={Onboarding} />
+        <Stack.Screen name='MainTabs' component={MainTabs} />
+        <Stack.Screen name='CreatePool' component={CreatePool} />
+        <Stack.Screen name='Leaderboard' component={Leaderboard} />
+        <Stack.Screen name='Badges' component={Badges} />
+        <Stack.Screen name='DebitCard' component={DebitCard} />
+        <Stack.Screen name='FriendsFeed' component={FriendsFeed} />
+        <Stack.Screen name='InviteFriends' component={InviteFriends} />
+        <Stack.Screen name='GroupManagement' component={GroupManagement} />
+        <Stack.Screen name='PrivacySettings' component={PrivacySettings} />
+        <Stack.Screen name='TransactionHistory' component={TransactionHistory} />
+        <Stack.Screen name='SavingsSummary' component={SavingsSummary} />
+        <Stack.Screen name='PenaltySettings' component={PenaltySettings} />
+        <Stack.Screen name='RecurringPayments' component={RecurringPayments} />
+        <Stack.Screen name='AccountabilityPartners' component={AccountabilityPartners} />
+        <Stack.Screen name='ProfilePhotoUpload' component={ProfilePhotoUpload} />
+        <Stack.Screen name='PaymentMethods' component={PaymentMethods} />
+        <Stack.Screen name='LinkPaymentMethod' component={LinkPaymentMethod} options={{ headerShown: false }} />
+        <Stack.Screen name='PeerTransfer' component={PeerTransfer} options={{ headerShown: false }} />
+        <Stack.Screen name='ContributionSettings' component={ContributionSettings} options={{ headerShown: false }} />
+        <Stack.Screen name='SoloGoalPrivacy' component={SoloGoalPrivacy} options={{ headerShown: false }} />
+        <Stack.Screen name='NotificationSettings' component={NotificationSettings} />
+        <Stack.Screen name='GroupActivity' component={GroupActivity} />
+        <Stack.Screen name='PremiumUpgrade' component={PremiumUpgrade} />
+        <Stack.Screen name='ProgressSharingSimple' component={ProgressSharingSimple} />
+        <Stack.Screen name='SoloSavings' component={SoloSavings} />
+        <Stack.Screen name='Settings' component={Settings} />
+        <Stack.Screen name='Pools' component={Pools} />
+        <Stack.Screen name='SocialProofSimple' component={SocialProofSimple} />
+        <Stack.Screen name='Chat' component={Chat} />
+        <Stack.Screen name='PoolDetail' component={PoolDetail} />
+        <Stack.Screen name='Legal' component={Legal} />
       </Stack.Navigator>
     </NavigationContainer>
   );
