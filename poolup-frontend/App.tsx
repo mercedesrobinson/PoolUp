@@ -7,6 +7,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 
 // Import screens
 import Onboarding from './screens/Onboarding';
+import AuthGate from './screens/AuthGate';
 import Pools from './screens/Pools';
 import CreatePool from './screens/CreatePool';
 import Profile from './screens/Profile';
@@ -47,8 +48,9 @@ import { colors } from './theme';
 
 // Type definitions
 export type RootStackParamList = {
+  AuthGate: undefined;
   Onboarding: undefined;
-  MainTabs: undefined;
+  MainTabs: { user?: any } | undefined;
   CreatePool: undefined;
   Leaderboard: undefined;
   Badges: undefined;
@@ -93,7 +95,8 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
 // Main Tab Navigator
-function MainTabs(): React.JSX.Element {
+function MainTabs({ route }: any): React.JSX.Element {
+  const user = route?.params?.user;
   return (
     <Tab.Navigator
       screenOptions={{
@@ -117,6 +120,7 @@ function MainTabs(): React.JSX.Element {
       <Tab.Screen
         name='Goals'
         component={Pools}
+        initialParams={{ user }}
         options={{
           tabBarIcon: ({ color }: { color: string }) => <Text style={{ fontSize: 25, color }}>🎯</Text>,
         }}
@@ -124,6 +128,7 @@ function MainTabs(): React.JSX.Element {
       <Tab.Screen
         name='Feed'
         component={SoloSavings}
+        initialParams={{ user }}
         options={{
           tabBarIcon: ({ color }: { color: string }) => <Text style={{ fontSize: 25, color }}>👥</Text>,
         }}
@@ -131,6 +136,7 @@ function MainTabs(): React.JSX.Element {
       <Tab.Screen
         name='Profile'
         component={Profile}
+        initialParams={{ user }}
         options={{
           tabBarIcon: ({ color }: { color: string }) => <Text style={{ fontSize: 25, color }}>👤</Text>,
         }}
@@ -138,6 +144,7 @@ function MainTabs(): React.JSX.Element {
       <Tab.Screen
         name='More'
         component={Settings}
+        initialParams={{ user }}
         options={{
           tabBarIcon: ({ color }: { color: string }) => <Text style={{ fontSize: 25, color }}>⚙️</Text>,
         }}
@@ -150,7 +157,8 @@ export default function App(): React.JSX.Element {
   return (
     <NavigationContainer>
       <StatusBar style='auto' />
-      <Stack.Navigator initialRouteName='Onboarding' screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName='AuthGate' screenOptions={{ headerShown: false }}>
+        <Stack.Screen name='AuthGate' component={AuthGate} />
         <Stack.Screen name='Onboarding' component={Onboarding} />
         <Stack.Screen name='MainTabs' component={MainTabs} />
         <Stack.Screen name='CreatePool' component={CreatePool} />

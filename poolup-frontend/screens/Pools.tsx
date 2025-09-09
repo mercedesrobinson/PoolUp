@@ -131,12 +131,11 @@ export default function Pools({ navigation, route }: any){
         throw new Error('No pools');
       }
     } catch (error) {
-      console.error('Error loading data, falling back to mock:', error);
-      // Fallback mock
-      const mockPools = [
-        { id: 1, name: 'Demo Pool', goal_cents: 100000, saved_cents: 25000, destination: 'Sample', creator_id: user.id, bonus_pot_cents: 0 }
-      ];
-      setPools(mockPools as any);
+      console.error('Error loading data:', error);
+      // Commented out mock fallback to use backend only
+      // const mockPools = [ { id: 1, name: 'Demo Pool', goal_cents: 100000, saved_cents: 25000, destination: 'Sample', creator_id: user.id, bonus_pot_cents: 0 } ];
+      // setPools(mockPools as any);
+      setPools([] as any);
     } finally {
       setRefreshing(false);
       setLoading(false);

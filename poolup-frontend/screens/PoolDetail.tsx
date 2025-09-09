@@ -7,8 +7,9 @@ import { api } from '../services/api';
 import { RootStackParamList } from '../types/navigation';
 import { Pool, User, Contribution } from '../types/index';
 import io from 'socket.io-client';
+import { getSocketUrl } from '../services/config';
 
-const SERVER = process.env.EXPO_PUBLIC_SERVER_URL || process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+const SERVER = getSocketUrl(3001);
 
 interface Member {
   id: string;

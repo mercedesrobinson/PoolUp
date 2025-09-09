@@ -18,7 +18,12 @@
     "ios": {
       "bundleIdentifier": "com.poolup.app",
       "supportsTablet": true,
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {

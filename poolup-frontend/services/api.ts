@@ -33,7 +33,8 @@ interface Contribution {
   [key: string]: any;
 }
 
-const BASE_URL = (process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000').replace(/\/$/, '');
+import { getBaseUrl } from './config';
+const BASE_URL = getBaseUrl(3001);
 const API_BASE = `${BASE_URL}/api`;
 
 // Get current user ID from storage
@@ -44,6 +45,31 @@ const getCurrentUserId = (): string => {
 
 // API service for PoolUp
 export const api = {
+  // Email/password auth
+  emailSignUp: async (name: string, email: string, password: string) => {
+    const res = await fetch(`${BASE_URL}/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.error || 'Signup failed');
+    }
+    return res.json();
+  },
+  emailLogin: async (email: string, password: string) => {
+    const res = await fetch(`${BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.error || 'Login failed');
+    }
+    return res.json();
+  },
   // Guest user creation
   guest: async (name: string): Promise<User> => {
     try {
@@ -55,15 +81,16 @@ export const api = {
       if (!response.ok) throw new Error('Network response was not ok');
       return await response.json();
     } catch (error) {
-      console.log('API Error - using mock data:', error);
-      return { id: Date.now().toString(), name, email: null, profileImage: null };
+      // console.log('API Error - using mock data:', error);
+      // return { id: Date.now().toString(), name, email: null, profileImage: null };
+      throw error;
     }
   },
 
   // Google OAuth user creation (dev: map to /api/users)
   createGoogleUser: async (googleUser: GoogleUser): Promise<User> => {
     try {
-      const response = await fetch(`${API_BASE.replace('/api','')}/api/users`, {
+      const response = await fetch(`${API_BASE}/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -86,16 +113,9 @@ export const api = {
         authProvider: 'google'
       } as any;
     } catch (error) {
-      console.log('Google API Error - using mock data:', error);
-      return {
-        id: Date.now().toString(),
-        name: googleUser.name,
-        email: googleUser.email,
-        profileImage: googleUser.photo,
-        authProvider: 'google',
-        bankAccounts: [],
-        virtualCard: null
-      };
+      // console.log('Google API Error - using mock data:', error);
+      // return { id: Date.now().toString(), name: googleUser.name, email: googleUser.email, profileImage: googleUser.photo, authProvider: 'google', bankAccounts: [], virtualCard: null };
+      throw error;
     }
   },
 
@@ -138,18 +158,9 @@ export const api = {
       if (!response.ok) throw new Error('Profile not found');
       return response.json();
     } catch (error) {
-      console.log('getUserProfile API error, using mock data:', error);
-      // Return mock data if backend not available
-      return {
-        id: userId,
-        name: 'Mercedes',
-        xp: 150,
-        total_points: 250,
-        current_streak: 3,
-        badge_count: 2,
-        avatar_type: 'default',
-        avatar_data: null
-      };
+      // console.log('getUserProfile API error, using mock data:', error);
+      // return { id: userId, name: 'Mercedes', xp: 150, total_points: 250, current_streak: 3, badge_count: 2, avatar_type: 'default', avatar_data: null };
+      throw error;
     }
   },
 
@@ -316,19 +327,9 @@ export const api = {
       if (!res.ok) throw new Error('Failed to fetch pools');
       return res.json();
     } catch (error) {
-      console.log('listPools API error, using mock data:', error);
-      // Return mock pools including any created ones
-      return [
-        {
-          id: 1,
-          name: "Tokyo Trip 2024",
-          goal_cents: 300000,
-          saved_cents: 75000,
-          destination: "Tokyo, Japan",
-          creator_id: userId
-        },
-        ...((api as any)._mockPools ?? [])
-      ];
+      // console.log('listPools API error, using mock data:', error);
+      // return [{ id: 1, name: 'Tokyo Trip 2024', goal_cents: 300000, saved_cents: 75000, destination: 'Tokyo, Japan', creator_id: userId }, ...((api as any)._mockPools ?? [])];
+      throw error;
     }
   },
 

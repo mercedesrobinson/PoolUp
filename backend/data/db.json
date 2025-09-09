@@ -1,0 +1,70 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "leo",
+      "email": "leo@hotmail.com",
+      "password_hash": "$2a$10$q6IL/EetL1PsbcQ0PI.gpORQatOnLZcaNkqnxmro5FJ19mwOQbFRC",
+      "profile_image_url": null,
+      "created_at": "2025-09-09T02:52:37.357Z",
+      "avatar_type": "default",
+      "avatar_data": null
+    },
+    {
+      "id": "2",
+      "name": "leo",
+      "email": "test1@hotmail.com",
+      "password_hash": "$2a$10$k21EEqy71DqbtE9yf5nuCe42GIYm3Zoex/CReqo7/GlA5JfE/8Z1u",
+      "profile_image_url": null,
+      "created_at": "2025-09-09T02:53:28.211Z",
+      "avatar_type": "default",
+      "avatar_data": null
+    },
+    {
+      "id": "3",
+      "name": "test",
+      "email": "test2@hotmail.com",
+      "password_hash": "$2a$10$fqaj6ISosabVaLmXisOHh.d0RKQ75s8z0HRncBbV7lWdqOpNsQIza",
+      "profile_image_url": null,
+      "created_at": "2025-09-09T02:59:03.271Z",
+      "avatar_type": "default",
+      "avatar_data": null
+    }
+  ],
+  "pools": [
+    {
+      "id": "4",
+      "name": "test",
+      "goal_cents": 500000,
+      "saved_cents": 0,
+      "destination": "japan",
+      "trip_date": "2025-11-28",
+      "pool_type": "group",
+      "creator_id": 3,
+      "public_visibility": 0,
+      "bonus_pot_cents": 0
+    }
+  ],
+  "memberships": [
+    {
+      "poolId": "4",
+      "userId": "3",
+      "role": "owner"
+    }
+  ],
+  "contributions": [],
+  "messages": [],
+  "follows": [],
+  "encouragements": [],
+  "cards": [],
+  "cardTransactions": [],
+  "invites": [],
+  "recurring": [],
+  "penaltySettings": {},
+  "privacy": {},
+  "notifications": {
+    "tokens": {},
+    "preferences": {}
+  },
+  "seq": 5
+}

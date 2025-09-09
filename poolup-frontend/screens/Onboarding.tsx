@@ -2,12 +2,26 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 import { colors, radius, shadow } from '../theme';
 import { api } from '../services/api';
+import * as Keychain from 'react-native-keychain';
 
 export default function Onboarding({ navigation }){
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  const goToMain = (user: any) => {
+    try {
+      navigation.reset({ index: 0, routes: [{ name: 'MainTabs', params: { user } }] });
+    } catch (e) {
+      try {
+        navigation.replace('MainTabs', { user });
+      } catch (_) {
+        navigation.navigate('MainTabs' as any, { user });
+      }
+    }
+  };
   
   const handleEmailAuth = async () => {
     if (!email.trim() || !password.trim()) {
@@ -17,18 +31,28 @@ export default function Onboarding({ navigation }){
       return Alert.alert('Error', 'Please enter your name');
     }
     
+    if (submitting) return;
+    setSubmitting(true);
     try {
-      let user;
       if (isSignUp) {
-        // Create new account
-        user = { id: Date.now(), name: name.trim(), email: email.trim(), authProvider: 'email' };
+        const { token, user } = await api.emailSignUp(name.trim(), email.trim(), password.trim());
+        try {
+          await Keychain.setInternetCredentials('poolup_user', String(user.id), JSON.stringify({ accessToken: token, user }));
+        } catch (_) {
+          // Non-fatal: proceed without stored credentials
+        }
+        goToMain({ ...user, authProvider: 'email' });
       } else {
-        // Sign in existing user
-        user = { id: Date.now(), name: 'Returning User', email: email.trim(), authProvider: 'email' };
+        const { token, user } = await api.emailLogin(email.trim(), password.trim());
+        try {
+          await Keychain.setInternetCredentials('poolup_user', String(user.id), JSON.stringify({ accessToken: token, user }));
+        } catch (_) {}
+        goToMain({ ...user, authProvider: 'email' });
       }
-      navigation.replace('MainTabs', { user });
     } catch (error) {
-      Alert.alert('Error', 'Authentication failed. Please try again.');
+      Alert.alert('Error', (error as any)?.message || 'Authentication failed. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -51,12 +75,23 @@ export default function Onboarding({ navigation }){
                   photo: 'https://via.placeholder.com/150',
                   authProvider: "google", accessToken: "mock_token"
                 };
-                
                 const response = await api.createGoogleUser(demoUser);
-                const mockUser = response;
-                navigation.navigate("MainTabs" as any, { user: mockUser });
+                const created = response as any;
+                try {
+                  await Keychain.setInternetCredentials('poolup_user', String(created.id), JSON.stringify({ accessToken: created.accessToken || '', user: created }));
+                } catch (_) {}
+                goToMain(created);
               } catch (error) {
-                Alert.alert('Error', 'Failed to create demo user');
+                try {
+                  // Fallback to real guest user on backend if Google creation fails
+                  const guest = await api.guest('Demo Google User');
+                  try {
+                    await Keychain.setInternetCredentials('poolup_user', String(guest.id), JSON.stringify({ accessToken: '', user: guest }));
+                  } catch (_) {}
+                  goToMain({ ...guest, authProvider: 'guest' });
+                } catch (e2) {
+                  Alert.alert('Error', (error as any)?.message || 'Failed to create user');
+                }
               }
             }
           }

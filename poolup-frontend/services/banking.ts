@@ -1,7 +1,8 @@
 import * as Keychain from 'react-native-keychain';
+import { getBaseUrl } from './config';
 
 // Banking service for PoolUp - integrates with Plaid, Stripe, and other financial APIs
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = `${getBaseUrl(3001)}/api`;
 
 interface BankAccount {
   id: string;

@@ -3,11 +3,12 @@ import { View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native'
 import { colors, radius } from '../theme';
 import { api } from '../services/api';
 import io from 'socket.io-client';
+import { getSocketUrl } from '../services/config';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types/navigation';
 
-const SERVER = process.env.EXPO_PUBLIC_SERVER_URL || 'http://localhost:4000';
+const SERVER = getSocketUrl(3001);
 
 type ChatNavigationProp = StackNavigationProp<RootStackParamList, 'Chat'>;
 type ChatRouteProp = RouteProp<RootStackParamList, 'Chat'>;
@@ -31,7 +32,7 @@ export default function Chat({ route }: Props): React.JSX.Element {
   useEffect(()=>{ load(); },[]);
 
   useEffect(() => {
-    const socket = io(SERVER);
+    const socket = io(SERVER, { transports: ['websocket'] });
     
     socket.on('message', (message) => {
       if(message.poolId === poolId) setMessages(prev => [...prev, message]);
