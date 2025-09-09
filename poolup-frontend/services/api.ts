@@ -33,8 +33,8 @@ interface Contribution {
   [key: string]: any;
 }
 
-const API_BASE = 'http://localhost:3000/api';
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = (process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000').replace(/\/$/, '');
+const API_BASE = `${BASE_URL}/api`;
 
 // Get current user ID from storage
 const getCurrentUserId = (): string => {
@@ -60,25 +60,31 @@ export const api = {
     }
   },
 
-  // Google OAuth user creation
+  // Google OAuth user creation (dev: map to /api/users)
   createGoogleUser: async (googleUser: GoogleUser): Promise<User> => {
     try {
-      const response = await fetch(`${BASE_URL}/auth/google`, {
+      const response = await fetch(`${API_BASE.replace('/api','')}/api/users`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${googleUser.accessToken}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           google_id: googleUser.id,
           name: googleUser.name,
           email: googleUser.email,
-          profile_image: googleUser.photo,
-          access_token: googleUser.accessToken
+          profile_image_url: googleUser.photo,
+          avatar_type: 'avatar',
+          avatar_data: null
         })
       });
       if (!response.ok) throw new Error('Network response was not ok');
-      return await response.json();
+      const json = await response.json();
+      const user = json?.data || json;
+      return {
+        id: String(user.id),
+        name: user.name,
+        email: user.email,
+        profileImage: user.profile_image_url,
+        authProvider: 'google'
+      } as any;
     } catch (error) {
       console.log('Google API Error - using mock data:', error);
       return {
@@ -94,31 +100,29 @@ export const api = {
   },
 
   // Pools
-  createPool: async (userId, name, goalCents, destination, tripDate, poolType = 'group', penaltyData = null) => {
+  createPool: async (userId, name, goalCents, destination, tripDate, poolType = 'group', _penaltyData = null) => {
     try {
+      const payload = {
+        name,
+        description: destination || null,
+        goal_amount: Number(goalCents) || 0,
+        target_date: tripDate ? new Date(tripDate).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+        created_by: Number(userId) || 1,
+        pool_type: poolType || 'group',
+        public_visibility: 0,
+      };
       const response = await fetch(`${API_BASE}/pools`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-id': userId 
-        },
-        body: JSON.stringify({
-          userId,
-          name,
-          goalCents,
-          destination,
-          tripDate,
-          poolType,
-          penalty: penaltyData
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Pool creation failed:', response.status, errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
-      const text = await response.text();
-      return text ? JSON.parse(text) : {};
+      const json = await response.json();
+      return json?.data || json;
     } catch (error) {
       console.error('Pool creation API Error:', error);
       throw error;
@@ -284,6 +288,26 @@ export const api = {
   // Store created pools in memory for demo mode
   _mockPools: [] as any[],
 
+  // New: list all pools from backend (no user filter)
+  getPools: async () => {
+    try {
+      const res = await fetch(`${API_BASE}/pools`);
+      if (!res.ok) throw new Error('Failed to fetch pools');
+      const json = await res.json();
+      const items = json?.data || [];
+      return items.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        goal_cents: p.goal_amount ?? 0,
+        saved_cents: p.current_amount ?? 0,
+        destination: p.description || null,
+        creator_id: p.created_by,
+      }));
+    } catch (e) {
+      return [];
+    }
+  },
+
   listPools: async (userId: string) => {
     try {
       const res = await fetch(`${BASE_URL}/api/users/${userId}/pools`, {
@@ -316,26 +340,28 @@ export const api = {
   },
 
   contribute: async (poolId: string, { userId, amountCents, paymentMethod }: { userId: string; amountCents: number; paymentMethod: string }) => {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/contributions`, {
+    const res = await fetch(`${API_BASE}/contributions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, amountCents, paymentMethod })
+      body: JSON.stringify({ pool_id: Number(poolId), user_id: Number(userId) || 1, amount: Number(amountCents), description: paymentMethod || 'manual' })
     });
     return res.json();
   },
 
   getMessages: async (poolId: string) => {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/messages`);
-    return res.json();
+    const res = await fetch(`${API_BASE}/messages/${poolId}`);
+    const json = await res.json();
+    return json?.data || json;
   },
 
   sendMessage: async (poolId: string, { userId, body }: { userId: string; body: string }) => {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/messages`, {
+    const res = await fetch(`${API_BASE}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, body })
+      body: JSON.stringify({ pool_id: Number(poolId), user_id: Number(userId) || 1, content: body })
     });
-    return res.json();
+    const json = await res.json();
+    return json?.data || json;
   },
 
   // Gamification APIs

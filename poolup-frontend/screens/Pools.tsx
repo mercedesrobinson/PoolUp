@@ -120,46 +120,23 @@ export default function Pools({ navigation, route }: any){
 
   const load = async () => {
     try {
-      // Set mock data immediately - no async calls that could hang
-      const mockData = {
-        totalSaved: 125000,
-        activeGoals: 3,
-        completedGoals: 2,
-        currentStreak: 14,
-        monthlyAverage: 35000,
-        savingsRate: 0.23,
-        nextMilestone: { amount: 150000, daysLeft: 12 }
-      };
-      setSummaryData(mockData);
-
-      const mockPools = [
-        {
-          id: 1,
-          name: "Tokyo Trip 2024",
-          goal_cents: 300000,
-          saved_cents: 75000,
-          destination: "Tokyo, Japan",
-          creator_id: user.id,
-          bonus_pot_cents: 5000,
-          category: { id: 'travel', name: 'Travel', icon: '✈️', color: '#4285F4' }
-        },
-        {
-          id: 2,
-          name: "Emergency Fund",
-          goal_cents: 500000,
-          saved_cents: 125000,
-          destination: null,
-          creator_id: user.id,
-          bonus_pot_cents: 0,
-          category: { id: 'emergency', name: 'Emergency Fund', icon: '🛡️', color: '#34A853' }
-        }
-      ];
-      setPools(mockPools);
-
-      // Skip API calls entirely for now to prevent hanging
-      console.log('Pools screen loaded with mock data');
+      // Try real backend
+      const list = await (api.getPools ? api.getPools() : api.listPools?.(String(user.id)))?.catch?.(() => null);
+      if (Array.isArray(list) && list.length >= 0) {
+        setPools(list as any);
+        // Derive a basic summary from real data
+        const totalSaved = list.reduce((sum: number, p: any) => sum + (p.saved_cents || 0), 0);
+        setSummaryData((s) => ({ ...s, totalSaved }));
+      } else {
+        throw new Error('No pools');
+      }
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('Error loading data, falling back to mock:', error);
+      // Fallback mock
+      const mockPools = [
+        { id: 1, name: 'Demo Pool', goal_cents: 100000, saved_cents: 25000, destination: 'Sample', creator_id: user.id, bonus_pot_cents: 0 }
+      ];
+      setPools(mockPools as any);
     } finally {
       setRefreshing(false);
       setLoading(false);
