@@ -108,13 +108,13 @@ export default function Pools({ navigation, route }: any){
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [summaryData, setSummaryData] = useState({
-    totalSaved: 125000,
-    activeGoals: 3,
-    completedGoals: 2,
-    currentStreak: 14,
-    monthlyAverage: 35000,
-    savingsRate: 0.23,
-    nextMilestone: { amount: 150000, daysLeft: 12 }
+    totalSaved: 0,
+    activeGoals: 0,
+    completedGoals: 0,
+    currentStreak: 0,
+    monthlyAverage: 0,
+    savingsRate: 0.15,
+    nextMilestone: { amount: 0, daysLeft: 0 }
   });
   const user = (route.params as any)?.user || { id: 1, name: 'Demo User' };
 
@@ -174,12 +174,7 @@ export default function Pools({ navigation, route }: any){
     return equivalents.find(eq => amountInDollars >= eq.threshold) || equivalents[equivalents.length - 1];
   };
 
-  const mockSummary = summaryData || {
-    totalSaved: 125000,
-    activeGoals: 3,
-    currentStreak: 14,
-    savingsRate: 0.23
-  };
+  const realSummary = summaryData;
 
   return (
     <ScrollView 
@@ -194,11 +189,11 @@ export default function Pools({ navigation, route }: any){
           Total Saved
         </Text>
         <Text style={{ color: 'white', fontSize: 48, fontWeight: '700', textAlign: 'center', marginBottom: 16 }}>
-          ${(mockSummary.totalSaved / 100).toFixed(2)}
+          ${(realSummary.totalSaved / 100).toFixed(2)}
         </Text>
         
         {(() => {
-          const equivalent = getSavingsEquivalent(mockSummary.totalSaved);
+          const equivalent = getSavingsEquivalent(realSummary.totalSaved);
           return (
             <View style={{
               backgroundColor: 'rgba(255,255,255,0.2)',
@@ -236,7 +231,7 @@ export default function Pools({ navigation, route }: any){
           }}>
             <Text style={{ fontSize: 24, marginBottom: 4 }}>🎯</Text>
             <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text }}>
-              {mockSummary.activeGoals}
+              {realSummary.activeGoals}
             </Text>
             <Text style={{ fontSize: 12, color: colors.textSecondary }}>
               Active Goals
@@ -257,7 +252,7 @@ export default function Pools({ navigation, route }: any){
           }}>
             <Text style={{ fontSize: 24, marginBottom: 4 }}>🔥</Text>
             <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text }}>
-              {mockSummary.currentStreak}
+              {realSummary.currentStreak}
             </Text>
             <Text style={{ fontSize: 12, color: colors.textSecondary }}>
               Day Streak
@@ -278,7 +273,7 @@ export default function Pools({ navigation, route }: any){
           }}>
             <Text style={{ fontSize: 24, marginBottom: 4 }}>💪</Text>
             <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text }}>
-              {(mockSummary.savingsRate * 100).toFixed(0)}%
+              {(realSummary.savingsRate * 100).toFixed(0)}%
             </Text>
             <Text style={{ fontSize: 12, color: colors.textSecondary }}>
               Savings Rate

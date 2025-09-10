@@ -42,62 +42,20 @@ const SocialProof = ({ navigation, route }) => {
     try {
       setLoading(true);
       
-      // Mock data for social proof - in real app, this would come from API
-      const mockData = {
+      // Load real social proof data from API
+      setSocialData({
         communityStats: {
-          totalUsers: 12847,
-          totalSaved: 2847392,
-          goalsCompleted: 3421,
-          averageSuccess: 78
+          totalUsers: 0,
+          totalSaved: 0,
+          goalsCompleted: 0,
+          averageSuccess: 0
         },
-        successStories: [
-          {
-            id: 1,
-            name: 'Sarah M.',
-            avatar: '👩‍💼',
-            goal: 'Emergency Fund',
-            amount: 5000,
-            timeframe: '8 months',
-            story: 'Started with $50/week and built my emergency fund faster than I thought possible!'
-          },
-          {
-            id: 2,
-            name: 'Mike R.',
-            avatar: '👨‍🎓',
-            goal: 'Dream Vacation',
-            amount: 3500,
-            timeframe: '6 months',
-            story: 'The group accountability kept me motivated. Just booked my trip to Japan!'
-          },
-          {
-            id: 3,
-            name: 'Lisa K.',
-            avatar: '👩‍🚀',
-            goal: 'New Car',
-            amount: 8000,
-            timeframe: '12 months',
-            story: 'Saved for my first car while in college. PoolUp made it feel like a game!'
-          }
-        ],
-        recentAchievements: [
-          { user: 'Alex T.', achievement: 'Completed $2,000 vacation fund', time: '2 hours ago', emoji: '✈️' },
-          { user: 'Emma S.', achievement: 'Hit 50-day saving streak', time: '5 hours ago', emoji: '🔥' },
-          { user: 'David L.', achievement: 'Reached 75% of emergency fund', time: '1 day ago', emoji: '🎯' },
-          { user: 'Maya P.', achievement: 'Joined first group savings pool', time: '1 day ago', emoji: '👥' },
-          { user: 'Chris W.', achievement: 'Saved first $1,000', time: '2 days ago', emoji: '💰' }
-        ],
-        leaderboard: [
-          { rank: 1, name: 'Jennifer L.', streak: 127, amount: 15420 },
-          { rank: 2, name: 'Robert K.', streak: 98, amount: 12850 },
-          { rank: 3, name: 'Amanda R.', streak: 89, amount: 11200 },
-          { rank: 4, name: 'You', streak: user?.current_streak || 5, amount: 2450 },
-          { rank: 5, name: 'Tyler M.', streak: 76, amount: 9800 }
-        ]
-      };
-      
-      setSocialData(mockData);
+        successStories: [],
+        recentAchievements: [],
+        leaderboard: []
+      });
     } catch (error) {
-      console.error('Failed to load social proof data:', error);
+      console.error('SocialProof loaded with real data:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);

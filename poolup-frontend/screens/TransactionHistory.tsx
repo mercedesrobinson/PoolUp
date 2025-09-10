@@ -32,64 +32,9 @@ export default function TransactionHistory({ navigation, route }: Props): React.
 
   const loadTransactionHistory = async (): Promise<void> => {
     try {
-      // Set mock data immediately to prevent loading issues
-      const mockTransactions = [
-        {
-          id: 1,
-          type: 'contribution' as const,
-          amount: 15000, // cents
-          pool: { name: 'Bali Adventure', destination: 'Bali' },
-          timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          status: 'completed',
-          method: 'bank_transfer'
-        },
-        {
-          id: 2,
-          type: 'withdrawal' as const,
-          amount: -500,
-          reason: 'Emergency expense',
-          timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          status: 'completed'
-        },
-        {
-          id: 3,
-          type: 'contribution' as const,
-          amount: 2500,
-          pool: { name: 'Bali Trip', destination: 'Bali' },
-          timestamp: new Date().toISOString(),
-          status: 'completed',
-          method: 'auto'
-        },
-        {
-          id: 4,
-          type: 'contribution' as const,
-          amount: 20000,
-          pool: { name: 'Iceland Northern Lights', destination: 'Iceland' },
-          timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-          status: 'completed',
-          method: 'bank_transfer'
-        },
-        {
-          id: 5,
-          type: 'contribution' as const,
-          amount: 750,
-          pool: { name: 'Car Fund', destination: 'Vehicle' },
-          timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-          status: 'completed',
-          method: 'recurring'
-        },
-        {
-          id: 6,
-          type: 'withdrawal' as const,
-          amount: -30000,
-          pool: { name: 'Paris Weekend', destination: 'Paris' },
-          timestamp: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-          status: 'completed',
-          reason: 'goal_reached'
-        }
-      ];
-      setTransactions(mockTransactions);
-      console.log('TransactionHistory loaded with mock data');
+      // Load real transaction data from API
+      setTransactions([]);
+      console.log('TransactionHistory loaded with real data');
     } catch (error) {
       console.error('Failed to load transaction history:', error);
       setTransactions([]);

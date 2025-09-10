@@ -29,6 +29,26 @@
       "created_at": "2025-09-09T02:59:03.271Z",
       "avatar_type": "default",
       "avatar_data": null
+    },
+    {
+      "id": "5",
+      "name": "Test",
+      "email": "test@gmail.com",
+      "password_hash": "$2a$10$TzVgZKterxgkT8yzBwPoF.DDB.lwBY8WnzYcnoKlgfZfLgYGZF1o2",
+      "profile_image_url": null,
+      "created_at": "2025-09-10T01:57:21.294Z",
+      "avatar_type": "default",
+      "avatar_data": null
+    },
+    {
+      "id": "7",
+      "google_id": "google_1757469663782",
+      "name": "Demo Google User",
+      "email": "demo@gmail.com",
+      "profile_image_url": "https://via.placeholder.com/150",
+      "avatar_type": "avatar",
+      "avatar_data": null,
+      "created_at": "2025-09-10T02:01:03.793Z"
     }
   ],
   "pools": [
@@ -43,12 +63,29 @@
       "creator_id": 3,
       "public_visibility": 0,
       "bonus_pot_cents": 0
+    },
+    {
+      "id": "6",
+      "name": "Test",
+      "goal_cents": 600000,
+      "saved_cents": 0,
+      "destination": "Paris",
+      "trip_date": "2026-09-02",
+      "pool_type": "group",
+      "creator_id": 5,
+      "public_visibility": 0,
+      "bonus_pot_cents": 0
     }
   ],
   "memberships": [
     {
       "poolId": "4",
       "userId": "3",
+      "role": "owner"
+    },
+    {
+      "poolId": "6",
+      "userId": "5",
       "role": "owner"
     }
   ],
@@ -66,5 +103,5 @@
     "tokens": {},
     "preferences": {}
   },
-  "seq": 5
+  "seq": 8
 }

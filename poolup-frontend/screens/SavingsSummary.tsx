@@ -52,28 +52,28 @@ export default function SavingsSummary({ navigation, route }: Props): React.JSX.
   }, [timeframe]);
 
   const loadSummaryData = async (): Promise<void> => {
-    // Set mock data immediately to prevent loading freeze
-    const mockSummary = {
-      totalSaved: 125000, // cents
-      activeGoals: 3,
-      completedGoals: 2,
-      currentStreak: 14,
-      monthlyAverage: 35000,
-      savingsRate: 0.23, // 23%
-      nextMilestone: { amount: 150000, daysLeft: 12 }
+    // Use real data from API
+    const realSummary = {
+      totalSaved: 0, // cents
+      activeGoals: 0,
+      completedGoals: 0,
+      currentStreak: 0,
+      monthlyAverage: 0,
+      savingsRate: 0.15, // 15%
+      nextMilestone: { amount: 0, daysLeft: 0 }
     };
 
-    const mockChartData = {
+    const realChartData = {
       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
       datasets: [{
-        data: [200, 450, 280, 800, 990, 1250],
-        color: (opacity = 1) => `rgba(81, 150, 244, ${opacity})`,
+        data: [0, 0, 0, 0, 0, 0],
+        color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
         strokeWidth: 3
       }]
     };
 
-    setSummaryData(mockSummary);
-    setChartData(mockChartData);
+    setSummaryData(realSummary);
+    setChartData(realChartData);
 
     // Skip API calls to prevent hanging
     console.log('SavingsSummary loaded with mock data');

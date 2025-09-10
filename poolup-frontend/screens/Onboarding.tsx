@@ -68,19 +68,8 @@ export default function Onboarding({ navigation }){
             text: 'Continue with Demo', 
             onPress: async () => {
               try {
-                const demoUser = {
-                  id: 'google_' + Date.now(),
-                  name: 'Demo Google User',
-                  email: 'demo@gmail.com',
-                  photo: 'https://via.placeholder.com/150',
-                  authProvider: "google", accessToken: "mock_token"
-                };
-                const response = await api.createGoogleUser(demoUser);
-                const created = response as any;
-                try {
-                  await Keychain.setInternetCredentials('poolup_user', String(created.id), JSON.stringify({ accessToken: created.accessToken || '', user: created }));
-                } catch (_) {}
-                goToMain(created);
+                // Remove demo user - use real Google auth only
+                throw new Error('Demo mode disabled - use real Google auth');
               } catch (error) {
                 try {
                   // Fallback to real guest user on backend if Google creation fails
