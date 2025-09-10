@@ -195,6 +195,19 @@ app.get('/api/users/:id/profile', (req, res) => {
   });
 });
 
+// User streak endpoint
+app.get('/api/users/:id/streak', (req, res) => {
+  const db = loadDB();
+  const userId = String(req.params.id);
+  const contributions = db.contributions.filter(c => String(c.userId) === userId);
+  const currentStreak = Math.min(30, contributions.length); // Simple streak calculation
+  res.json({
+    current_streak: currentStreak,
+    longest_streak: currentStreak,
+    last_contribution_date: contributions.length > 0 ? contributions[contributions.length - 1].createdAt : null
+  });
+});
+
 // Pools
 app.get('/api/pools', (_req, res) => {
   const db = loadDB();
@@ -454,9 +467,80 @@ app.get('/api/users/:id/feed', (req, res) => {
   const followees = db.follows.filter(f => String(f.followerId) === String(req.params.id)).map(f => String(f.userId));
   const items = db.contributions
     .filter(c => followees.includes(String(c.userId)))
-    .slice(-50)
-    .map(c => ({ type: 'contribution', user_id: c.userId, amount_cents: c.amountCents, created_at: c.createdAt }));
+    .slice(-20)
+    .map(c => ({ ...c, type: 'contribution' }));
   res.json(items);
+});
+
+// Friends feed endpoint
+app.get('/api/users/:id/friends-feed', (req, res) => {
+  const db = loadDB();
+  const userId = String(req.params.id);
+  const filter = req.query.filter || 'all';
+  
+  // Get user's follows (friends)
+  const followees = db.follows.filter(f => String(f.followerId) === userId).map(f => String(f.userId));
+  
+  // Get user's pool memberships (groups)
+  const userPoolIds = db.memberships.filter(m => String(m.userId) === userId).map(m => String(m.poolId));
+  const groupMembers = db.memberships
+    .filter(m => userPoolIds.includes(String(m.poolId)) && String(m.userId) !== userId)
+    .map(m => String(m.userId));
+  
+  let relevantUserIds = [];
+  if (filter === 'friends') {
+    relevantUserIds = followees;
+  } else if (filter === 'groups') {
+    relevantUserIds = groupMembers;
+  } else {
+    relevantUserIds = [...new Set([...followees, ...groupMembers])];
+  }
+  
+  // Generate feed activities from contributions, pool creations, etc.
+  const activities = [];
+  
+  // Add contributions as activities
+  db.contributions
+    .filter(c => relevantUserIds.includes(String(c.userId)))
+    .slice(-20)
+    .forEach(contribution => {
+      const user = db.users.find(u => String(u.id) === String(contribution.userId));
+      const pool = db.pools.find(p => String(p.id) === String(contribution.poolId));
+      if (user && pool) {
+        activities.push({
+          id: `contrib_${contribution.id}`,
+          type: 'contribution',
+          user: { name: user.name, photo: user.profile_image_url },
+          pool: { name: pool.name, destination: pool.destination },
+          amount: contribution.amountCents,
+          timestamp: contribution.createdAt,
+          isPublic: true
+        });
+      }
+    });
+  
+  // Add pool creations as activities
+  db.pools
+    .filter(p => relevantUserIds.includes(String(p.creator_id)))
+    .slice(-10)
+    .forEach(pool => {
+      const user = db.users.find(u => String(u.id) === String(pool.creator_id));
+      if (user) {
+        activities.push({
+          id: `pool_${pool.id}`,
+          type: 'goal_created',
+          user: { name: user.name, photo: user.profile_image_url },
+          pool: { name: pool.name, destination: pool.destination },
+          timestamp: pool.created_at || new Date().toISOString(),
+          isPublic: true
+        });
+      }
+    });
+  
+  // Sort by timestamp (newest first)
+  activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  
+  res.json(activities.slice(0, 20));
 });
 
 // Solo public pools

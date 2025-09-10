@@ -20,13 +20,13 @@ function deriveLanBase(portFallback: number): string {
   return `http://localhost:${portFallback}`;
 }
 
-export function getBaseUrl(portFallback: number = 3001): string {
+export function getBaseUrl(portFallback: number = 3000): string {
   const env = (process.env.EXPO_PUBLIC_API_URL || '').trim();
   if (env) return env.replace(/\/$/, '');
   return deriveLanBase(portFallback);
 }
 
-export function getSocketUrl(portFallback: number = 3001): string {
+export function getSocketUrl(portFallback: number = 3000): string {
   const env = (process.env.EXPO_PUBLIC_SERVER_URL || process.env.EXPO_PUBLIC_API_URL || '').trim();
   if (env) return env.replace(/\/$/, '');
   return deriveLanBase(portFallback);

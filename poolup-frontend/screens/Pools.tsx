@@ -120,52 +120,38 @@ export default function Pools({ navigation, route }: any){
 
   const load = async () => {
     try {
-      // Try real backend - use user-specific pools only
+      console.log('Loading pools for user:', user.id);
+      
+      // Use real backend API calls
       const list = await api.listPools(String(user.id));
-      if (Array.isArray(list) && list.length >= 0) {
-        setPools(list as any);
-        // Derive summary from real pool data
-        const totalSaved = list.reduce((sum: number, p: any) => sum + (p.saved_cents || 0), 0);
-        const activeGoals = list.length;
-        const completedGoals = list.filter((p: any) => p.saved_cents >= p.goal_cents).length;
-        
-        // Calculate savings rate from actual data
-        const totalGoal = list.reduce((sum: number, p: any) => sum + (p.goal_cents || 0), 0);
-        const savingsRate = totalGoal > 0 ? totalSaved / totalGoal : 0;
-        
-        // Get user streak from API
-        try {
-          const streakData = await api.getUserStreak(String(user.id));
-          const currentStreak = streakData?.current_streak || 0;
-          
-          setSummaryData({
-            totalSaved,
-            activeGoals,
-            completedGoals,
-            currentStreak,
-            monthlyAverage: Math.floor(totalSaved / 6), // Rough estimate
-            savingsRate,
-            nextMilestone: { amount: totalGoal, daysLeft: 30 }
-          });
-        } catch (streakError) {
-          setSummaryData({
-            totalSaved,
-            activeGoals,
-            completedGoals,
-            currentStreak: 0,
-            monthlyAverage: Math.floor(totalSaved / 6),
-            savingsRate,
-            nextMilestone: { amount: totalGoal, daysLeft: 30 }
-          });
-        }
-      } else {
-        throw new Error('No pools');
-      }
+      setPools(list as any);
+      
+      // Calculate summary from real pool data
+      const totalSaved = list.reduce((sum: number, p: any) => sum + (p.saved_cents || 0), 0);
+      const activeGoals = list.length;
+      const completedGoals = list.filter((p: any) => p.saved_cents >= p.goal_cents).length;
+      
+      // Calculate savings rate from actual data
+      const totalGoal = list.reduce((sum: number, p: any) => sum + (p.goal_cents || 0), 0);
+      const savingsRate = totalGoal > 0 ? totalSaved / totalGoal : 0;
+      
+      // Get user streak from real API
+      const streakData = await api.getUserStreak(String(user.id));
+      const currentStreak = streakData?.current_streak || 0;
+      
+      setSummaryData({
+        totalSaved,
+        activeGoals,
+        completedGoals,
+        currentStreak,
+        monthlyAverage: Math.floor(totalSaved / 6), // Rough estimate
+        savingsRate,
+        nextMilestone: { amount: totalGoal, daysLeft: 30 }
+      });
+      
+      console.log('Pools loaded successfully:', { poolCount: list.length, totalSaved, currentStreak });
     } catch (error) {
-      console.error('Error loading data:', error);
-      // Commented out mock fallback to use backend only
-      // const mockPools = [ { id: 1, name: 'Demo Pool', goal_cents: 100000, saved_cents: 25000, destination: 'Sample', creator_id: user.id, bonus_pot_cents: 0 } ];
-      // setPools(mockPools as any);
+      console.error('Error loading pools data:', error);
       setPools([] as any);
     } finally {
       setRefreshing(false);

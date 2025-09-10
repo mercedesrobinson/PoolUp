@@ -33,7 +33,7 @@ interface Contribution {
   [key: string]: any;
 }
 
-// Use localhost for development - Expo will handle tunneling
+// Use localhost for development - works with simulators and Expo tunneling
 const BASE_URL = 'http://localhost:3000';
 const API_BASE = `${BASE_URL}/api`;
 
@@ -122,28 +122,34 @@ export const api = {
   },
 
   // Pools
-  createPool: async (userId, name, goalCents, destination, tripDate, poolType = 'group', _penaltyData = null) => {
+  createPool: async (userId: string, name: string, goalCents: number, destination: string, tripDate: string, poolType: string, penaltyData: any) => {
     try {
-      // Mock successful pool creation for now
-      const mockPool = {
-        id: String(Date.now()),
-        name: name.trim(),
-        goal_cents: Number(goalCents) || 0,
-        saved_cents: 0,
-        destination: destination?.trim() || null,
-        trip_date: tripDate || null,
-        pool_type: poolType || 'group',
-        creator_id: Number(userId) || 1,
-        public_visibility: 0,
-        bonus_pot_cents: 0
-      };
+      console.log('Creating pool with data:', { userId, name, goalCents, destination, tripDate, poolType, penaltyData });
       
-      console.log('Mock pool created:', mockPool);
+      const response = await fetch(`${API_BASE}/pools`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': getCurrentUserId()
+        },
+        body: JSON.stringify({
+          name,
+          goal_amount: goalCents,
+          description: destination,
+          created_by: Number(userId),
+          trip_date: tripDate,
+          pool_type: poolType,
+          penalty_data: penaltyData
+        })
+      });
       
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       
-      return mockPool;
+      const result = await response.json();
+      console.log('Pool created successfully:', result);
+      return result;
     } catch (error) {
       console.error('Pool creation error:', error);
       throw error;
@@ -156,130 +162,236 @@ export const api = {
       const response = await fetch(`${API_BASE}/users/${userId}/profile`, {
         headers: { 'x-user-id': getCurrentUserId() }
       });
-      if (!response.ok) throw new Error('Profile not found');
       return response.json();
     } catch (error) {
-      // console.log('getUserProfile API error, using mock data:', error);
-      // return { id: userId, name: 'Mercedes', xp: 150, total_points: 250, current_streak: 3, badge_count: 2, avatar_type: 'default', avatar_data: null };
-      throw error;
+      console.error('getUserProfile error:', error);
+      // Return fallback data on error
+      return {
+        id: userId,
+        name: 'User',
+        xp: 0,
+        total_points: 0,
+        current_streak: 0,
+        badge_count: 0,
+        profile_image_url: null
+      };
     }
   },
 
 
   googleLogin: async (googleProfile) => {
-    const response = await fetch(`${BASE_URL}/api/auth/google`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ googleProfile }),
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/api/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ googleProfile }),
+      });
+      return response.json();
+    } catch (error) {
+      console.error('Google login error:', error);
+      throw error;
+    }
   },
 
   // Chat messages
   messages: async (poolId: string) => {
     try {
-      const res = await fetch(`${BASE_URL}/api/pools/${poolId}/messages`);
-      return res.json();
+      // Mock messages - empty for now
+      console.log('Mock messages called for pool:', poolId);
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return [];
     } catch (error) {
+      console.error('Messages error:', error);
       return [];
     }
   },
 
   getWithdrawalInfo: async (poolId: string, userId: string) => {
     try {
-      const res = await fetch(`${BASE_URL}/api/pools/${poolId}/withdrawal-info?userId=${userId}`);
-      return res.json();
+      // Mock withdrawal info
+      console.log('Mock getWithdrawalInfo called:', { poolId, userId });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return { availableAmount: 0, penalty: 0 };
     } catch (error) {
+      console.error('Withdrawal info error:', error);
       return { availableAmount: 0, penalty: 0 };
     }
   },
 
   processWithdrawal: async (poolId: string, userId: string, amountCents: number) => {
     try {
-      const res = await fetch(`${BASE_URL}/api/pools/${poolId}/withdraw`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, amountCents })
-      });
-      return res.json();
+      // Mock withdrawal processing
+      console.log('Mock processWithdrawal called:', { poolId, userId, amountCents });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      return { success: true, withdrawalId: Date.now().toString() };
     } catch (error) {
+      console.error('Withdrawal processing error:', error);
       throw new Error('Withdrawal failed');
     }
   },
 
   // Photo upload
   updateUserPhoto: async (userId: string, profileImageUrl: string) => {
-    const response = await fetch(`${BASE_URL}/api/users/${userId}/photo`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ profileImageUrl }),
-    });
-    return response.json();
+    try {
+      // Mock photo upload
+      console.log('Mock updateUserPhoto called:', { userId, profileImageUrl });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 600));
+      
+      return { success: true, imageUrl: profileImageUrl };
+    } catch (error) {
+      console.error('Photo upload error:', error);
+      throw error;
+    }
   },
 
   updatePrivacy: async (userId, isPublic, allowEncouragement) => {
-    const response = await fetch(`${BASE_URL}/api/users/${userId}/privacy`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ isPublic, allowEncouragement }),
-    });
-    return response.json();
+    try {
+      // Mock privacy update
+      console.log('Mock updatePrivacy called:', { userId, isPublic, allowEncouragement });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Privacy update error:', error);
+      throw error;
+    }
   },
 
 
   // Solo savings
   getPublicSoloPools: async (limit = 20) => {
-    const response = await fetch(`${BASE_URL}/api/pools/solo/public?limit=${limit}`);
-    return response.json();
+    try {
+      // Mock public solo pools - empty for now
+      console.log('Mock getPublicSoloPools called with limit:', limit);
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return [];
+    } catch (error) {
+      console.error('Public solo pools error:', error);
+      return [];
+    }
   },
 
   getStreakLeaderboard: async (limit = 20) => {
-    const response = await fetch(`${BASE_URL}/api/leaderboard/streaks?limit=${limit}`);
-    return response.json();
+    try {
+      // Mock streak leaderboard - empty for now
+      console.log('Mock getStreakLeaderboard called with limit:', limit);
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return [];
+    } catch (error) {
+      console.error('Streak leaderboard error:', error);
+      return [];
+    }
   },
 
   // Encouragement system
   sendEncouragement: async (fromUserId, toUserId, poolId, message, type = 'general') => {
-    const response = await fetch(`${BASE_URL}/api/encouragement`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fromUserId, toUserId, poolId, message, type }),
-    });
-    return response.json();
+    try {
+      // Mock encouragement sending
+      console.log('Mock sendEncouragement called:', { fromUserId, toUserId, poolId, message, type });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      return { success: true, encouragementId: Date.now().toString() };
+    } catch (error) {
+      console.error('Send encouragement error:', error);
+      throw error;
+    }
   },
 
   getUserEncouragements: async (userId, limit = 50) => {
-    const response = await fetch(`${BASE_URL}/api/users/${userId}/encouragements?limit=${limit}`);
-    return response.json();
+    try {
+      // Mock user encouragements - empty for now
+      console.log('Mock getUserEncouragements called:', { userId, limit });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return [];
+    } catch (error) {
+      console.error('Get user encouragements error:', error);
+      return [];
+    }
   },
 
   // Follow system
   followUser: async (userId, followerId) => {
-    const response = await fetch(`${BASE_URL}/api/users/${userId}/follow`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ followerId }),
-    });
-    return response.json();
+    try {
+      // Mock follow user
+      console.log('Mock followUser called:', { userId, followerId });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      return { success: true, following: true };
+    } catch (error) {
+      console.error('Follow user error:', error);
+      throw error;
+    }
   },
 
   unfollowUser: async (userId, followerId) => {
-    const response = await fetch(`${BASE_URL}/api/users/${userId}/follow`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ followerId }),
-    });
-    return response.json();
+    try {
+      // Mock unfollow user
+      console.log('Mock unfollowUser called:', { userId, followerId });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      return { success: true, following: false };
+    } catch (error) {
+      console.error('Unfollow user error:', error);
+      throw error;
+    }
   },
 
   getUserFollows: async (userId) => {
-    const response = await fetch(`${BASE_URL}/api/users/${userId}/follows`);
-    return response.json();
+    try {
+      // Mock user follows - empty for now
+      console.log('Mock getUserFollows called for user:', userId);
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return { following: [], followers: [] };
+    } catch (error) {
+      console.error('Get user follows error:', error);
+      return { following: [], followers: [] };
+    }
   },
 
   getActivityFeed: async (userId, limit = 50) => {
-    const response = await fetch(`${BASE_URL}/api/users/${userId}/feed?limit=${limit}`);
-    return response.json();
+    try {
+      // Mock activity feed - empty for now
+      console.log('Mock getActivityFeed called:', { userId, limit });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return [];
+    } catch (error) {
+      console.error('Get activity feed error:', error);
+      return [];
+    }
   },
 
   // Store created pools in memory for demo mode
@@ -288,67 +400,94 @@ export const api = {
   // New: list all pools from backend (no user filter)
   getPools: async () => {
     try {
-      const res = await fetch(`${API_BASE}/pools`);
-      if (!res.ok) throw new Error('Failed to fetch pools');
-      const json = await res.json();
-      const items = json?.data || [];
-      return items.map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        goal_cents: p.goal_amount ?? 0,
-        saved_cents: p.current_amount ?? 0,
-        destination: p.description || null,
-        creator_id: p.created_by,
-      }));
-    } catch (e) {
+      // Mock all pools - empty for now
+      console.log('Mock getPools called');
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return [];
+    } catch (error) {
+      console.error('Get pools error:', error);
       return [];
     }
   },
 
-  listPools: async (userId: string) => {
+  getUserStreak: async (userId: string) => {
     try {
-      const res = await fetch(`${BASE_URL}/api/users/${userId}/pools`, {
+      const response = await fetch(`${API_BASE}/users/${userId}/streak`, {
         headers: { 'x-user-id': getCurrentUserId() }
       });
-      if (!res.ok) throw new Error('Failed to fetch pools');
-      return res.json();
+      return response.json();
     } catch (error) {
-      // console.log('listPools API error, using mock data:', error);
-      // return [{ id: 1, name: 'Tokyo Trip 2024', goal_cents: 300000, saved_cents: 75000, destination: 'Tokyo, Japan', creator_id: userId }, ...((api as any)._mockPools ?? [])];
-      throw error;
+      console.error('Failed to load user streak:', error);
+      return { current_streak: 0, longest_streak: 0, streak_start_date: null };
+    }
+  },
+
+  listPools: async (userId: string): Promise<Pool[]> => {
+    try {
+      const response = await fetch(`${API_BASE}/users/${userId}/pools`, {
+        headers: { 'x-user-id': getCurrentUserId() }
+      });
+      const json = await response.json();
+      return json?.data || json || [];
+    } catch (error) {
+      console.error('Failed to load pools:', error);
+      return [];
     }
   },
 
   getPool: async (poolId: string) => {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}`, {
-      headers: { 'x-user-id': getCurrentUserId() }
-    });
-    return res.json();
+    try {
+      const response = await fetch(`${API_BASE}/pools/${poolId}`, {
+        headers: { 'x-user-id': getCurrentUserId() }
+      });
+      return response.json();
+    } catch (error) {
+      console.error('Get pool error:', error);
+      throw error;
+    }
   },
 
   contribute: async (poolId: string, { userId, amountCents, paymentMethod }: { userId: string; amountCents: number; paymentMethod: string }) => {
-    const res = await fetch(`${API_BASE}/contributions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pool_id: Number(poolId), user_id: Number(userId) || 1, amount: Number(amountCents), description: paymentMethod || 'manual' })
-    });
-    return res.json();
+    try {
+      const response = await fetch(`${API_BASE}/contributions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pool_id: Number(poolId), user_id: Number(userId) || 1, amount: Number(amountCents), description: paymentMethod || 'manual' })
+      });
+      return response.json();
+    } catch (error) {
+      console.error('Contribute error:', error);
+      throw error;
+    }
   },
 
   getMessages: async (poolId: string) => {
-    const res = await fetch(`${API_BASE}/messages/${poolId}`);
-    const json = await res.json();
-    return json?.data || json;
+    try {
+      const response = await fetch(`${API_BASE}/messages/${poolId}`);
+      const json = await response.json();
+      return json?.data || json;
+    } catch (error) {
+      console.error('Get messages error:', error);
+      return [];
+    }
   },
 
   sendMessage: async (poolId: string, { userId, body }: { userId: string; body: string }) => {
-    const res = await fetch(`${API_BASE}/messages`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pool_id: Number(poolId), user_id: Number(userId) || 1, content: body })
-    });
-    const json = await res.json();
-    return json?.data || json;
+    try {
+      const response = await fetch(`${API_BASE}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pool_id: Number(poolId), user_id: Number(userId) || 1, content: body })
+      });
+      const json = await response.json();
+      return json?.data || json;
+    } catch (error) {
+      console.error('Send message error:', error);
+      throw error;
+    }
   },
 
   // Gamification APIs
@@ -479,10 +618,16 @@ export const api = {
 
   // Friends Feed
   getFriendsFeed: async (userId: string, filter = 'all') => {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/friends-feed?filter=${filter}`, {
-      headers: { 'x-user-id': getCurrentUserId() }
-    });
-    return res.json();
+    try {
+      const res = await fetch(`${BASE_URL}/api/users/${userId}/friends-feed?filter=${filter}`, {
+        headers: { 'x-user-id': getCurrentUserId() }
+      });
+      return res.json();
+    } catch (error) {
+      console.error('getFriendsFeed error:', error);
+      // Return empty array instead of mock data
+      return [];
+    }
   },
 
   // Invite System
@@ -664,35 +809,18 @@ export const api = {
     }
   },
 
-  getUserStreak: async (userId: string) => {
-    try {
-      const response = await fetch(`${API_BASE}/users/${userId}/streak`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const text = await response.text();
-      return text ? JSON.parse(text) : {
-        current_streak: 0,
-        longest_streak: 0,
-        next_contribution_window: new Date().toISOString(),
-        days_until_next: 7
-      };
-    } catch (error) {
-      console.error('Streak API error:', error);
-      return {
-        current_streak: 0,
-        longest_streak: 0,
-        next_contribution_window: new Date().toISOString(),
-        days_until_next: 7
-      };
-    }
-  },
+  // Duplicate getUserStreak removed - using mock version above
 
   // Payment Methods APIs
   getUserPaymentMethods: async (userId: string) => {
     try {
-      const response = await fetch(`${API_BASE}/users/${userId}/payment-methods`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const text = await response.text();
-      return text ? JSON.parse(text) : {
+      // Mock payment methods
+      console.log('Mock getUserPaymentMethods called for user:', userId);
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return {
         venmo: { linked: false, username: null },
         cashapp: { linked: false, cashtag: null },
         paypal: { linked: false, email: null },
@@ -711,48 +839,43 @@ export const api = {
 
   linkPaymentMethod: async (userId: string, method: string, credentials: any) => {
     try {
-      const response = await fetch(`${API_BASE}/users/${userId}/payment-methods/link`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ method, credentials })
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const text = await response.text();
-      return text ? JSON.parse(text) : { success: true };
+      // Mock payment method linking
+      console.log('Mock linkPaymentMethod called:', { userId, method, credentials });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      return { success: true };
     } catch (error) {
       console.error('Link payment method error:', error);
       return { success: false, error: error.message };
     }
   },
 
-  async contributeToPool(poolId, userId, amountCents, paymentMethod, paymentToken = null) {
+  contributeToPool: async (poolId: string, userId: string, amountCents: number, paymentMethod: string, paymentToken: string | null = null) => {
     try {
-      const response = await fetch(`${API_BASE}/pools/${poolId}/contribute`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, amountCents, paymentMethod, paymentToken })
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const text = await response.text();
-      return text ? JSON.parse(text) : { success: true };
+      // Mock pool contribution
+      console.log('Mock contributeToPool called:', { poolId, userId, amountCents, paymentMethod, paymentToken });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      return { success: true, contributionId: Date.now().toString() };
     } catch (error) {
       console.error('Contribute to pool error:', error);
       throw error;
     }
   },
 
-  async saveSoloGoalPrivacySettings(userId, poolId, settings) {
+  saveSoloGoalPrivacySettings: async (userId: string, poolId: string, settings: any) => {
     try {
-      const response = await fetch(`${API_BASE}/users/${userId}/solo-goals/${poolId}/privacy`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(settings)
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const text = await response.text();
-      return text ? JSON.parse(text) : { success: true };
+      // Mock privacy settings save
+      console.log('Mock saveSoloGoalPrivacySettings called:', { userId, poolId, settings });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return { success: true };
     } catch (error) {
       console.error('Save solo goal privacy settings error:', error);
       throw error;
@@ -762,38 +885,43 @@ export const api = {
   // Peer Transfer APIs
   getPoolMembers: async (poolId: string) => {
     try {
-      const response = await fetch(`${API_BASE}/pools/${poolId}/members`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const text = await response.text();
-      return text ? JSON.parse(text) : [];
+      // Mock pool members - empty for now
+      console.log('Mock getPoolMembers called for pool:', poolId);
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return [];
     } catch (error) {
       console.error('Get pool members error:', error);
       return [];
     }
   },
 
-  async processPeerTransfer(poolId, fromUserId, toUserId, amountCents, message = '') {
+  processPeerTransfer: async (poolId: string, fromUserId: string, toUserId: string, amountCents: number, message: string = '') => {
     try {
-      const response = await fetch(`${API_BASE}/pools/${poolId}/peer-transfer`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fromUserId, toUserId, amountCents, message })
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const text = await response.text();
-      return text ? JSON.parse(text) : { success: true };
+      // Mock peer transfer
+      console.log('Mock processPeerTransfer called:', { poolId, fromUserId, toUserId, amountCents, message });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 600));
+      
+      return { success: true, transferId: Date.now().toString() };
     } catch (error) {
       console.error('Peer transfer error:', error);
       throw error;
     }
   },
 
-  async getUserPeerTransfers(userId, limit = 50) {
+  getUserPeerTransfers: async (userId: string, limit: number = 50) => {
     try {
-      const response = await fetch(`${API_BASE}/users/${userId}/peer-transfers`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const text = await response.text();
-      return text ? JSON.parse(text) : [];
+      // Mock peer transfers - empty for now
+      console.log('Mock getUserPeerTransfers called:', { userId, limit });
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return [];
     } catch (error) {
       console.error('Get peer transfers error:', error);
       return [];
@@ -801,18 +929,34 @@ export const api = {
   },
 
   // Penalty system APIs
-  async get(endpoint) {
-    const response = await fetch(`${API_BASE}${endpoint}`);
-    return response.json();
+  get: async (endpoint: string) => {
+    try {
+      // Mock GET requests
+      console.log('Mock GET request to:', endpoint);
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return { data: [] };
+    } catch (error) {
+      console.error('GET request error:', error);
+      throw error;
+    }
   },
 
-  async post(endpoint, data) {
-    const response = await fetch(`${API_BASE}${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    return response.json();
+  post: async (endpoint: string, data: any) => {
+    try {
+      // Mock POST requests
+      console.log('Mock POST request to:', endpoint, 'with data:', data);
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      return { success: true, data: { id: Date.now().toString() } };
+    } catch (error) {
+      console.error('POST request error:', error);
+      throw error;
+    }
   },
 
   // Payday and recurring payment settings

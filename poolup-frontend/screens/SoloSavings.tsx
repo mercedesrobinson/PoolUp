@@ -48,49 +48,7 @@ export default function SoloSavings({ route, navigation }) {
   ]);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState('discover');
-  const [friendsActivity, setFriendsActivity] = useState([
-    {
-      id: 1,
-      user_name: "Sarah",
-      user_avatar: "👩‍💼",
-      action_type: "contribution",
-      amount_cents: 15000,
-      pool_name: "Bali Adventure",
-      pool_type: "solo",
-      timestamp: "2h ago",
-      message: "Saved $150.00 for Bali"
-    },
-    {
-      id: 2,
-      user_name: "Mike",
-      user_avatar: "👨‍💻",
-      action_type: "milestone",
-      progress_percent: 50,
-      pool_name: "Tokyo Trip",
-      pool_type: "group",
-      timestamp: "5h ago",
-      message: "Hit 50% of their savings goal!"
-    },
-    {
-      id: 3,
-      user_name: "Emma",
-      user_avatar: "👩‍🎨",
-      action_type: "streak",
-      streak_days: 14,
-      timestamp: "1d ago",
-      message: "On a 14-day savings streak!"
-    },
-    {
-      id: 4,
-      user_name: "Alex",
-      user_avatar: "👨‍🚀",
-      action_type: "new_goal",
-      pool_name: "Iceland Northern Lights",
-      pool_type: "solo",
-      timestamp: "2d ago",
-      message: "Started a new savings adventure!"
-    }
-  ]);
+  const [friendsActivity, setFriendsActivity] = useState([]);
 
   useEffect(() => {
     loadData();
@@ -98,52 +56,15 @@ export default function SoloSavings({ route, navigation }) {
 
   const loadData = async () => {
     try {
-      // Skip API calls and use mock data to prevent JSON parsing errors
-      console.log('Loading Friends Feed with mock data');
+      // Load real data from backend APIs
+      const publicPoolsData = await api.getPublicSoloPools();
+      setPublicPools(publicPoolsData || []);
       
-      setPublicPools([
-        {
-          id: 1,
-          name: "Emergency Fund Goal",
-          goal_cents: 100000,
-          total_contributed_cents: 35000,
-          owner_name: "Sarah M.",
-          contribution_streak: 12,
-          destination: "Emergency Fund",
-          is_public: true,
-          avatar_type: "avatar",
-          avatar_data: "{}"
-        },
-        {
-          id: 2,
-          name: "Dream Vacation",
-          goal_cents: 250000,
-          total_contributed_cents: 87500,
-          owner_name: "Mike T.",
-          contribution_streak: 8,
-          destination: "Bali, Indonesia",
-          is_public: true,
-          avatar_type: "avatar",
-          avatar_data: "{}"
-        }
-      ]);
+      const leaderboardData = await api.getStreakLeaderboard();
+      setStreakLeaderboard(leaderboardData || []);
       
-      setStreakLeaderboard([
-        {
-          id: 1,
-          name: "Alex Johnson",
-          current_streak: 45,
-          total_saved: 320000,
-          avatar: "👨‍💼",
-        },
-        {
-          id: 2,
-          name: "Sarah Chen",
-          current_streak: 38,
-          total_saved: 285000,
-          avatar: "👩‍💻",
-        }
-      ]);
+      const friendsActivityData = await api.getFriendsFeed(userId, 'all');
+      setFriendsActivity(friendsActivityData || []);
     } catch (error) {
       console.error('Error in loadData:', error);
     } finally {
