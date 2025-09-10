@@ -118,20 +118,264 @@ export default function Badges({ navigation, route }: Props): React.JSX.Element 
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Define all possible badges that users can earn
+  const getAllPossibleBadges = (): Badge[] => {
+    return [
+      // Friends Badges
+      {
+        name: "Social Butterfly",
+        description: "Invite your first friend to join PoolUp",
+        emoji: "🦋",
+        category: "friends",
+        type: "invites",
+        level: 1,
+        threshold: 1,
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Squad Builder",
+        description: "Invite 5 friends to join PoolUp",
+        emoji: "👥",
+        category: "friends",
+        type: "invites",
+        level: 2,
+        threshold: 5,
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Network Master",
+        description: "Invite 10 friends to join PoolUp",
+        emoji: "🌟",
+        category: "friends",
+        type: "invites",
+        level: 3,
+        threshold: 10,
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Community Leader",
+        description: "Invite 25 friends to join PoolUp",
+        emoji: "👑",
+        category: "friends",
+        type: "invites",
+        level: 4,
+        threshold: 25,
+        earned: false,
+        currentValue: 0
+      },
+
+      // Pool Badges
+      {
+        name: "Pool Pioneer",
+        description: "Create your first savings pool",
+        emoji: "🏊‍♀️",
+        category: "pools",
+        type: "pools_created",
+        level: 1,
+        threshold: 1,
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Pool Architect",
+        description: "Create 3 different savings pools",
+        emoji: "🏗️",
+        category: "pools",
+        type: "pools_created",
+        level: 2,
+        threshold: 3,
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Pool Master",
+        description: "Create 10 savings pools",
+        emoji: "🎯",
+        category: "pools",
+        type: "pools_created",
+        level: 3,
+        threshold: 10,
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Goal Getter",
+        description: "Complete your first savings goal",
+        emoji: "🎉",
+        category: "pools",
+        type: "goals_completed",
+        level: 1,
+        threshold: 1,
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Achievement Hunter",
+        description: "Complete 5 savings goals",
+        emoji: "🏆",
+        category: "pools",
+        type: "goals_completed",
+        level: 2,
+        threshold: 5,
+        earned: false,
+        currentValue: 0
+      },
+
+      // Savings Badges
+      {
+        name: "First Steps",
+        description: "Make your first contribution",
+        emoji: "👶",
+        category: "savings",
+        type: "contributions",
+        level: 1,
+        threshold: 1,
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Consistent Saver",
+        description: "Make 10 contributions",
+        emoji: "💪",
+        category: "savings",
+        type: "contributions",
+        level: 2,
+        threshold: 10,
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Savings Warrior",
+        description: "Make 50 contributions",
+        emoji: "⚔️",
+        category: "savings",
+        type: "contributions",
+        level: 3,
+        threshold: 50,
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Savings Legend",
+        description: "Make 100 contributions",
+        emoji: "🔥",
+        category: "savings",
+        type: "contributions",
+        level: 4,
+        threshold: 100,
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Penny Saver",
+        description: "Save your first $100",
+        emoji: "🪙",
+        category: "savings",
+        type: "total_saved",
+        level: 1,
+        threshold: 10000, // in cents
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Dollar Dynamo",
+        description: "Save $1,000 total",
+        emoji: "💵",
+        category: "savings",
+        type: "total_saved",
+        level: 2,
+        threshold: 100000, // in cents
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Savings Superstar",
+        description: "Save $5,000 total",
+        emoji: "⭐",
+        category: "savings",
+        type: "total_saved",
+        level: 3,
+        threshold: 500000, // in cents
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Millionaire Mindset",
+        description: "Save $10,000 total",
+        emoji: "💎",
+        category: "savings",
+        type: "total_saved",
+        level: 4,
+        threshold: 1000000, // in cents
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Streak Starter",
+        description: "Maintain a 7-day saving streak",
+        emoji: "🔥",
+        category: "savings",
+        type: "streak",
+        level: 1,
+        threshold: 7,
+        earned: false,
+        currentValue: 0
+      },
+      {
+        name: "Streak Master",
+        description: "Maintain a 30-day saving streak",
+        emoji: "🚀",
+        category: "savings",
+        type: "streak",
+        level: 2,
+        threshold: 30,
+        earned: false,
+        currentValue: 0
+      }
+    ];
+  };
+
   const loadBadges = async (): Promise<void> => {
     try {
-      // Get all badges with earned status from backend
-      const badges = await api.getUserBadges(user.id);
-      const earnedBadges = badges.filter((b: any) => b.earned);
+      // Get all possible badges
+      const allPossibleBadges = getAllPossibleBadges();
+      
+      // Try to get earned badges from backend
+      const earnedBadgesData = await api.getUserBadges(user.id);
+      
+      // Merge earned status with all possible badges
+      const badgesWithStatus = allPossibleBadges.map(badge => {
+        const earnedBadge = earnedBadgesData.find((eb: any) => 
+          eb.type === badge.type && eb.level === badge.level
+        );
+        
+        if (earnedBadge) {
+          return {
+            ...badge,
+            earned: true,
+            currentValue: earnedBadge.currentValue || badge.threshold,
+            unlockedAt: earnedBadge.unlockedAt,
+            id: earnedBadge.id
+          };
+        }
+        
+        return badge;
+      });
+      
+      const earnedBadges = badgesWithStatus.filter(b => b.earned);
       setEarnedBadges(earnedBadges);
-      setAllBadges(badges);
+      setAllBadges(badgesWithStatus);
       setLoading(false);
     } catch (error) {
       console.error('Failed to load badges:', error);
-      setLoading(false);
-      // Show empty state instead of mock data
-      setAllBadges([]);
+      // Still show all possible badges even if API fails
+      const allPossibleBadges = getAllPossibleBadges();
+      setAllBadges(allPossibleBadges);
       setEarnedBadges([]);
+      setLoading(false);
     }
   };
 

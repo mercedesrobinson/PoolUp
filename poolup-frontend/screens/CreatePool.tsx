@@ -983,7 +983,7 @@ export default function CreatePool({ navigation, route }: Props) {
           style={{ marginBottom: 20 }}
         />
 
-        {/* Category-specific messaging */}
+        {/* Original Category-specific messaging */}
         {selectedCategory && (
           <View style={{ 
             backgroundColor: (selectedCategory?.color || colors.blue) + '20',
@@ -995,6 +995,7 @@ export default function CreatePool({ navigation, route }: Props) {
               {selectedCategory?.id === 'travel' && (poolType === 'group' 
                 ? "🌍 Finally take that trip out of the group chat—let's make it real this time!"
                 : "✈️ Your solo adventure awaits—pack your bags and your savings account!")}
+              {selectedCategory?.id === 'visit_friends' && "❤️ Your little 'seeing one another' fund for when you miss your people 🥺"}
               {selectedCategory?.id === 'emergency' && (poolType === 'group'
                 ? "🛡️ Building your safety net together—because life happens, but you'll be ready!"
                 : "🛡️ Your financial peace of mind starts here—3-6 months of expenses, one save at a time!")}

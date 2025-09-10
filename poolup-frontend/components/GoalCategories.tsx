@@ -7,19 +7,98 @@ export interface GoalCategory {
   name: string;
   icon: string;
   color: string;
+  description?: string;
+  tips?: string[];
 }
 
 const GOAL_CATEGORIES: GoalCategory[] = [
-  { id: 'travel', name: 'Travel', icon: '✈️', color: '#4285F4' },
-  { id: 'emergency', name: 'Emergency Fund', icon: '🛡️', color: '#34A853' },
-  { id: 'car', name: 'Car/Vehicle', icon: '🚗', color: '#FBBC04' },
-  { id: 'home', name: 'Home/Rent', icon: '🏠', color: '#FF6B35' },
-  { id: 'education', name: 'Education', icon: '📚', color: '#9C27B0' },
-  { id: 'wedding', name: 'Wedding', icon: '💒', color: '#E91E63' },
-  { id: 'tech', name: 'Technology', icon: '📱', color: '#607D8B' },
-  { id: 'health', name: 'Health/Fitness', icon: '💪', color: '#4CAF50' },
-  { id: 'business', name: 'Business', icon: '💼', color: '#795548' },
-  { id: 'other', name: 'Other', icon: '🎯', color: '#666' },
+  { 
+    id: 'travel', 
+    name: 'Travel', 
+    icon: '✈️', 
+    color: '#4285F4',
+    description: 'Save for your dream vacation or adventure',
+    tips: ['Book flights 6-8 weeks in advance', 'Consider off-season travel for savings', 'Use travel rewards credit cards']
+  },
+  { 
+    id: 'visit_friends', 
+    name: 'Visit Friends/Family', 
+    icon: '❤️', 
+    color: '#8E44AD',
+    description: 'Finally take that trip out of the group chat—let\'s make it real this time! 💫'
+  },
+  { 
+    id: 'emergency', 
+    name: 'Emergency Fund', 
+    icon: '🛡️', 
+    color: '#34A853',
+    description: 'Build financial security for unexpected expenses',
+    tips: ['Aim for 3-6 months of expenses', 'Keep funds in high-yield savings', 'Automate contributions']
+  },
+  { 
+    id: 'car', 
+    name: 'Car/Vehicle', 
+    icon: '🚗', 
+    color: '#FBBC04',
+    description: 'Save for reliable transportation',
+    tips: ['Research reliability ratings', 'Consider certified pre-owned', 'Factor in insurance costs']
+  },
+  { 
+    id: 'home', 
+    name: 'Home/Rent', 
+    icon: '🏠', 
+    color: '#FF6B35',
+    description: 'Save for your living space or down payment',
+    tips: ['Research neighborhood prices', 'Factor in closing costs', 'Consider first-time buyer programs']
+  },
+  { 
+    id: 'education', 
+    name: 'Education', 
+    icon: '📚', 
+    color: '#9C27B0',
+    description: 'Invest in learning and personal growth',
+    tips: ['Look into employer tuition assistance', 'Consider online courses', 'Research scholarships']
+  },
+  { 
+    id: 'wedding', 
+    name: 'Wedding', 
+    icon: '💒', 
+    color: '#E91E63',
+    description: 'Plan your special day',
+    tips: ['Set priorities for must-haves', 'Consider off-season dates', 'DIY elements save costs']
+  },
+  { 
+    id: 'tech', 
+    name: 'Technology', 
+    icon: '📱', 
+    color: '#607D8B',
+    description: 'Save for gadgets and tech upgrades',
+    tips: ['Wait for seasonal sales', 'Compare prices across retailers', 'Consider refurbished options']
+  },
+  { 
+    id: 'health', 
+    name: 'Health/Fitness', 
+    icon: '💪', 
+    color: '#4CAF50',
+    description: 'Invest in your health and wellness',
+    tips: ['Research insurance coverage', 'Consider HSA contributions', 'Compare provider prices']
+  },
+  { 
+    id: 'business', 
+    name: 'Business', 
+    icon: '💼', 
+    color: '#795548',
+    description: 'Fund your entrepreneurial dreams',
+    tips: ['Create detailed business plan', 'Research startup costs', 'Consider loans and grants']
+  },
+  { 
+    id: 'other', 
+    name: 'Other', 
+    icon: '🎯', 
+    color: '#666',
+    description: 'Custom savings goal',
+    tips: ['Set specific targets', 'Break into smaller milestones', 'Track progress regularly']
+  },
 ];
 
 interface GoalCategorySelectorProps {

@@ -225,7 +225,11 @@ export default function PoolDetail({ navigation, route }: Props): React.JSX.Elem
 
   return (
     <ScrollView style={{ flex:1, backgroundColor: '#FAFCFF' }}>
-      <View style={{ padding: 24 }}>
+      <View style={{ padding: 24, paddingTop: 60 }}>
+        {/* Back Button */}
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 16 }}>
+          <Text style={{ color: colors.primary, fontSize: 16 }}>← Back</Text>
+        </TouchableOpacity>
         {/* Pool Header */}
         <View style={{ backgroundColor: 'white', padding: 20, borderRadius: radius.medium, marginBottom: 16 }}>
           <Text style={{ fontSize:24, fontWeight:'800', color: colors.text }}>{pool.name}</Text>
