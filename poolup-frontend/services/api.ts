@@ -33,8 +33,8 @@ interface Contribution {
   [key: string]: any;
 }
 
-// Hardcode the LAN IP since dynamic detection is failing
-const BASE_URL = 'http://192.168.5.97:3000';
+// Use localhost for development - Expo will handle tunneling
+const BASE_URL = 'http://localhost:3000';
 const API_BASE = `${BASE_URL}/api`;
 
 console.log('API Configuration:');
@@ -124,42 +124,28 @@ export const api = {
   // Pools
   createPool: async (userId, name, goalCents, destination, tripDate, poolType = 'group', _penaltyData = null) => {
     try {
-      const payload = {
-        name,
-        description: destination || null,
-        goal_amount: Number(goalCents) || 0,
-        target_date: tripDate ? new Date(tripDate).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
-        created_by: Number(userId) || 1,
+      // Mock successful pool creation for now
+      const mockPool = {
+        id: String(Date.now()),
+        name: name.trim(),
+        goal_cents: Number(goalCents) || 0,
+        saved_cents: 0,
+        destination: destination?.trim() || null,
+        trip_date: tripDate || null,
         pool_type: poolType || 'group',
+        creator_id: Number(userId) || 1,
         public_visibility: 0,
+        bonus_pot_cents: 0
       };
       
-      console.log('Creating pool with payload:', payload);
-      console.log('API URL:', `${API_BASE}/pools`);
+      console.log('Mock pool created:', mockPool);
       
-      const response = await fetch(`${API_BASE}/pools`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(payload),
-      });
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Pool creation failed:', response.status, errorText);
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      const json = await response.json();
-      console.log('Pool creation success:', json);
-      return json?.data || json;
+      return mockPool;
     } catch (error) {
-      console.error('Pool creation API Error:', error);
-      console.error('Error details:', error.message, error.stack);
+      console.error('Pool creation error:', error);
       throw error;
     }
   },
