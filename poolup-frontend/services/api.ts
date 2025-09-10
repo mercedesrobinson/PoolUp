@@ -34,7 +34,8 @@ interface Contribution {
 }
 
 import { getBaseUrl } from './config';
-const BASE_URL = getBaseUrl(3000);
+// Force LAN IP for mobile device connectivity
+const BASE_URL = 'http://192.168.5.97:3000';
 const API_BASE = `${BASE_URL}/api`;
 
 // Get current user ID from storage
@@ -129,20 +130,33 @@ export const api = {
         pool_type: poolType || 'group',
         public_visibility: 0,
       };
+      
+      console.log('Creating pool with payload:', payload);
+      console.log('API URL:', `${API_BASE}/pools`);
+      
       const response = await fetch(`${API_BASE}/pools`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(payload),
       });
+      
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Pool creation failed:', response.status, errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       const json = await response.json();
+      console.log('Pool creation success:', json);
       return json?.data || json;
     } catch (error) {
       console.error('Pool creation API Error:', error);
+      console.error('Error details:', error.message, error.stack);
       throw error;
     }
   },
