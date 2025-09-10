@@ -35,8 +35,8 @@ interface Contribution {
 
 // Use environment-based URL configuration
 const BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://poolup-be.onrender.com'  // Production backend service
-  : 'http://localhost:3000';          // Development URL
+  ? 'https://poolup-api.onrender.com'  // Production backend service
+  : 'http://localhost:3000';           // Development URL
 const API_BASE = BASE_URL;
 
 console.log('API Configuration:');
