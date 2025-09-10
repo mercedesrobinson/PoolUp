@@ -120,8 +120,8 @@ export default function Pools({ navigation, route }: any){
 
   const load = async () => {
     try {
-      // Try real backend
-      const list = await (api.getPools ? api.getPools() : api.listPools?.(String(user.id)))?.catch?.(() => null);
+      // Try real backend - use user-specific pools only
+      const list = await api.listPools(String(user.id));
       if (Array.isArray(list) && list.length >= 0) {
         setPools(list as any);
         // Derive a basic summary from real data
