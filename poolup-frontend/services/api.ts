@@ -11,7 +11,6 @@ interface User {
   name: string;
   email?: string;
   profileImage?: string;
-  _mockPools?: any[];
   [key: string]: any;
 }
 
@@ -87,8 +86,6 @@ export const api = {
       if (!response.ok) throw new Error('Network response was not ok');
       return await response.json();
     } catch (error) {
-      // console.log('API Error - using mock data:', error);
-      // return { id: Date.now().toString(), name, email: null, profileImage: null };
       throw error;
     }
   },
@@ -117,8 +114,6 @@ export const api = {
         authProvider: 'google'
       } as any;
     } catch (error) {
-      // console.log('Google API Error - using mock data:', error);
-      // return { id: Date.now().toString(), name: googleUser.name, email: googleUser.email, profileImage: googleUser.photo, authProvider: 'google', bankAccounts: [], virtualCard: null };
       throw error;
     }
   },
@@ -396,8 +391,6 @@ export const api = {
     }
   },
 
-  // Store created pools in memory for demo mode
-  _mockPools: [] as any[],
 
   // New: list all pools from backend (no user filter)
   getPools: async () => {

@@ -97,8 +97,7 @@ export default function SavingsSummary({ navigation, route }: Props): React.JSX.
 
     setChartData(realChartData);
 
-    // Skip API calls to prevent hanging
-    console.log('SavingsSummary loaded with mock data');
+    // Production ready - no mock data
   };
 
   const getEquivalent = (amountInCents): { threshold: number; text: string; icon: string } => {

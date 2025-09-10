@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { colors, radius, shadow } from '../theme';
 import { api } from '../services/api';
 import * as Keychain from 'react-native-keychain';
@@ -68,14 +69,19 @@ export default function Onboarding({ navigation }){
             text: 'Continue with Demo', 
             onPress: async () => {
               try {
-                // Enable guest mode for testing
-                const guest = await api.guest('Demo User');
+                // Use real Google OAuth - requires proper setup
+                const result = await GoogleSignin.signIn();
+                const googleUser = {
+                  ...result.user,
+                  accessToken: result.idToken || ''
+                };
+                const user = await api.createGoogleUser(googleUser);
                 try {
-                  await Keychain.setInternetCredentials('poolup_user', String(guest.id), JSON.stringify({ accessToken: '', user: guest }));
+                  await Keychain.setInternetCredentials('poolup_user', String(user.id), JSON.stringify({ accessToken: result.idToken || '', user }));
                 } catch (_) {}
-                goToMain({ ...guest, authProvider: 'guest' });
+                goToMain({ ...user, authProvider: 'google' });
               } catch (error) {
-                Alert.alert('Error', (error as any)?.message || 'Failed to create guest user');
+                Alert.alert('Error', 'Google sign-in failed. Please ensure you have a valid Google account and try again.');
               }
             }
           }

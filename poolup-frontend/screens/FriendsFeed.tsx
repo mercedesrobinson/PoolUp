@@ -49,7 +49,7 @@ export default function FriendsFeed({ navigation, route }: Props): React.JSX.Ele
       setActivities(feedData);
     } catch (error) {
       console.error('Failed to load friends feed:', error);
-      // Show empty state instead of mock data
+      // Production ready - show empty state on error
       setActivities([]);
     }
   };
