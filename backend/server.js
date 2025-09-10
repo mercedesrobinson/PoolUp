@@ -558,41 +558,7 @@ io.on('connection', (socket) => {
   });
 });
 
-const DEFAULT_PORT = parseInt(process.env.PORT || '3000', 10);
-let currentPort = DEFAULT_PORT;
-
-function listen() {
-  server.listen(currentPort, () => {
-    try {
-      const os = require('os');
-      const nets = os.networkInterfaces();
-      const addrs = [];
-      for (const name of Object.keys(nets)) {
-        for (const net of nets[name] || []) {
-          if (net.family === 'IPv4' && !net.internal) addrs.push(net.address);
-        }
-      }
-      const local = `http://localhost:${currentPort}`;
-      const lan = addrs.length ? `http://${addrs[0]}:${currentPort}` : null;
-      console.log(`PoolUp backend listening on ${local}${lan ? ` (LAN: ${lan})` : ''}`);
-    } catch (_) {
-      console.log(`PoolUp backend listening on http://localhost:${currentPort}`);
-    }
-  });
-}
-
-server.on('error', (err) => {
-  if (err && err.code === 'EADDRINUSE') {
-    const next = currentPort + 1;
-    if (next <= DEFAULT_PORT + 5) {
-      console.warn(`Port ${currentPort} in use, trying ${next}...`);
-      currentPort = next;
-      setTimeout(listen, 100);
-      return;
-    }
-  }
-  console.error('Server listen error:', err);
-  process.exit(1);
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`PoolUp backend listening on http://localhost:${PORT} (LAN: http://192.168.5.97:${PORT})`);
 });
-
-listen();

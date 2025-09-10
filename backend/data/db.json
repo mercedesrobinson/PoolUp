@@ -99,6 +99,18 @@
       "creator_id": 1,
       "public_visibility": 0,
       "bonus_pot_cents": 0
+    },
+    {
+      "id": "10",
+      "name": "Test Pool",
+      "goal_cents": 100000,
+      "saved_cents": 0,
+      "destination": "Test destination",
+      "trip_date": null,
+      "pool_type": "group",
+      "creator_id": 1,
+      "public_visibility": 0,
+      "bonus_pot_cents": 0
     }
   ],
   "memberships": [
@@ -121,6 +133,11 @@
       "poolId": "9",
       "userId": "1",
       "role": "owner"
+    },
+    {
+      "poolId": "10",
+      "userId": "1",
+      "role": "owner"
     }
   ],
   "contributions": [],
@@ -137,5 +154,5 @@
     "tokens": {},
     "preferences": {}
   },
-  "seq": 10
+  "seq": 11
 }

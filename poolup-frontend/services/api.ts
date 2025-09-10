@@ -33,9 +33,13 @@ interface Contribution {
   [key: string]: any;
 }
 
-import { getBaseUrl } from './config';
-const BASE_URL = getBaseUrl(3000);
+// Hardcode the LAN IP since dynamic detection is failing
+const BASE_URL = 'http://192.168.5.97:3000';
 const API_BASE = `${BASE_URL}/api`;
+
+console.log('API Configuration:');
+console.log('BASE_URL:', BASE_URL);
+console.log('API_BASE:', API_BASE);
 
 // Get current user ID from storage
 const getCurrentUserId = (): string => {
