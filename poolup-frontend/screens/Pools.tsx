@@ -420,61 +420,23 @@ export default function Pools({ navigation, route }: any){
                 justifyContent: 'center',
                 marginRight: 16
               }}>
-                <Text style={{ fontSize: 20 }}>👩‍💻</Text>
+                <Text style={{ fontSize: 18 }}>📊</Text>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 4 }}>
-                  Sarah crushed it! 💪
+                  No recent activity
                 </Text>
                 <Text style={{ fontSize: 14, color: colors.textSecondary, marginBottom: 2 }}>
-                  Saved $150 in Tokyo Trip group
+                  Start saving to see group activity here
                 </Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 12, color: colors.green, fontWeight: '600' }}>+$150</Text>
-                  <Text style={{ fontSize: 12, color: colors.textSecondary, marginLeft: 8 }}>2h ago</Text>
-                </View>
-              </View>
-              <View style={{ alignItems: 'center' }}>
-                <Text style={{ fontSize: 24 }}>🎉</Text>
-              </View>
-            </View>
-          </View>
-          
-          <View style={{ backgroundColor: 'white', padding: 20, borderRadius: radius.medium + 4, marginBottom: 12, ...shadow }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <View style={{ 
-                width: 48, 
-                height: 48, 
-                borderRadius: 24, 
-                backgroundColor: colors.purple + '20', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                marginRight: 16
-              }}>
-                <Text style={{ fontSize: 20 }}>👨‍💻</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 4 }}>
-                  Mike hit a milestone! 🚀
-                </Text>
-                <Text style={{ fontSize: 14, color: colors.textSecondary, marginBottom: 2 }}>
-                  Reached 50% in Tokyo Trip group
-                </Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 12, color: colors.purple, fontWeight: '600' }}>50% Complete</Text>
-                  <Text style={{ fontSize: 12, color: colors.textSecondary, marginLeft: 8 }}>5h ago</Text>
-                </View>
-              </View>
-              <View style={{ alignItems: 'center' }}>
-                <Text style={{ fontSize: 24 }}>🎯</Text>
               </View>
             </View>
           </View>
 
           <TouchableOpacity 
             style={{ 
-              backgroundColor: colors.blue + '10', 
-              padding: 16, 
+              backgroundColor: colors.blue + '20', 
+              padding: 12, 
               borderRadius: radius.medium, 
               borderWidth: 1, 
               borderColor: colors.blue + '30',

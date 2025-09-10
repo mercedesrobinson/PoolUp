@@ -52,16 +52,39 @@ export default function SavingsSummary({ navigation, route }: Props): React.JSX.
   }, [timeframe]);
 
   const loadSummaryData = async (): Promise<void> => {
-    // Use real data from API
-    const realSummary = {
-      totalSaved: 0, // cents
-      activeGoals: 0,
-      completedGoals: 0,
-      currentStreak: 0,
-      monthlyAverage: 0,
-      savingsRate: 0.15, // 15%
-      nextMilestone: { amount: 0, daysLeft: 0 }
-    };
+    // Load real data from API
+    try {
+      const userId = (route.params as any)?.userId || '1';
+      const poolsResponse = await api.listPools(String(userId));
+      const pools = Array.isArray(poolsResponse) ? poolsResponse : [];
+      
+      const totalSaved = pools.reduce((sum, p) => sum + (p.saved_cents || 0), 0);
+      const totalGoal = pools.reduce((sum, p) => sum + (p.goal_cents || 0), 0);
+      const savingsRate = totalGoal > 0 ? totalSaved / totalGoal : 0;
+      
+      const realSummary = {
+        totalSaved,
+        activeGoals: pools.length,
+        completedGoals: pools.filter(p => p.saved_cents >= p.goal_cents).length,
+        currentStreak: 0, // TODO: Get from streak API
+        monthlyAverage: Math.floor(totalSaved / 6),
+        savingsRate,
+        nextMilestone: { amount: totalGoal, daysLeft: 30 }
+      };
+      
+      setSummaryData(realSummary);
+    } catch (error) {
+      console.error('Failed to load summary data:', error);
+      setSummaryData({
+        totalSaved: 0,
+        activeGoals: 0,
+        completedGoals: 0,
+        currentStreak: 0,
+        monthlyAverage: 0,
+        savingsRate: 0,
+        nextMilestone: { amount: 0, daysLeft: 0 }
+      });
+    }
 
     const realChartData = {
       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -72,7 +95,6 @@ export default function SavingsSummary({ navigation, route }: Props): React.JSX.
       }]
     };
 
-    setSummaryData(realSummary);
     setChartData(realChartData);
 
     // Skip API calls to prevent hanging

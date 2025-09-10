@@ -304,25 +304,25 @@ export default function Profile({ navigation, route }: any) {
           alignItems: 'center'
         }}>
           <Text style={{ color: 'white', fontSize: 14, opacity: 0.9 }}>Total Saved</Text>
-          <Text style={{ color: 'white', fontSize: 28, fontWeight: '700' }}>$1,250.00</Text>
-          <Text style={{ color: 'white', fontSize: 12, opacity: 0.8 }}>🏖️ 6 weekend getaways</Text>
+          <Text style={{ color: 'white', fontSize: 28, fontWeight: '700' }}>$0.00</Text>
+          <Text style={{ color: 'white', fontSize: 12, opacity: 0.8 }}>☕ 0 coffee runs</Text>
         </View>
 
         {/* Quick Stats Grid */}
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <View style={{ flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: radius.medium, alignItems: 'center' }}>
             <Text style={{ fontSize: 20, marginBottom: 4 }}>🎯</Text>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>3</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>0</Text>
             <Text style={{ fontSize: 12, color: colors.textSecondary }}>Active Goals</Text>
           </View>
           <View style={{ flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: radius.medium, alignItems: 'center' }}>
             <Text style={{ fontSize: 20, marginBottom: 4 }}>🔥</Text>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>14</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>0</Text>
             <Text style={{ fontSize: 12, color: colors.textSecondary }}>Day Streak</Text>
           </View>
           <View style={{ flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: radius.medium, alignItems: 'center' }}>
             <Text style={{ fontSize: 20, marginBottom: 4 }}>💪</Text>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>23%</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>0%</Text>
             <Text style={{ fontSize: 12, color: colors.textSecondary }}>Savings Rate</Text>
           </View>
         </View>
@@ -341,30 +341,9 @@ export default function Profile({ navigation, route }: any) {
         
         {/* Recent Transactions */}
         <View style={{ marginBottom: 8 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-            <Text style={{ fontSize: 16, marginRight: 8 }}>💰</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>Contribution</Text>
-              <Text style={{ fontSize: 12, color: colors.textSecondary }}>Bali Adventure • 2 days ago</Text>
-            </View>
-            <Text style={{ fontSize: 14, fontWeight: '700', color: colors.success }}>+$150.00</Text>
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-            <Text style={{ fontSize: 16, marginRight: 8 }}>💳</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>Contribution</Text>
-              <Text style={{ fontSize: 12, color: colors.textSecondary }}>Tokyo Trip • 5 days ago</Text>
-            </View>
-            <Text style={{ fontSize: 14, fontWeight: '700', color: colors.success }}>+$250.00</Text>
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 16, marginRight: 8 }}>⚠️</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>Penalty</Text>
-              <Text style={{ fontSize: 12, color: colors.textSecondary }}>Missed weekly contribution</Text>
-            </View>
-            <Text style={{ fontSize: 14, fontWeight: '700', color: colors.coral }}>$50.00</Text>
-          </View>
+          <Text style={{ fontSize: 14, color: colors.textSecondary, textAlign: 'center', padding: 20 }}>
+            No recent activity. Start contributing to see transactions here! 💰
+          </Text>
         </View>
       </View>  
         {/* Projection */}
@@ -373,7 +352,7 @@ export default function Profile({ navigation, route }: any) {
             📈 12-Month Projection
           </Text>
           <Text style={{ fontSize: 12, color: '#666' }}>
-            At your current pace, you'll save <Text style={{ fontWeight: '700', color: colors.green }}>$6,000</Text> by next year
+            Start saving to see your projection here
           </Text>
         </View>
       </View>
