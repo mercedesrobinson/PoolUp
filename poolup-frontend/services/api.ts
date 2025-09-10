@@ -1,3 +1,5 @@
+import { getBaseUrl } from './config';
+
 interface GoogleUser {
   id: string;
   name: string;
@@ -33,8 +35,8 @@ interface Contribution {
   [key: string]: any;
 }
 
-// Use localhost for development - works with simulators and Expo tunneling
-const BASE_URL = 'http://localhost:3000';
+// Resolve base URL dynamically with fallback port used by backend
+const BASE_URL = getBaseUrl(3001);
 const API_BASE = `${BASE_URL}/api`;
 
 console.log('API Configuration:');
