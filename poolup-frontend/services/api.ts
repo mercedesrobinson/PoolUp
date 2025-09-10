@@ -34,8 +34,7 @@ interface Contribution {
 }
 
 import { getBaseUrl } from './config';
-// Force LAN IP for mobile device connectivity
-const BASE_URL = 'http://192.168.5.97:3000';
+const BASE_URL = getBaseUrl(3000);
 const API_BASE = `${BASE_URL}/api`;
 
 // Get current user ID from storage
