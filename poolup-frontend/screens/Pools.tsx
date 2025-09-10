@@ -113,7 +113,7 @@ export default function Pools({ navigation, route }: any){
     completedGoals: 0,
     currentStreak: 0,
     monthlyAverage: 0,
-    savingsRate: 0.15,
+    savingsRate: 0,
     nextMilestone: { amount: 0, daysLeft: 0 }
   });
   const user = (route.params as any)?.user || { id: 1, name: 'Demo User' };
@@ -124,9 +124,40 @@ export default function Pools({ navigation, route }: any){
       const list = await api.listPools(String(user.id));
       if (Array.isArray(list) && list.length >= 0) {
         setPools(list as any);
-        // Derive a basic summary from real data
+        // Derive summary from real pool data
         const totalSaved = list.reduce((sum: number, p: any) => sum + (p.saved_cents || 0), 0);
-        setSummaryData((s) => ({ ...s, totalSaved }));
+        const activeGoals = list.length;
+        const completedGoals = list.filter((p: any) => p.saved_cents >= p.goal_cents).length;
+        
+        // Calculate savings rate from actual data
+        const totalGoal = list.reduce((sum: number, p: any) => sum + (p.goal_cents || 0), 0);
+        const savingsRate = totalGoal > 0 ? totalSaved / totalGoal : 0;
+        
+        // Get user streak from API
+        try {
+          const streakData = await api.getUserStreak(String(user.id));
+          const currentStreak = streakData?.current_streak || 0;
+          
+          setSummaryData({
+            totalSaved,
+            activeGoals,
+            completedGoals,
+            currentStreak,
+            monthlyAverage: Math.floor(totalSaved / 6), // Rough estimate
+            savingsRate,
+            nextMilestone: { amount: totalGoal, daysLeft: 30 }
+          });
+        } catch (streakError) {
+          setSummaryData({
+            totalSaved,
+            activeGoals,
+            completedGoals,
+            currentStreak: 0,
+            monthlyAverage: Math.floor(totalSaved / 6),
+            savingsRate,
+            nextMilestone: { amount: totalGoal, daysLeft: 30 }
+          });
+        }
       } else {
         throw new Error('No pools');
       }
