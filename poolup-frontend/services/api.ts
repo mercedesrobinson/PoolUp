@@ -33,8 +33,10 @@ interface Contribution {
   [key: string]: any;
 }
 
-// Use localhost for development - works with simulators and Expo tunneling
-const BASE_URL = 'http://localhost:3000';
+// Use environment-based URL configuration
+const BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://poolup-backend.onrender.com'  // Production backend URL
+  : 'http://localhost:3000';               // Development URL
 const API_BASE = `${BASE_URL}/api`;
 
 console.log('API Configuration:');
