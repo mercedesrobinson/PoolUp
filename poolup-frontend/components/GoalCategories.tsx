@@ -11,6 +11,7 @@ export interface GoalCategory {
 
 const GOAL_CATEGORIES: GoalCategory[] = [
   { id: 'travel', name: 'Travel', icon: '✈️', color: '#4285F4' },
+  { id: 'visit_friends', name: 'Visit Friends/Family', icon: '❤️', color: '#E91E63' },
   { id: 'emergency', name: 'Emergency Fund', icon: '🛡️', color: '#34A853' },
   { id: 'car', name: 'Car/Vehicle', icon: '🚗', color: '#FBBC04' },
   { id: 'home', name: 'Home/Rent', icon: '🏠', color: '#FF6B35' },
