@@ -63,6 +63,13 @@
       "email": null,
       "profile_image_url": null,
       "created_at": "2025-09-10T03:07:14.195Z"
+    },
+    {
+      "id": "17",
+      "name": "Demo Google User",
+      "email": null,
+      "profile_image_url": null,
+      "created_at": "2025-09-10T04:43:19.478Z"
     }
   ],
   "pools": [
@@ -149,6 +156,90 @@
       "creator_id": 12,
       "public_visibility": 0,
       "bonus_pot_cents": 0
+    },
+    {
+      "id": "15",
+      "name": "Test Pool",
+      "goal_cents": 0,
+      "saved_cents": 0,
+      "destination": null,
+      "trip_date": "2025-12-01",
+      "pool_type": "group",
+      "creator_id": 1,
+      "public_visibility": 0,
+      "bonus_pot_cents": 0
+    },
+    {
+      "id": "16",
+      "name": "Summer",
+      "goal_cents": 800000,
+      "saved_cents": 0,
+      "destination": "Barcelona",
+      "trip_date": null,
+      "pool_type": "group",
+      "creator_id": 5,
+      "public_visibility": 0,
+      "bonus_pot_cents": 0
+    },
+    {
+      "id": "18",
+      "name": "Paris 2026",
+      "goal_cents": 1740000,
+      "saved_cents": 0,
+      "destination": "Tokyo, Japan",
+      "trip_date": null,
+      "pool_type": "group",
+      "creator_id": 17,
+      "public_visibility": 0,
+      "bonus_pot_cents": 0
+    },
+    {
+      "id": "19",
+      "name": "TEST TRIPPP",
+      "goal_cents": 1050000,
+      "saved_cents": 0,
+      "destination": "Paris, France",
+      "trip_date": null,
+      "pool_type": "group",
+      "creator_id": 5,
+      "public_visibility": 0,
+      "bonus_pot_cents": 0
+    },
+    {
+      "id": "20",
+      "name": "TEST TRIPPP",
+      "goal_cents": 1050000,
+      "saved_cents": 0,
+      "destination": "Paris, France",
+      "trip_date": null,
+      "pool_type": "group",
+      "creator_id": 5,
+      "public_visibility": 0,
+      "bonus_pot_cents": 0
+    },
+    {
+      "id": "21",
+      "name": "TEST TRIPPP",
+      "goal_cents": 1050000,
+      "saved_cents": 0,
+      "destination": "Paris, France",
+      "trip_date": null,
+      "pool_type": "group",
+      "creator_id": 5,
+      "public_visibility": 0,
+      "bonus_pot_cents": 0
+    },
+    {
+      "id": "22",
+      "name": "TEST TRIPPP -",
+      "goal_cents": 1050000,
+      "saved_cents": 0,
+      "destination": "Paris, France",
+      "trip_date": "2026-09-03T04:00:00.000Z",
+      "pool_type": "group",
+      "creator_id": 5,
+      "public_visibility": 1,
+      "bonus_pot_cents": 0
     }
   ],
   "memberships": [
@@ -186,6 +277,41 @@
       "poolId": "14",
       "userId": "12",
       "role": "owner"
+    },
+    {
+      "poolId": "15",
+      "userId": "1",
+      "role": "owner"
+    },
+    {
+      "poolId": "16",
+      "userId": "5",
+      "role": "owner"
+    },
+    {
+      "poolId": "18",
+      "userId": "17",
+      "role": "owner"
+    },
+    {
+      "poolId": "19",
+      "userId": "5",
+      "role": "owner"
+    },
+    {
+      "poolId": "20",
+      "userId": "5",
+      "role": "owner"
+    },
+    {
+      "poolId": "21",
+      "userId": "5",
+      "role": "owner"
+    },
+    {
+      "poolId": "22",
+      "userId": "5",
+      "role": "owner"
     }
   ],
   "contributions": [],
@@ -202,5 +328,5 @@
     "tokens": {},
     "preferences": {}
   },
-  "seq": 15
+  "seq": 23
 }

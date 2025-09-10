@@ -38,6 +38,7 @@ import GroupActivity from './screens/GroupActivity';
 import PremiumUpgrade from './screens/PremiumUpgrade';
 import ProgressSharingSimple from './screens/ProgressSharingSimple';
 import SocialProofSimple from './screens/SocialProofSimple';
+import InfluencerCodes from './screens/InfluencerCodes';
 // Additional screens wired for navigation targets
 import Chat from './screens/Chat';
 import PoolDetail from './screens/PoolDetail';
@@ -78,6 +79,7 @@ export type RootStackParamList = {
   Settings: undefined;
   Pools: undefined;
   SocialProofSimple: undefined;
+  InfluencerCodes: undefined;
   // Newly added targets referenced elsewhere
   Chat: undefined;
   PoolDetail: undefined;
@@ -188,6 +190,7 @@ export default function App(): React.JSX.Element {
         <Stack.Screen name='Settings' component={Settings} />
         <Stack.Screen name='Pools' component={Pools} />
         <Stack.Screen name='SocialProofSimple' component={SocialProofSimple} />
+        <Stack.Screen name='InfluencerCodes' component={InfluencerCodes} />
         <Stack.Screen name='Chat' component={Chat} />
         <Stack.Screen name='PoolDetail' component={PoolDetail} />
         <Stack.Screen name='Legal' component={Legal} />

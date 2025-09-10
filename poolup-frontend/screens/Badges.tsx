@@ -15,14 +15,17 @@ interface Props {
 }
 
 interface Badge {
-  id: string;
+  id?: string;
   name: string;
   description: string;
-  icon: string;
+  emoji: string;
   category: string;
-  points_required: number;
-  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
-  earned_at?: string;
+  type: string;
+  level: number;
+  threshold: number;
+  earned: boolean;
+  currentValue: number;
+  unlockedAt?: string;
 }
 
 interface BadgeCardProps {
@@ -31,20 +34,10 @@ interface BadgeCardProps {
 }
 
 function BadgeCard({ badge, earned = false }: BadgeCardProps): React.JSX.Element {
-  const rarityColors = {
-    common: '#95a5a6',
-    uncommon: '#3498db',
-    rare: '#9b59b6',
-    epic: '#e74c3c',
-    legendary: '#f39c12'
-  };
-
-  const rarityGradients = {
-    common: ['#bdc3c7', '#95a5a6'],
-    uncommon: ['#74b9ff', '#3498db'],
-    rare: ['#a29bfe', '#9b59b6'],
-    epic: ['#fd79a8', '#e74c3c'],
-    legendary: ['#fdcb6e', '#f39c12']
+  const categoryColors = {
+    friends: colors.blue,
+    pools: colors.green,
+    savings: colors.purple
   };
 
   return (
@@ -54,7 +47,7 @@ function BadgeCard({ badge, earned = false }: BadgeCardProps): React.JSX.Element
       borderRadius: radius.medium, 
       marginBottom: 12,
       borderWidth: 2,
-      borderColor: earned ? rarityColors[badge.rarity] : '#e9ecef',
+      borderColor: earned ? categoryColors[badge.category as keyof typeof categoryColors] || colors.gray : '#e9ecef',
       opacity: earned ? 1 : 0.6
     }}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -62,12 +55,12 @@ function BadgeCard({ badge, earned = false }: BadgeCardProps): React.JSX.Element
           width: 60, 
           height: 60, 
           borderRadius: 30, 
-          backgroundColor: rarityColors[badge.rarity],
+          backgroundColor: categoryColors[badge.category as keyof typeof categoryColors] || colors.gray,
           justifyContent: 'center', 
           alignItems: 'center',
           marginRight: 16
         }}>
-          <Text style={{ fontSize: 28 }}>{badge.icon}</Text>
+          <Text style={{ fontSize: 28 }}>{badge.emoji}</Text>
         </View>
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
@@ -86,25 +79,23 @@ function BadgeCard({ badge, earned = false }: BadgeCardProps): React.JSX.Element
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ 
               fontSize: 12, 
-              color: rarityColors[badge.rarity], 
+              color: categoryColors[badge.category as keyof typeof categoryColors] || colors.gray, 
               textTransform: 'uppercase', 
               fontWeight: '700',
-              backgroundColor: `${rarityColors[badge.rarity]}20`,
+              backgroundColor: `${categoryColors[badge.category as keyof typeof categoryColors] || colors.gray}20`,
               paddingHorizontal: 8,
               paddingVertical: 4,
               borderRadius: 12
             }}>
-              {badge.rarity}
+              {badge.category}
             </Text>
-            {badge.points_required > 0 && (
-              <Text style={{ fontSize: 12, color: '#666' }}>
-                {badge.points_required} points required
-              </Text>
-            )}
+            <Text style={{ fontSize: 12, color: '#666' }}>
+              {badge.currentValue}/{badge.threshold}
+            </Text>
           </View>
-          {earned && badge.earned_at && (
+          {earned && badge.unlockedAt && (
             <Text style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
-              Earned on {new Date(badge.earned_at).toLocaleDateString()}
+              Earned on {new Date(badge.unlockedAt).toLocaleDateString()}
             </Text>
           )}
         </View>
@@ -129,29 +120,18 @@ export default function Badges({ navigation, route }: Props): React.JSX.Element 
 
   const loadBadges = async (): Promise<void> => {
     try {
-      // Get user's earned badges
-      const earned = await api.getUserBadges(user.id);
-      setEarnedBadges(earned);
-
-      // For demo purposes, we'll show some example badges that could be earned
-      // In a real app, you'd fetch all available badges from the server
-      const exampleBadges = [
-        { id: 'streak_7', name: 'Week Warrior', description: 'Maintain a 7-day streak', icon: '🔥', category: 'streak', points_required: 70, rarity: 'common' },
-        { id: 'big_spender', name: 'Big Spender', description: 'Make a $100+ contribution', icon: '💸', category: 'contribution', points_required: 100, rarity: 'uncommon' },
-        { id: 'social_butterfly', name: 'Social Butterfly', description: 'Join 5 different pools', icon: '🦋', category: 'social', points_required: 150, rarity: 'rare' },
-        { id: 'travel_guru', name: 'Travel Guru', description: 'Complete 3 travel pools', icon: '🌍', category: 'travel', points_required: 300, rarity: 'epic' },
-        { id: 'pool_master', name: 'Pool Master', description: 'Create 10 successful pools', icon: '👑', category: 'leadership', points_required: 1000, rarity: 'legendary' }
-      ];
-
-      // Filter out badges user has already earned
-      const earnedIds = earned.map(b => b.id);
-      const availableBadges = exampleBadges.filter(b => !earnedIds.includes(b.id));
-      
-      setAllBadges([...earned, ...availableBadges]);
+      // Get all badges with earned status from backend
+      const badges = await api.getUserBadges(user.id);
+      const earnedBadges = badges.filter((b: any) => b.earned);
+      setEarnedBadges(earnedBadges);
+      setAllBadges(badges);
       setLoading(false);
     } catch (error) {
       console.error('Failed to load badges:', error);
       setLoading(false);
+      // Show empty state instead of mock data
+      setAllBadges([]);
+      setEarnedBadges([]);
     }
   };
 
@@ -195,33 +175,44 @@ export default function Badges({ navigation, route }: Props): React.JSX.Element 
 
       {/* Badge Categories */}
       <View style={{ padding: 24 }}>
-        {earnedCount > 0 && (
-          <>
-            <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 16 }}>
-              ✨ Your Badges
-            </Text>
-            {Array.isArray(earnedBadges) ? earnedBadges.map(badge => (
-              <BadgeCard key={badge.id} badge={badge} earned={true} />
-            )) : []}
-          </>
-        )}
-
-        <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 16, marginTop: earnedCount > 0 ? 24 : 0 }}>
-          🎯 Available Badges
+        {/* Friends Badges */}
+        <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 16 }}>
+          🤝 Friends Badges
         </Text>
-        {Array.isArray(allBadges) && Array.isArray(earnedBadges) ? 
-          allBadges.filter(b => !earnedBadges.find(eb => eb.id === b.id)).map(badge => (
-            <BadgeCard key={badge.id} badge={badge} earned={false} />
-          )) : []}
+        {allBadges.filter(b => b.category === 'friends').map(badge => (
+          <BadgeCard key={`${badge.type}-${badge.level}`} badge={badge} earned={badge.earned} />
+        ))}
+        
+        {/* Separator */}
+        <View style={{ height: 1, backgroundColor: '#e9ecef', marginVertical: 24 }} />
+        
+        {/* Pools Badges */}
+        <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 16 }}>
+          🏊‍♀️ Pools Badges
+        </Text>
+        {allBadges.filter(b => b.category === 'pools').map(badge => (
+          <BadgeCard key={`${badge.type}-${badge.level}`} badge={badge} earned={badge.earned} />
+        ))}
+        
+        {/* Separator */}
+        <View style={{ height: 1, backgroundColor: '#e9ecef', marginVertical: 24 }} />
+        
+        {/* Savings Badges */}
+        <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 16 }}>
+          💰 Savings Badges
+        </Text>
+        {allBadges.filter(b => b.category === 'savings').map(badge => (
+          <BadgeCard key={`${badge.type}-${badge.level}`} badge={badge} earned={badge.earned} />
+        ))}
 
-        {earnedCount === 0 && (
+        {allBadges.length === 0 && (
           <View style={{ backgroundColor: 'white', padding: 24, borderRadius: radius.medium, alignItems: 'center' }}>
             <Text style={{ fontSize: 48, marginBottom: 16 }}>🎯</Text>
             <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, textAlign: 'center', marginBottom: 8 }}>
-              Start Your Badge Journey!
+              No Badge Collection Yet
             </Text>
             <Text style={{ fontSize: 14, color: '#666', textAlign: 'center' }}>
-              Make your first contribution to earn your first badge and start climbing the leaderboards!
+              Start saving and inviting friends to unlock your first badges!
             </Text>
           </View>
         )}

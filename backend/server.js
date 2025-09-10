@@ -30,6 +30,8 @@ function ensureDB() {
       penaltySettings: {}, // poolId -> settings
       privacy: {}, // userId -> settings
       notifications: { tokens: {}, preferences: {} }, // tokens[userId] = token, preferences[userId] = {...}
+      badges: [], // {id, userId, type, category, level, unlockedAt, metadata}
+      referralCodes: [], // {code, influencerId, createdAt, usageCount}
       seq: 1
     };
     fs.writeFileSync(DB_FILE, JSON.stringify(initial, null, 2));
@@ -640,6 +642,102 @@ io.on('connection', (socket) => {
   socket.on('room:join', (room) => {
     socket.join(String(room));
   });
+});
+
+// Badge system endpoints
+app.get('/api/users/:id/badges', (req, res) => {
+  const db = loadDB();
+  const userId = req.params.id;
+  const userBadges = db.badges.filter(b => b.userId === userId);
+  
+  // Calculate available badges based on user data
+  const user = db.users.find(u => u.id === userId);
+  const userPools = db.pools.filter(p => p.userId === userId);
+  const userFollows = db.follows.filter(f => f.userId === userId);
+  const userContributions = db.contributions.filter(c => c.userId === userId);
+  const totalSaved = userContributions.reduce((sum, c) => sum + c.amountCents, 0);
+  
+  const allBadges = [
+    // Invite badges
+    { type: 'invite', category: 'friends', level: 1, threshold: 1, name: 'Pool Buddy', emoji: '🤝', description: "You've got company! Saving is better together." },
+    { type: 'invite', category: 'friends', level: 3, threshold: 3, name: 'Squad Builder', emoji: '👯‍♀️', description: "Now it's a squad goal — literally." },
+    { type: 'invite', category: 'friends', level: 5, threshold: 5, name: 'Money Magnet', emoji: '💸', description: "Your friends can't resist pooling up with you." },
+    { type: 'invite', category: 'friends', level: 10, threshold: 10, name: 'Pool Party Starter', emoji: '🎉', description: "You just turned saving into a party." },
+    { type: 'invite', category: 'friends', level: 15, threshold: 15, name: 'Super Connector', emoji: '🌟', description: "The ultimate hype saver — you bring everyone along." },
+    
+    // Pool badges
+    { type: 'pools', category: 'pools', level: 2, threshold: 2, name: 'Double Dipper', emoji: '🍦', description: "You're saving for more than one dream at a time." },
+    { type: 'pools', category: 'pools', level: 3, threshold: 3, name: 'Triple Threat', emoji: '🎬', description: "Juggling goals like a pro." },
+    { type: 'pools', category: 'pools', level: 5, threshold: 5, name: 'Saver Supreme', emoji: '👑', description: "Master of multitasking your money." },
+    { type: 'pools', category: 'pools', level: 7, threshold: 7, name: 'Lucky Saver', emoji: '🍀', description: "Seven pools? You're chasing all the good things in life." },
+    { type: 'pools', category: 'pools', level: 10, threshold: 10, name: 'Goal Getter', emoji: '🚀', description: "Nothing can stop you — every dream gets a pool." },
+    
+    // Savings badges
+    { type: 'savings', category: 'savings', level: 100, threshold: 10000, name: 'Starter Stack', emoji: '💵', description: "Your first step into saving — small but mighty." },
+    { type: 'savings', category: 'savings', level: 250, threshold: 25000, name: 'Quarter Saver', emoji: '🪙', description: "You've stacked a solid quarter grand." },
+    { type: 'savings', category: 'savings', level: 500, threshold: 50000, name: 'Half-Stack Hero', emoji: '💪', description: "Halfway to your first thousand — consistency pays off." },
+    { type: 'savings', category: 'savings', level: 1000, threshold: 100000, name: '4-Digit Club', emoji: '🔑', description: "Welcome to the club — four digits strong." },
+    { type: 'savings', category: 'savings', level: 2500, threshold: 250000, name: 'Momentum Maker', emoji: '⚡', description: "Your discipline is starting to snowball." },
+    { type: 'savings', category: 'savings', level: 5000, threshold: 500000, name: 'Goal Crusher', emoji: '🎯', description: "Big milestone achieved — dreams within reach." },
+    { type: 'savings', category: 'savings', level: 10000, threshold: 1000000, name: 'Money Master', emoji: '🏆', description: "Five figures saved — you've mastered the art of Pooling Up." }
+  ];
+  
+  const badgesWithStatus = allBadges.map(badge => {
+    let earned = false;
+    let currentValue = 0;
+    
+    if (badge.type === 'invite') {
+      currentValue = userFollows.length;
+      earned = currentValue >= badge.threshold;
+    } else if (badge.type === 'pools') {
+      currentValue = userPools.length;
+      earned = currentValue >= badge.threshold;
+    } else if (badge.type === 'savings') {
+      currentValue = totalSaved;
+      earned = currentValue >= badge.threshold;
+    }
+    
+    return {
+      ...badge,
+      earned,
+      currentValue,
+      unlockedAt: earned ? (userBadges.find(ub => ub.type === badge.type && ub.level === badge.level)?.unlockedAt || new Date().toISOString()) : null
+    };
+  });
+  
+  res.json(badgesWithStatus);
+});
+
+// Referral code endpoints
+app.post('/api/referral-codes', (req, res) => {
+  const db = loadDB();
+  const { influencerId } = req.body;
+  
+  const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+  const referralCode = {
+    id: nextId(db),
+    code,
+    influencerId,
+    createdAt: new Date().toISOString(),
+    usageCount: 0
+  };
+  
+  db.referralCodes.push(referralCode);
+  saveDB(db);
+  
+  res.json(referralCode);
+});
+
+app.get('/api/referral-codes/:code', (req, res) => {
+  const db = loadDB();
+  const code = req.params.code.toUpperCase();
+  const referralCode = db.referralCodes.find(rc => rc.code === code);
+  
+  if (!referralCode) {
+    return res.status(404).json({ error: 'Referral code not found' });
+  }
+  
+  res.json(referralCode);
 });
 
 const PORT = process.env.PORT || 3000;

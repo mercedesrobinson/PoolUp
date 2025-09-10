@@ -293,7 +293,7 @@ export default function Pools({ navigation, route }: any){
               {(realSummary.savingsRate * 100).toFixed(0)}%
             </Text>
             <Text style={{ fontSize: 12, color: colors.textSecondary }}>
-              Savings Rate
+              Goal Progress
             </Text>
           </View>
         </View>
@@ -368,16 +368,16 @@ export default function Pools({ navigation, route }: any){
             <View style={{ backgroundColor: 'white', padding: 24, borderRadius: radius.medium, alignItems: 'center' }}>
               <Text style={{ fontSize: 48, marginBottom: 16 }}>🎯</Text>
               <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, textAlign: 'center', marginBottom: 8 }}>
-                Ready to Start Saving?
+                No Pools Yet
               </Text>
               <Text style={{ fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 16 }}>
-                Create your first pool and start earning points, badges, and rewards!
+                Create your first savings goal to get started!
               </Text>
               <TouchableOpacity 
                 onPress={()=>navigation.navigate("CreatePool" as any, { user })}
                 style={{ backgroundColor: colors.purple, padding: 12, borderRadius: radius.medium, paddingHorizontal: 24 }}
               >
-                <Text style={{ color: 'white', fontWeight: '700' }}>Create First Pool</Text>
+                <Text style={{ color: 'white', fontWeight: '700' }}>Create First Goal</Text>
               </TouchableOpacity>
             </View>
           )}

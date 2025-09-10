@@ -122,7 +122,7 @@ export const api = {
   },
 
   // Pools
-  createPool: async (userId: string, name: string, goalCents: number, destination: string, tripDate: string, poolType: string, penaltyData: any) => {
+  createPool: async (userId: string, name: string, goalCents: number, destination: string, tripDate: string, poolType: string, penaltyData: any, isPrivate?: boolean) => {
     try {
       console.log('Creating pool with data:', { userId, name, goalCents, destination, tripDate, poolType, penaltyData });
       
@@ -137,9 +137,9 @@ export const api = {
           goal_amount: goalCents,
           description: destination,
           created_by: Number(userId),
-          trip_date: tripDate,
+          target_date: tripDate,
           pool_type: poolType,
-          penalty_data: penaltyData
+          public_visibility: true
         })
       });
       
@@ -149,7 +149,7 @@ export const api = {
       
       const result = await response.json();
       console.log('Pool created successfully:', result);
-      return result;
+      return { success: true, data: result.data };
     } catch (error) {
       console.error('Pool creation error:', error);
       throw error;
@@ -196,13 +196,11 @@ export const api = {
   // Chat messages
   messages: async (poolId: string) => {
     try {
-      // Mock messages - empty for now
-      console.log('Mock messages called for pool:', poolId);
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      return [];
+      const response = await fetch(`${BASE_URL}/api/pools/${poolId}/messages`, {
+        headers: { 'x-user-id': '1' }
+      });
+      if (!response.ok) throw new Error('Failed to fetch messages');
+      return await response.json();
     } catch (error) {
       console.error('Messages error:', error);
       return [];
@@ -211,31 +209,32 @@ export const api = {
 
   getWithdrawalInfo: async (poolId: string, userId: string) => {
     try {
-      // Mock withdrawal info
-      console.log('Mock getWithdrawalInfo called:', { poolId, userId });
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      return { availableAmount: 0, penalty: 0 };
+      const response = await fetch(`${BASE_URL}/api/pools/${poolId}/withdrawal-info`, {
+        headers: { 'x-user-id': userId }
+      });
+      if (!response.ok) throw new Error('Failed to fetch withdrawal info');
+      return await response.json();
     } catch (error) {
-      console.error('Withdrawal info error:', error);
-      return { availableAmount: 0, penalty: 0 };
+      console.error('getWithdrawalInfo error:', error);
+      return { availableAmount: 0, penaltyAmount: 0, canWithdraw: false };
     }
   },
 
   processWithdrawal: async (poolId: string, userId: string, amountCents: number) => {
     try {
-      // Mock withdrawal processing
-      console.log('Mock processWithdrawal called:', { poolId, userId, amountCents });
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      return { success: true, withdrawalId: Date.now().toString() };
+      const response = await fetch(`${BASE_URL}/api/pools/${poolId}/withdraw`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': userId
+        },
+        body: JSON.stringify({ amountCents })
+      });
+      if (!response.ok) throw new Error('Failed to process withdrawal');
+      return await response.json();
     } catch (error) {
-      console.error('Withdrawal processing error:', error);
-      throw new Error('Withdrawal failed');
+      console.error('processWithdrawal error:', error);
+      throw error;
     }
   },
 
@@ -1113,5 +1112,25 @@ export const api = {
 
   updateSoloGoalPrivacySettings: async (userId: string, settings: any) => {
     return { success: true };
+  },
+
+
+  // Referral code API
+  createReferralCode: async (influencerId: string) => {
+    const response = await fetch(`${BASE_URL}/api/referral-codes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ influencerId })
+    });
+    if (!response.ok) throw new Error('Failed to create referral code');
+    return response.json();
+  },
+
+  validateReferralCode: async (code: string) => {
+    const response = await fetch(`${BASE_URL}/api/referral-codes/${code}`);
+    if (!response.ok) throw new Error('Invalid referral code');
+    return response.json();
   }
 };
