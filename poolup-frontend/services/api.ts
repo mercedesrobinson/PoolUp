@@ -34,7 +34,7 @@ interface Contribution {
 }
 
 import { getBaseUrl } from './config';
-const BASE_URL = getBaseUrl(3001);
+const BASE_URL = getBaseUrl(3000);
 const API_BASE = `${BASE_URL}/api`;
 
 // Get current user ID from storage
@@ -98,8 +98,6 @@ export const api = {
           name: googleUser.name,
           email: googleUser.email,
           profile_image_url: googleUser.photo,
-          avatar_type: 'avatar',
-          avatar_data: null
         })
       });
       if (!response.ok) throw new Error('Network response was not ok');
@@ -206,27 +204,12 @@ export const api = {
     }
   },
 
-  // Avatar system
-  getAvatarOptions: async () => {
-    const response = await fetch(`${BASE_URL}/api/avatar/options`);
-    return response.json();
-  },
-
-  getAvatarPresets: async () => {
-    const response = await fetch(`${BASE_URL}/api/avatar/presets`);
-    return response.json();
-  },
-
-  generateAvatar: async () => {
-    const response = await fetch(`${BASE_URL}/api/avatar/generate`, { method: 'POST' });
-    return response.json();
-  },
-
-  updateAvatar: async (userId, avatarType, avatarData, profileImageUrl) => {
-    const response = await fetch(`${BASE_URL}/api/users/${userId}/avatar`, {
+  // Photo upload
+  updateUserPhoto: async (userId: string, profileImageUrl: string) => {
+    const response = await fetch(`${BASE_URL}/api/users/${userId}/photo`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ avatarType, avatarData, profileImageUrl }),
+      body: JSON.stringify({ profileImageUrl }),
     });
     return response.json();
   },

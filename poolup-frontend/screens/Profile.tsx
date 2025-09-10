@@ -99,19 +99,8 @@ const styles = {
 
 export default function Profile({ navigation, route }: any) {
   const { user } = route?.params || {};
-  const [profile, setProfile] = useState({
-    name: 'Mercedes',
-    xp: 150,
-    total_points: 250,
-    current_streak: 3,
-    badge_count: 2,
-    avatar_type: 'default',
-    avatar_data: null
-  });
-  const [badges, setBadges] = useState([
-    { id: 1, name: 'First Pool', icon: '🎯', earned_at: '2024-01-15' },
-    { id: 2, name: 'Streak Master', icon: '🔥', earned_at: '2024-01-20' }
-  ]);
+  const [profile, setProfile] = useState(null);
+  const [badges, setBadges] = useState([]);
   const [card, setCard] = useState({
     last_four: '4242',
     balance_cents: 15000,
@@ -120,10 +109,36 @@ export default function Profile({ navigation, route }: any) {
 
   const loadProfile = async () => {
     try {
-      // Profile data is already set in state, no need to load
-      return;
+      if (!user?.id) return;
+      
+      // Load user profile data
+      const userProfile = {
+        name: user.name || 'User',
+        xp: 0,
+        total_points: 0,
+        current_streak: 0,
+        badge_count: 0,
+        avatar_type: 'default',
+        avatar_data: null
+      };
+      
+      setProfile(userProfile);
+      
+      // Load user badges (empty for now)
+      setBadges([]);
+      
     } catch (error) {
       console.error('Failed to load profile:', error);
+      // Set default empty profile on error
+      setProfile({
+        name: user?.name || 'User',
+        xp: 0,
+        total_points: 0,
+        current_streak: 0,
+        badge_count: 0,
+        avatar_type: 'default',
+        avatar_data: null
+      });
     }
   };
 
@@ -234,7 +249,7 @@ export default function Profile({ navigation, route }: any) {
               <Text style={styles.editBadgeText}>✏️</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.userName as any}>{profile.name}</Text>
+          <Text style={styles.userName as any}>{user?.name || 'User'}</Text>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 8 }}>
           <Text style={{ fontSize: 18, color: 'white', opacity: 0.9 }}>Level {level}</Text>

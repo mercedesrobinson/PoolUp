@@ -19,19 +19,13 @@ interface Contact {
   name: string;
   email?: string;
   phone?: string;
-  avatar: string;
+  photo?: string;
   isInvited: boolean;
 }
 
 export default function InviteFriends({ navigation, route }: Props): React.JSX.Element {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [contacts, setContacts] = useState<Contact[]>([
-    { id: '1', name: 'Sarah Johnson', email: 'sarah@email.com', avatar: '👩‍💼', isInvited: false },
-    { id: '2', name: 'Mike Chen', email: 'mike@email.com', avatar: '👨‍💻', isInvited: true },
-    { id: '3', name: 'Emma Wilson', phone: '+1234567890', avatar: '👩‍🎨', isInvited: false },
-    { id: '4', name: 'Alex Rodriguez', email: 'alex@email.com', avatar: '👨‍🚀', isInvited: false },
-    { id: '5', name: 'Lisa Park', email: 'lisa@email.com', avatar: '👩‍🎓', isInvited: false },
-  ]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
 
   const poolId = (route.params as any)?.poolId;
   const userId = (route.params as any)?.userId || '1756612920173';
@@ -94,7 +88,17 @@ export default function InviteFriends({ navigation, route }: Props): React.JSX.E
       shadowRadius: 4,
       elevation: 3,
     }}>
-      <Text style={{ fontSize: 32, marginRight: 16 }}>{contact.avatar}</Text>
+      <View style={{ 
+        width: 40, 
+        height: 40, 
+        borderRadius: 20, 
+        backgroundColor: '#f0f0f0', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        marginRight: 16 
+      }}>
+        <Text style={{ fontSize: 18 }}>👤</Text>
+      </View>
       
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 4 }}>

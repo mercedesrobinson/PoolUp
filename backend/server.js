@@ -117,8 +117,7 @@ app.post('/auth/signup', async (req, res) => {
       password_hash: hash,
       profile_image_url: null,
       created_at: new Date().toISOString(),
-      avatar_type: 'default',
-      avatar_data: null
+      profile_image_url: null
     };
     db.users.push(user);
     saveDB(db);
@@ -156,7 +155,7 @@ app.get('/auth/me', auth, (req, res) => {
 
 // Users
 app.post('/api/users', (req, res) => {
-  const { google_id, name, email, profile_image_url, avatar_type, avatar_data } = req.body || {};
+  const { google_id, name, email, profile_image_url } = req.body || {};
   const db = loadDB();
   const user = {
     id: nextId(db),
@@ -164,8 +163,6 @@ app.post('/api/users', (req, res) => {
     name: name || 'User',
     email: email || null,
     profile_image_url: profile_image_url || null,
-    avatar_type: avatar_type || 'default',
-    avatar_data: avatar_data || null,
     created_at: new Date().toISOString()
   };
   db.users.push(user);
@@ -189,8 +186,7 @@ app.get('/api/users/:id/profile', (req, res) => {
     total_points: totalPoints,
     current_streak: streak,
     badge_count: badges,
-    avatar_type: user.avatar_type || 'default',
-    avatar_data: user.avatar_data || null
+    profile_image_url: user.profile_image_url || null
   });
 });
 
@@ -349,23 +345,12 @@ app.get('/api/pools/:poolId/leaderboard', (req, res) => {
   res.json(rows);
 });
 
-// Avatar stubs
-app.get('/api/avatar/options', (_req, res) => {
-  res.json({ hair: ['short','long'], eyes: ['brown','blue'], color: ['red','green','blue'] });
-});
-app.get('/api/avatar/presets', (_req, res) => {
-  res.json([{ id: 'default', name: 'Default' }]);
-});
-app.post('/api/avatar/generate', (_req, res) => {
-  res.json({ url: 'https://example.com/avatar.png' });
-});
-app.put('/api/users/:id/avatar', (req, res) => {
+// Photo upload endpoint
+app.put('/api/users/:id/photo', (req, res) => {
   const db = loadDB();
   const u = db.users.find(x => String(x.id) === String(req.params.id));
   if (!u) return res.status(404).json({ error: 'Not found' });
-  const { avatarType, avatarData, profileImageUrl } = req.body || {};
-  u.avatar_type = avatarType || u.avatar_type;
-  u.avatar_data = avatarData || u.avatar_data;
+  const { profileImageUrl } = req.body || {};
   u.profile_image_url = profileImageUrl || u.profile_image_url;
   saveDB(db);
   res.json({ success: true });

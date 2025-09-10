@@ -19,7 +19,7 @@ interface Activity {
   type: 'contribution' | 'milestone' | 'streak' | 'goal_created' | 'encouragement';
   user: {
     name: string;
-    avatar: string;
+    photo?: string;
   };
   pool?: {
     name: string;
@@ -49,51 +49,8 @@ export default function FriendsFeed({ navigation, route }: Props): React.JSX.Ele
       setActivities(feedData);
     } catch (error) {
       console.error('Failed to load friends feed:', error);
-      // Mock data for development
-      setActivities([
-        {
-          id: 1,
-          type: 'contribution',
-          user: { name: 'Sarah', avatar: '👩‍💼' },
-          pool: { name: 'Bali Adventure', destination: 'Bali' },
-          amount: 15000, // cents
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          isPublic: true
-        },
-        {
-          id: 2,
-          type: 'milestone',
-          user: { name: 'Mike', avatar: '👨‍💻' },
-          pool: { name: 'Tokyo Trip', destination: 'Tokyo' },
-          milestone: 50,
-          timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-          isPublic: true
-        },
-        {
-          id: 3,
-          type: 'streak',
-          user: { name: 'Emma', avatar: '👩‍🎨' },
-          streakDays: 14,
-          timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-          isPublic: true
-        },
-        {
-          id: 4,
-          type: 'goal_created',
-          user: { name: 'Alex', avatar: '👨‍🚀' },
-          pool: { name: 'Emergency Fund', destination: 'Financial Security' },
-          timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-          isPublic: true
-        },
-        {
-          id: 5,
-          type: 'encouragement',
-          user: { name: 'Lisa', avatar: '👩‍🎓' },
-          message: 'Keep up the great work on your savings goals! 💪',
-          timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-          isPublic: true
-        }
-      ]);
+      // No mock data - show empty state
+      setActivities([]);
     }
   };
 
@@ -159,7 +116,17 @@ export default function FriendsFeed({ navigation, route }: Props): React.JSX.Ele
         elevation: 3,
       }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-          <Text style={{ fontSize: 24, marginRight: 12 }}>{activity.user.avatar}</Text>
+          <View style={{ 
+            width: 40, 
+            height: 40, 
+            borderRadius: 20, 
+            backgroundColor: '#f0f0f0', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            marginRight: 12 
+          }}>
+            <Text style={{ fontSize: 18 }}>👤</Text>
+          </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 16, fontWeight: '600', color: '#333' }}>
               {activity.user.name}
