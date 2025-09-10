@@ -68,19 +68,14 @@ export default function Onboarding({ navigation }){
             text: 'Continue with Demo', 
             onPress: async () => {
               try {
-                // Remove demo user - use real Google auth only
-                throw new Error('Demo mode disabled - use real Google auth');
-              } catch (error) {
+                // Enable guest mode for testing
+                const guest = await api.guest('Demo User');
                 try {
-                  // Fallback to real guest user on backend if Google creation fails
-                  const guest = await api.guest('Demo Google User');
-                  try {
-                    await Keychain.setInternetCredentials('poolup_user', String(guest.id), JSON.stringify({ accessToken: '', user: guest }));
-                  } catch (_) {}
-                  goToMain({ ...guest, authProvider: 'guest' });
-                } catch (e2) {
-                  Alert.alert('Error', (error as any)?.message || 'Failed to create user');
-                }
+                  await Keychain.setInternetCredentials('poolup_user', String(guest.id), JSON.stringify({ accessToken: '', user: guest }));
+                } catch (_) {}
+                goToMain({ ...guest, authProvider: 'guest' });
+              } catch (error) {
+                Alert.alert('Error', (error as any)?.message || 'Failed to create guest user');
               }
             }
           }
