@@ -20,6 +20,30 @@
       "creator_id": 0,
       "public_visibility": 0,
       "bonus_pot_cents": 0
+    },
+    {
+      "id": "4",
+      "name": "Italy trip with friends",
+      "goal_cents": 555500,
+      "saved_cents": 0,
+      "destination": "Italy",
+      "trip_date": "2026-02-28T05:00:00.000Z",
+      "pool_type": "group",
+      "creator_id": 0,
+      "public_visibility": 0,
+      "bonus_pot_cents": 0
+    },
+    {
+      "id": "5",
+      "name": "Trip to Japan",
+      "goal_cents": 500000,
+      "saved_cents": 0,
+      "destination": "Japan",
+      "trip_date": "2025-11-30T05:00:00.000Z",
+      "pool_type": "group",
+      "creator_id": 0,
+      "public_visibility": 0,
+      "bonus_pot_cents": 0
     }
   ],
   "contributions": [],
@@ -36,7 +60,7 @@
     "tokens": {},
     "preferences": {}
   },
-  "seq": 4,
+  "seq": 6,
   "memberships": [
     {
       "poolId": "1",
@@ -50,6 +74,16 @@
     },
     {
       "poolId": "3",
+      "userId": "0",
+      "role": "owner"
+    },
+    {
+      "poolId": "4",
+      "userId": "0",
+      "role": "owner"
+    },
+    {
+      "poolId": "5",
       "userId": "0",
       "role": "owner"
     }

@@ -21,14 +21,28 @@ function deriveLanBase(portFallback: number): string {
 }
 
 export function getBaseUrl(portFallback: number = 3000): string {
-  const env = (process.env.EXPO_PUBLIC_API_URL || '').trim();
-  if (env) return env.replace(/\/$/, '');
-  return deriveLanBase(portFallback);
+  const envUrl = (process.env.EXPO_PUBLIC_API_URL || '').trim();
+  const envPort = Number(process.env.EXPO_PUBLIC_API_PORT || '') || portFallback;
+  if (envUrl) {
+    const isLoopback = /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?/i.test(envUrl);
+    // On native devices, ignore loopback addresses (not reachable from phone)
+    if (Platform.OS !== 'web' && isLoopback) {
+      return deriveLanBase(envPort);
+    }
+    return envUrl.replace(/\/$/, '');
+  }
+  return deriveLanBase(envPort);
 }
 
 export function getSocketUrl(portFallback: number = 3000): string {
-  const env = (process.env.EXPO_PUBLIC_SERVER_URL || process.env.EXPO_PUBLIC_API_URL || '').trim();
-  if (env) return env.replace(/\/$/, '');
-  return deriveLanBase(portFallback);
+  const envUrl = (process.env.EXPO_PUBLIC_SERVER_URL || process.env.EXPO_PUBLIC_API_URL || '').trim();
+  const envPort = Number(process.env.EXPO_PUBLIC_API_PORT || '') || portFallback;
+  if (envUrl) {
+    const isLoopback = /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?/i.test(envUrl);
+    if (Platform.OS !== 'web' && isLoopback) {
+      return deriveLanBase(envPort);
+    }
+    return envUrl.replace(/\/$/, '');
+  }
+  return deriveLanBase(envPort);
 }
-
