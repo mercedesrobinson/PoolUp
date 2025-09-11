@@ -17,8 +17,8 @@ const GOAL_CATEGORIES: GoalCategory[] = [
   { id: 'education', name: 'Education', icon: '📚', color: '#9C27B0' },
   { id: 'wedding', name: 'Wedding', icon: '💒', color: '#E91E63' },
   { id: 'tech', name: 'Technology', icon: '📱', color: '#607D8B' },
-  { id: 'health', name: 'Health/Fitness', icon: '💪', color: '#4CAF50' },
   { id: 'business', name: 'Business', icon: '💼', color: '#795548' },
+  { id: 'friends_family', name: 'Friends/Family', icon: '❤️', color: '#FF9800' },
   { id: 'other', name: 'Other', icon: '🎯', color: '#666' },
 ];
 

@@ -1,43 +1,7 @@
 {
-  "users": [
-    {
-      "id": "16",
-      "name": "testUser",
-      "email": "test@hotmail.com",
-      "password_hash": "$2a$10$WNoEl4nXrz4.GhI4h2AoAe1PCg/Yf.BCI4EVcSW48JqqXYkitOXa2",
-      "profile_image_url": null,
-      "created_at": "2025-09-10T15:15:42.753Z"
-    },
-    {
-      "id": "18",
-      "name": "testUser2",
-      "email": "test2@hotmail.com",
-      "password_hash": "$2a$10$xjQpF0S5TCj1uyM/nRg/8uEnF5shKobYrEAsM8ufSV3sguYKsBBgC",
-      "profile_image_url": null,
-      "created_at": "2025-09-10T15:17:31.841Z"
-    }
-  ],
-  "pools": [
-    {
-      "id": "17",
-      "name": "Bali trip",
-      "goal_cents": 500000,
-      "saved_cents": 0,
-      "destination": "Bali",
-      "trip_date": null,
-      "pool_type": "group",
-      "creator_id": 16,
-      "public_visibility": 0,
-      "bonus_pot_cents": 0
-    }
-  ],
-  "memberships": [
-    {
-      "poolId": "17",
-      "userId": "16",
-      "role": "owner"
-    }
-  ],
+  "users": [],
+  "pools": [],
+  "memberships": [],
   "contributions": [],
   "messages": [],
   "follows": [],
@@ -52,5 +16,7 @@
     "tokens": {},
     "preferences": {}
   },
-  "seq": 19
+  "referralCodes": [],
+  "referralTrackings": [],
+  "seq": 1
 }

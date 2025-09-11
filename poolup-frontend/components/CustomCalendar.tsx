@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, ScrollView, Dimensions } from 'react-native';
 import { colors, radius } from '../theme';
 
 interface CustomCalendarProps {
@@ -9,20 +9,39 @@ interface CustomCalendarProps {
 }
 
 const CustomCalendar: React.FC<CustomCalendarProps> = ({ onDateSelect, onClose, initialDate }) => {
-  // Get current date and set it properly
   const now = new Date();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth();
+  const currentDay = now.getDate();
   
-  const [currentDate, setCurrentDate] = useState(new Date(currentYear, currentMonth, 1));
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedDay, setSelectedDay] = useState(currentDay);
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
-  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const screenHeight = Dimensions.get('window').height;
+  const pickerHeight = Math.min(200, screenHeight * 0.3);
+
+  // Generate years (current year + 10 years)
+  const years = Array.from({ length: 11 }, (_, i) => currentYear + i);
+  
+  // Generate days based on selected month/year
+  const getDaysInMonthCount = (month: number, year: number) => {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  };
+
+  const days = getDaysInMonthCount(selectedMonth, selectedYear);
+
+  const handleConfirm = () => {
+    const selectedDate = new Date(selectedYear, selectedMonth, selectedDay);
+    onDateSelect(selectedDate);
+    onClose();
+  };
 
   const getDaysInMonth = (date: Date): (Date | null)[] => {
     const year = date.getFullYear();

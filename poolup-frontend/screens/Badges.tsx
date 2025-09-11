@@ -25,6 +25,7 @@ interface Badge {
   earned_at?: string;
 }
 
+
 interface BadgeCardProps {
   badge: Badge;
   earned?: boolean;
@@ -133,21 +134,8 @@ export default function Badges({ navigation, route }: Props): React.JSX.Element 
       const earned = await api.getUserBadges(user.id);
       setEarnedBadges(earned);
 
-      // For demo purposes, we'll show some example badges that could be earned
-      // In a real app, you'd fetch all available badges from the server
-      const exampleBadges = [
-        { id: 'streak_7', name: 'Week Warrior', description: 'Maintain a 7-day streak', icon: '🔥', category: 'streak', points_required: 70, rarity: 'common' },
-        { id: 'big_spender', name: 'Big Spender', description: 'Make a $100+ contribution', icon: '💸', category: 'contribution', points_required: 100, rarity: 'uncommon' },
-        { id: 'social_butterfly', name: 'Social Butterfly', description: 'Join 5 different pools', icon: '🦋', category: 'social', points_required: 150, rarity: 'rare' },
-        { id: 'travel_guru', name: 'Travel Guru', description: 'Complete 3 travel pools', icon: '🌍', category: 'travel', points_required: 300, rarity: 'epic' },
-        { id: 'pool_master', name: 'Pool Master', description: 'Create 10 successful pools', icon: '👑', category: 'leadership', points_required: 1000, rarity: 'legendary' }
-      ];
-
-      // Filter out badges user has already earned
-      const earnedIds = earned.map(b => b.id);
-      const availableBadges = exampleBadges.filter(b => !earnedIds.includes(b.id));
-      
-      setAllBadges([...earned, ...availableBadges]);
+      // Use badges from API instead of mock data
+      setAllBadges(earned);
       setLoading(false);
     } catch (error) {
       console.error('Failed to load badges:', error);
@@ -195,15 +183,29 @@ export default function Badges({ navigation, route }: Props): React.JSX.Element 
 
       {/* Badge Categories */}
       <View style={{ padding: 24 }}>
-        {earnedCount > 0 && (
+        {/* Show earned badges if any */}
+        {earnedBadges.length > 0 && (
           <>
             <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 16 }}>
               ✨ Your Badges
             </Text>
-            {Array.isArray(earnedBadges) ? earnedBadges.map(badge => (
+            {earnedBadges.map(badge => (
               <BadgeCard key={badge.id} badge={badge} earned={true} />
-            )) : []}
+            ))}
           </>
+        )}
+
+        {/* Empty state if no badges */}
+        {earnedBadges.length === 0 && (
+          <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+            <Text style={{ fontSize: 48, marginBottom: 16 }}>🏆</Text>
+            <Text style={{ fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: 8 }}>
+              No badges yet
+            </Text>
+            <Text style={{ fontSize: 14, color: colors.textSecondary, textAlign: 'center' }}>
+              Start saving and inviting friends to earn your first badges!
+            </Text>
+          </View>
         )}
 
         <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 16, marginTop: earnedCount > 0 ? 24 : 0 }}>

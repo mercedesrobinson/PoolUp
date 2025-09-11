@@ -24,6 +24,22 @@ export default function Onboarding({ navigation }){
   };
   
   const handleEmailAuth = async () => {
+    // Guest mode bypass for testing
+    const guestUser = {
+      id: '16',
+      name: name.trim() || 'Guest User',
+      email: email.trim() || 'guest@poolup.com',
+      authProvider: 'guest'
+    };
+    
+    try {
+      await Keychain.setInternetCredentials('poolup_user', String(guestUser.id), JSON.stringify({ user: guestUser }));
+    } catch (_) {}
+    
+    goToMain(guestUser);
+    return;
+    
+    // Original auth code (disabled for testing)
     if (!email.trim() || !password.trim()) {
       return Alert.alert('Error', 'Please enter both email and password');
     }

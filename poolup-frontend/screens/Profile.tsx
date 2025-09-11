@@ -338,7 +338,7 @@ export default function Profile({ navigation, route }: any) {
           <View style={{ flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: radius.medium, alignItems: 'center' }}>
             <Text style={{ fontSize: 20, marginBottom: 4 }}>💪</Text>
             <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>0%</Text>
-            <Text style={{ fontSize: 12, color: colors.textSecondary }}>Savings Rate</Text>
+            <Text style={{ fontSize: 12, color: colors.textSecondary }}>Goal Progress</Text>
           </View>
         </View>
       </View>
