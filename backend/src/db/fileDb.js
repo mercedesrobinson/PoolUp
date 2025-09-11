@@ -30,7 +30,42 @@ function ensureDB() {
 
 function loadDB() {
   ensureDB();
-  return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+  const db = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+  // Backfill missing collections/keys for older DB files
+  let mutated = false;
+  const defaults = {
+    users: [],
+    pools: [],
+    memberships: [],
+    contributions: [],
+    messages: [],
+    follows: [],
+    encouragements: [],
+    cards: [],
+    cardTransactions: [],
+    invites: [],
+    recurring: [],
+    penaltySettings: {},
+    privacy: {},
+    notifications: { tokens: {}, preferences: {} },
+    seq: 1,
+  };
+  for (const [key, defVal] of Object.entries(defaults)) {
+    if (typeof db[key] === 'undefined') {
+      db[key] = defVal;
+      mutated = true;
+    }
+  }
+  // Ensure notifications subkeys exist
+  if (!db.notifications || typeof db.notifications !== 'object') {
+    db.notifications = { tokens: {}, preferences: {} };
+    mutated = true;
+  } else {
+    if (!db.notifications.tokens) { db.notifications.tokens = {}; mutated = true; }
+    if (!db.notifications.preferences) { db.notifications.preferences = {}; mutated = true; }
+  }
+  if (mutated) saveDB(db);
+  return db;
 }
 
 function saveDB(db) {
@@ -48,4 +83,3 @@ module.exports = {
   saveDB,
   nextId,
 };
-

@@ -1,8 +1,7 @@
-import * as Keychain from 'react-native-keychain';
+import { getUser, savePlaidToken } from './secureStorage';
 import { getBaseUrl } from './config';
 
 // Banking service for PoolUp - integrates with Plaid, Stripe, and other financial APIs
-const API_BASE_URL = `${getBaseUrl(3001)}/api`;
 
 interface BankAccount {
   id: string;
@@ -45,7 +44,7 @@ interface AuthHeaders {
 class BankingService {
   private plaidToken: string | null = null;
   private stripeCustomerId: string | null = null;
-  private baseURL: string = API_BASE_URL;
+  private get baseURL(): string { return `${getBaseUrl(3000)}/api`; }
 
   async getAuthHeaders(): Promise<AuthHeaders> {
     // Simple fallback for development
@@ -91,11 +90,7 @@ class BankingService {
       const data = await response.json();
       
       // Store access token securely
-      await Keychain.setInternetCredentials(
-        'poolup_plaid_token',
-        'plaid_access',
-        data.access_token
-      );
+      await savePlaidToken(data.access_token);
 
       this.plaidToken = data.access_token;
       return data;
@@ -322,11 +317,8 @@ class BankingService {
   // Helper method to get auth token
   private async getAuthToken(): Promise<string | null> {
     try {
-      const credentials = await Keychain.getInternetCredentials('poolup_user');
-      if (credentials) {
-        const user = JSON.parse(credentials.password);
-        return user.accessToken;
-      }
+      const creds = await getUser();
+      if (creds) return creds.accessToken;
       return null;
     } catch (error) {
       return null;

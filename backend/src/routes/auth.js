@@ -68,6 +68,31 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Sync a Supabase-authenticated user into the local backend DB by email.
+// If the user exists, returns it; otherwise creates a lightweight record.
+router.post('/sync', (req, res) => {
+  try {
+    const { name, email, profile_image_url } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'email required' });
+    const db = loadDB();
+    let user = getUserByEmail(db, email);
+    if (!user) {
+      user = {
+        id: nextId(db),
+        name: name || String(email).split('@')[0],
+        email: String(email).toLowerCase(),
+        profile_image_url: profile_image_url || null,
+        created_at: new Date().toISOString(),
+      };
+      db.users.push(user);
+      saveDB(db);
+    }
+    return res.json({ user: publicUser(user) });
+  } catch (e) {
+    return res.status(500).json({ error: 'Sync failed' });
+  }
+});
+
 router.get('/me', auth, (req, res) => {
   const db = loadDB();
   const u = db.users.find((x) => String(x.id) === String(req.userId));
@@ -76,4 +101,3 @@ router.get('/me', auth, (req, res) => {
 });
 
 module.exports = router;
-

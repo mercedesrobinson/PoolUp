@@ -1,26 +1,24 @@
 import React, { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import * as Keychain from 'react-native-keychain';
+import { supabase } from '../lib/supabase';
+import { api } from '../services/api';
 
 export default function AuthGate({ navigation }: any) {
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        const creds = await Keychain.getInternetCredentials('poolup_user');
+        const { data } = await supabase.auth.getSession();
         if (!mounted) return;
-        if (creds && creds.password) {
-          try {
-            const parsed = JSON.parse(creds.password);
-            const user = parsed?.user || null;
-            if (user) {
-              navigation.reset({ index: 0, routes: [{ name: 'MainTabs', params: { user } }] });
-              return;
-            }
-          } catch (_) {}
+        const supaUser = data.session?.user || null;
+        if (supaUser) {
+          // Ensure backend user exists and get backend id
+          const backendUser = await api.syncUserFromAuth({ name: supaUser.user_metadata?.name, email: supaUser.email || '' });
+          const merged = { id: String(backendUser.id), name: backendUser.name, email: backendUser.email, supaUserId: supaUser.id } as any;
+          navigation.reset({ index: 0, routes: [{ name: 'MainTabs', params: { user: merged } }] });
+          return;
         }
       } catch (_) {}
-      // Fallback to onboarding
       navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
     })();
     return () => { mounted = false; };
@@ -32,4 +30,3 @@ export default function AuthGate({ navigation }: any) {
     </View>
   );
 }
-

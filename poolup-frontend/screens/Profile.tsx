@@ -98,9 +98,11 @@ const styles = {
 };
 
 export default function Profile({ navigation, route }: any) {
-  const { user } = route?.params || {};
-  const [profile, setProfile] = useState(null);
+  const routeUser = route?.params?.user;
+  const [profile, setProfile] = useState<any>(null);
   const [badges, setBadges] = useState([]);
+  const [activeGoals, setActiveGoals] = useState<number>(0);
+  const navUser = profile ? { id: profile.id, name: profile.name, email: profile.email } : routeUser;
   const [card, setCard] = useState({
     last_four: '4242',
     balance_cents: 15000,
@@ -109,42 +111,50 @@ export default function Profile({ navigation, route }: any) {
 
   const loadProfile = async () => {
     try {
-      if (!user?.id) return;
-      
-      // Load user profile data
-      const userProfile = {
-        name: user.name || 'User',
-        xp: 0,
-        total_points: 0,
-        current_streak: 0,
-        badge_count: 0,
-        avatar_type: 'default',
-        avatar_data: null
-      };
-      
-      setProfile(userProfile);
-      
-      // Load user badges (empty for now)
+      const userId = routeUser?.id;
+      if (!userId) return;
+
+      // Load profile from backend
+      const userProfile = await api.getUserProfile(String(userId));
+      setProfile({
+        id: userId,
+        name: userProfile?.name || routeUser?.name || 'User',
+        email: userProfile?.email || routeUser?.email,
+        xp: userProfile?.xp ?? 0,
+        total_points: userProfile?.total_points ?? 0,
+        current_streak: userProfile?.current_streak ?? 0,
+        badge_count: userProfile?.badge_count ?? 0,
+        avatar_type: userProfile?.avatar_type || 'default',
+        avatar_data: userProfile?.avatar_data || null,
+      });
+
+      // Badges placeholder
       setBadges([]);
+
+      // Count active goals using backend list
+      const pools = await api.listPools(String(userId));
+      setActiveGoals(Array.isArray(pools) ? pools.length : 0);
       
     } catch (error) {
       console.error('Failed to load profile:', error);
       // Set default empty profile on error
-      setProfile({
-        name: user?.name || 'User',
+      // Minimal offline fallback
+      setProfile((prev: any) => prev || {
+        name: routeUser?.name || 'User',
+        email: routeUser?.email,
         xp: 0,
         total_points: 0,
         current_streak: 0,
         badge_count: 0,
         avatar_type: 'default',
-        avatar_data: null
+        avatar_data: null,
       });
     }
   };
 
   const createCard = async () => {
     try {
-      const newCard = await api.createDebitCard(user.id, user.name);
+      const newCard = await api.createDebitCard(navUser.id, navUser.name);
       setCard(newCard);
       Alert.alert('Success!', 'Your PoolUp debit card has been created! 🎉');
     } catch (error) {
@@ -153,13 +163,11 @@ export default function Profile({ navigation, route }: any) {
   };
 
   useEffect(() => {
-    if (user) {
-      loadProfile();
-    }
-  }, [user]);
+    loadProfile();
+  }, [routeUser]);
 
   // Early return if no user data
-  if (!user) {
+  if (!profile && !routeUser) {
     return (
       <View style={{ flex: 1, backgroundColor: '#FAFCFF', alignItems: 'center', justifyContent: 'center' }}>
         <Text style={{ fontSize: 18, color: '#666' }}>Loading user data...</Text>
@@ -176,7 +184,7 @@ export default function Profile({ navigation, route }: any) {
             <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.3)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
               <Text style={{ fontSize: 32, color: 'white' }}>👤</Text>
             </View>
-            <Text style={{ fontSize: 24, fontWeight: '700', color: 'white', marginBottom: 8 }}>{user.name}</Text>
+            <Text style={{ fontSize: 24, fontWeight: '700', color: 'white', marginBottom: 8 }}>{profile?.name || 'User'}</Text>
             <Text style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)' }}>Level 1</Text>
           </View>
         </View>
@@ -200,13 +208,13 @@ export default function Profile({ navigation, route }: any) {
           <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius.medium }}>
             <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 }}>Quick Actions</Text>
             <TouchableOpacity 
-              onPress={() => navigation.navigate("Pools" as any, { user })}
+              onPress={() => navigation.navigate("Pools" as any, { user: navUser })}
               style={{ backgroundColor: colors.green, padding: 12, borderRadius: radius.medium, marginBottom: 8 }}
             >
               <Text style={{ color: 'white', fontWeight: '700', textAlign: 'center' }}>View Pools</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              onPress={() => navigation.navigate("CreatePool" as any, { user })}
+              onPress={() => navigation.navigate("CreatePool" as any, { user: navUser })}
               style={{ backgroundColor: colors.purple, padding: 12, borderRadius: radius.medium }}
             >
               <Text style={{ color: 'white', fontWeight: '700', textAlign: 'center' }}>Create New Pool</Text>
@@ -249,7 +257,7 @@ export default function Profile({ navigation, route }: any) {
               <Text style={styles.editBadgeText}>✏️</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.userName as any}>{user?.name || 'User'}</Text>
+          <Text style={styles.userName as any}>{profile?.name || 'User'}</Text>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 8 }}>
           <Text style={{ fontSize: 18, color: 'white', opacity: 0.9 }}>Level {level}</Text>
@@ -305,7 +313,7 @@ export default function Profile({ navigation, route }: any) {
           <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text }}>
             💰 Savings Summary
           </Text>
-          <TouchableOpacity onPress={() => navigation.navigate("SavingsSummary" as any, { user })}>
+          <TouchableOpacity onPress={() => navigation.navigate("SavingsSummary" as any, { user: navUser })}>
             <Text style={{ color: colors.blue, fontWeight: '600' }}>View Details →</Text>
           </TouchableOpacity>
         </View>
@@ -324,12 +332,12 @@ export default function Profile({ navigation, route }: any) {
         </View>
 
         {/* Quick Stats Grid */}
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <View style={{ flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: radius.medium, alignItems: 'center' }}>
-            <Text style={{ fontSize: 20, marginBottom: 4 }}>🎯</Text>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>0</Text>
-            <Text style={{ fontSize: 12, color: colors.textSecondary }}>Active Goals</Text>
-          </View>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View style={{ flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: radius.medium, alignItems: 'center' }}>
+              <Text style={{ fontSize: 20, marginBottom: 4 }}>🎯</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>{activeGoals}</Text>
+              <Text style={{ fontSize: 12, color: colors.textSecondary }}>Active Goals</Text>
+            </View>
           <View style={{ flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: radius.medium, alignItems: 'center' }}>
             <Text style={{ fontSize: 20, marginBottom: 4 }}>🔥</Text>
             <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>0</Text>
@@ -349,7 +357,7 @@ export default function Profile({ navigation, route }: any) {
           <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text }}>
             📊 Recent Activity
           </Text>
-          <TouchableOpacity onPress={() => navigation.navigate("TransactionHistory" as any, { user })}>
+          <TouchableOpacity onPress={() => navigation.navigate("TransactionHistory" as any, { user: navUser })}>
             <Text style={{ color: colors.blue, fontWeight: '600' }}>View All →</Text>
           </TouchableOpacity>
         </View>
@@ -378,14 +386,14 @@ export default function Profile({ navigation, route }: any) {
           Quick Actions
         </Text>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-          <TouchableOpacity onPress={() => navigation.navigate("CreatePool" as any, { user })} style={{ backgroundColor: colors.green, padding: 12, borderRadius: radius.medium, flex: 1, marginRight: 8, alignItems: 'center' }}>
+          <TouchableOpacity onPress={() => navigation.navigate("CreatePool" as any, { user: navUser })} style={{ backgroundColor: colors.green, padding: 12, borderRadius: radius.medium, flex: 1, marginRight: 8, alignItems: 'center' }}>
             <Text style={{ color: 'white', fontWeight: '600' }}>New Pool</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('SoloSavings')} style={{ backgroundColor: colors.blue, padding: 12, borderRadius: radius.medium, flex: 1, marginLeft: 8, alignItems: 'center' }}>
             <Text style={{ color: 'white', fontWeight: '600' }}>Solo Goal</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate("Settings" as any, { user })} style={{ backgroundColor: colors.gray, padding: 12, borderRadius: radius.medium, alignItems: 'center' }}>
+        <TouchableOpacity onPress={() => navigation.navigate("Settings" as any, { user: navUser })} style={{ backgroundColor: colors.gray, padding: 12, borderRadius: radius.medium, alignItems: 'center' }}>
           <Text style={{ color: colors.text, fontWeight: '600' }}>⚙️ Settings</Text>
         </TouchableOpacity>
       </View>

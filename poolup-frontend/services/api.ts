@@ -1,12 +1,6 @@
 import { getBaseUrl } from './config';
 
-interface GoogleUser {
-  id: string;
-  name: string;
-  email: string;
-  photo?: string;
-  accessToken: string;
-}
+// Google login removed
 
 interface User {
   id: string;
@@ -35,12 +29,12 @@ interface Contribution {
 }
 
 // Resolve base URL dynamically with fallback port used by backend
-const BASE_URL = getBaseUrl(3001);
-const API_BASE = `${BASE_URL}/api`;
+const BASE_URL = () => getBaseUrl(3000);
+const API_BASE = () => `${BASE_URL()}/api`;
 
 console.log('API Configuration:');
-console.log('BASE_URL:', BASE_URL);
-console.log('API_BASE:', API_BASE);
+console.log('BASE_URL:', BASE_URL());
+console.log('API_BASE:', API_BASE());
 
 // Get current user ID from storage
 const getCurrentUserId = (): string => {
@@ -50,9 +44,24 @@ const getCurrentUserId = (): string => {
 
 // API service for PoolUp
 export const api = {
+  // Sync Supabase-auth user into backend DB (find or create by email)
+  syncUserFromAuth: async (params: { name?: string; email: string; profile_image_url?: string }) => {
+    const res = await fetch(`${BASE_URL()}/auth/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.error || 'Sync failed');
+    }
+    const json = await res.json();
+    // returns { user: { id, name, email, profile_image_url } }
+    return json?.user || json;
+  },
   // Email/password auth
   emailSignUp: async (name: string, email: string, password: string) => {
-    const res = await fetch(`${BASE_URL}/auth/signup`, {
+    const res = await fetch(`${BASE_URL()}/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password }),
@@ -64,7 +73,7 @@ export const api = {
     return res.json();
   },
   emailLogin: async (email: string, password: string) => {
-    const res = await fetch(`${BASE_URL}/auth/login`, {
+    const res = await fetch(`${BASE_URL()}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -78,7 +87,7 @@ export const api = {
   // Guest user creation
   guest: async (name: string): Promise<User> => {
     try {
-      const response = await fetch(`${BASE_URL}/auth/guest`, {
+      const response = await fetch(`${BASE_URL()}/auth/guest`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name }),
@@ -90,35 +99,9 @@ export const api = {
     }
   },
 
-  // Google OAuth user creation (dev: map to /api/users)
-  createGoogleUser: async (googleUser: GoogleUser): Promise<User> => {
-    try {
-      const response = await fetch(`${API_BASE}/users`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          google_id: googleUser.id,
-          name: googleUser.name,
-          email: googleUser.email,
-          profile_image_url: googleUser.photo,
-        }),
-      });
-      if (!response.ok) throw new Error('Network response was not ok');
-      const json = await response.json();
-      const user = json?.data || json;
-      return {
-        id: String(user.id),
-        name: user.name,
-        email: user.email,
-        profileImage: user.profile_image_url,
-        authProvider: 'google',
-      } as any;
-    } catch (error) {
-      throw error;
-    }
-  },
+  // Google login removed
 
-  // Pools
+  // Pools (Backend)
   createPool: async (
     userId: string,
     name: string,
@@ -129,17 +112,8 @@ export const api = {
     penaltyData: any
   ) => {
     try {
-      console.log('Creating pool with data:', {
-        userId,
-        name,
-        goalCents,
-        destination,
-        tripDate,
-        poolType,
-        penaltyData,
-      });
-
-      const response = await fetch(`${API_BASE}/pools`, {
+      const createdByNum = Number(userId);
+      const response = await fetch(`${API_BASE()}/pools`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -149,35 +123,29 @@ export const api = {
           name,
           goal_amount: goalCents,
           description: destination,
-          created_by: Number(userId),
-          trip_date: tripDate,
+          created_by: Number.isFinite(createdByNum) ? createdByNum : Number(getCurrentUserId()),
+          target_date: tripDate,
           pool_type: poolType,
+          public_visibility: false,
           penalty_data: penaltyData,
         }),
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      console.log('Pool created successfully:', result);
-      return result;
+      if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      return response.json();
     } catch (error) {
-      console.error('Pool creation error:', error);
+      console.error('Pool creation error (backend):', error);
       throw error;
     }
   },
 
   getUserProfile: async (userId: string) => {
     try {
-      const response = await fetch(`${API_BASE}/users/${userId}/profile`, {
+      const response = await fetch(`${API_BASE()}/users/${userId}/profile`, {
         headers: { 'x-user-id': getCurrentUserId() },
       });
       return response.json();
     } catch (error) {
-      console.error('getUserProfile error:', error);
-      // Return fallback data on error
+      console.error('getUserProfile error (backend):', error);
       return {
         id: userId,
         name: 'User',
@@ -190,19 +158,7 @@ export const api = {
     }
   },
 
-  googleLogin: async (googleProfile) => {
-    try {
-      const response = await fetch(`${BASE_URL}/api/auth/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ googleProfile }),
-      });
-      return response.json();
-    } catch (error) {
-      console.error('Google login error:', error);
-      throw error;
-    }
-  },
+  // Google login removed
 
   // Chat messages
   messages: async (poolId: string) => {
@@ -423,7 +379,7 @@ export const api = {
 
   getUserStreak: async (userId: string) => {
     try {
-      const response = await fetch(`${API_BASE}/users/${userId}/streak`, {
+      const response = await fetch(`${API_BASE()}/users/${userId}/streak`, {
         headers: { 'x-user-id': getCurrentUserId() },
       });
       return response.json();
@@ -435,25 +391,25 @@ export const api = {
 
   listPools: async (userId: string): Promise<Pool[]> => {
     try {
-      const response = await fetch(`${API_BASE}/users/${userId}/pools`, {
+      const response = await fetch(`${API_BASE()}/users/${userId}/pools`, {
         headers: { 'x-user-id': getCurrentUserId() },
       });
       const json = await response.json();
       return json?.data || json || [];
     } catch (error) {
-      console.error('Failed to load pools:', error);
+      console.error('Failed to load pools (backend):', error);
       return [];
     }
   },
 
   getPool: async (poolId: string) => {
     try {
-      const response = await fetch(`${API_BASE}/pools/${poolId}`, {
+      const response = await fetch(`${API_BASE()}/pools/${poolId}`, {
         headers: { 'x-user-id': getCurrentUserId() },
       });
       return response.json();
     } catch (error) {
-      console.error('Get pool error:', error);
+      console.error('Get pool error (backend):', error);
       throw error;
     }
   },
@@ -463,7 +419,7 @@ export const api = {
     { userId, amountCents, paymentMethod }: { userId: string; amountCents: number; paymentMethod: string }
   ) => {
     try {
-      const response = await fetch(`${API_BASE}/contributions`, {
+      const response = await fetch(`${API_BASE()}/contributions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -482,7 +438,7 @@ export const api = {
 
   getMessages: async (poolId: string) => {
     try {
-      const response = await fetch(`${API_BASE}/messages/${poolId}`);
+      const response = await fetch(`${API_BASE()}/messages/${poolId}`);
       const json = await response.json();
       return json?.data || json;
     } catch (error) {
@@ -493,7 +449,7 @@ export const api = {
 
   sendMessage: async (poolId: string, { userId, body }: { userId: string; body: string }) => {
     try {
-      const response = await fetch(`${API_BASE}/messages`, {
+      const response = await fetch(`${API_BASE()}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pool_id: Number(poolId), user_id: Number(userId) || 1, content: body }),
@@ -508,30 +464,30 @@ export const api = {
 
   // Gamification APIs
   getUserBadges: async (userId: string) => {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/badges`, {
+    const res = await fetch(`${BASE_URL()}/api/users/${userId}/badges`, {
       headers: { 'x-user-id': getCurrentUserId() },
     });
     return res.json();
   },
 
   getLeaderboard: async (poolId: string) => {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/leaderboard`);
+    const res = await fetch(`${BASE_URL()}/api/pools/${poolId}/leaderboard`);
     return res.json();
   },
 
   getChallenges: async (poolId: string) => {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/challenges`);
+    const res = await fetch(`${BASE_URL()}/api/pools/${poolId}/challenges`);
     return res.json();
   },
 
   getUnlockables: async (poolId: string) => {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/unlockables`);
+    const res = await fetch(`${BASE_URL()}/api/pools/${poolId}/unlockables`);
     return res.json();
   },
 
   // Debit Card APIs
   createDebitCard: async (userId: string, cardHolderName: string) => {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/debit-card`, {
+    const res = await fetch(`${BASE_URL()}/api/users/${userId}/debit-card`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cardHolderName }),
@@ -540,12 +496,12 @@ export const api = {
   },
 
   getDebitCard: async (userId: string) => {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/debit-card`);
+    const res = await fetch(`${BASE_URL()}/api/users/${userId}/debit-card`);
     return res.json();
   },
 
   processCardTransaction: async (cardId: string, amountCents: number, merchant: string, category: string) => {
-    const res = await fetch(`${BASE_URL}/api/debit-card/${cardId}/transaction`, {
+    const res = await fetch(`${BASE_URL()}/api/debit-card/${cardId}/transaction`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amountCents, merchant, category }),
@@ -554,22 +510,22 @@ export const api = {
   },
 
   getCardTransactions: async (userId: string, limit = 50) => {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/card-transactions?limit=${limit}`);
+    const res = await fetch(`${BASE_URL()}/api/users/${userId}/card-transactions?limit=${limit}`);
     return res.json();
   },
 
   async getTravelPerks(userId) {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/travel-perks`);
+    const res = await fetch(`${BASE_URL()}/api/users/${userId}/travel-perks`);
     return res.json();
   },
 
   async getSpendingInsights(userId, days = 30) {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/spending-insights?days=${days}`);
+    const res = await fetch(`${BASE_URL()}/api/users/${userId}/spending-insights?days=${days}`);
     return res.json();
   },
 
   async toggleCardStatus(cardId, userId) {
-    const res = await fetch(`${BASE_URL}/api/debit-card/${cardId}/toggle`, {
+    const res = await fetch(`${BASE_URL()}/api/debit-card/${cardId}/toggle`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId }),
@@ -578,7 +534,7 @@ export const api = {
   },
 
   async processForfeit(poolId, userId, reason, amount) {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/forfeit`, {
+    const res = await fetch(`${BASE_URL()}/api/pools/${poolId}/forfeit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, reason, amount }),
@@ -587,7 +543,7 @@ export const api = {
   },
 
   async peerBoost(poolId, fromUserId, toUserId, amountCents) {
-    const response = await fetch(`${BASE_URL}/api/pools/${poolId}/peer-boost`, {
+    const response = await fetch(`${BASE_URL()}/api/pools/${poolId}/peer-boost`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ fromUserId, toUserId, amountCents }),
@@ -597,7 +553,7 @@ export const api = {
 
   // Notification API
   async storePushToken(userId, pushToken) {
-    const response = await fetch(`${BASE_URL}/api/users/${userId}/push-token`, {
+    const response = await fetch(`${BASE_URL()}/api/users/${userId}/push-token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pushToken }),
@@ -606,7 +562,7 @@ export const api = {
   },
 
   async updateNotificationPreferences(userId, preferences) {
-    const response = await fetch(`${BASE_URL}/api/users/${userId}/notification-preferences`, {
+    const response = await fetch(`${BASE_URL()}/api/users/${userId}/notification-preferences`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(preferences),
@@ -615,7 +571,7 @@ export const api = {
   },
 
   async sendTestNotification(userId, pushToken) {
-    const response = await fetch(`${BASE_URL}/api/notifications/send-test`, {
+    const response = await fetch(`${BASE_URL()}/api/notifications/send-test`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, pushToken }),
@@ -624,7 +580,7 @@ export const api = {
   },
 
   async calculateInterest(userId) {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/calculate-interest`, {
+    const res = await fetch(`${BASE_URL()}/api/users/${userId}/calculate-interest`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -634,7 +590,7 @@ export const api = {
   // Friends Feed
   getFriendsFeed: async (userId: string, filter = 'all') => {
     try {
-      const res = await fetch(`${BASE_URL}/api/users/${userId}/friends-feed?filter=${filter}`, {
+      const res = await fetch(`${BASE_URL()}/api/users/${userId}/friends-feed?filter=${filter}`, {
         headers: { 'x-user-id': getCurrentUserId() },
       });
       return res.json();
@@ -647,7 +603,7 @@ export const api = {
 
   // Invite System
   async generateInviteCode(poolId) {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/invite-code`, {
+    const res = await fetch(`${BASE_URL()}/api/pools/${poolId}/invite-code`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-user-id': getCurrentUserId() },
     });
@@ -655,7 +611,7 @@ export const api = {
   },
 
   async inviteMemberToPool(poolId, email) {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/invite`, {
+    const res = await fetch(`${BASE_URL()}/api/pools/${poolId}/invite`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-user-id': getCurrentUserId() },
       body: JSON.stringify({ email }),
@@ -664,7 +620,7 @@ export const api = {
   },
 
   async removeMemberFromPool(poolId, memberId) {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/members/${memberId}`, {
+    const res = await fetch(`${BASE_URL()}/api/pools/${poolId}/members/${memberId}`, {
       method: 'DELETE',
       headers: { 'x-user-id': getCurrentUserId() },
     });
@@ -672,7 +628,7 @@ export const api = {
   },
 
   async updateMemberRole(poolId, memberId, role) {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/members/${memberId}/role`, {
+    const res = await fetch(`${BASE_URL()}/api/pools/${poolId}/members/${memberId}/role`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'x-user-id': getCurrentUserId() },
       body: JSON.stringify({ role }),
@@ -682,21 +638,21 @@ export const api = {
 
   // Privacy Settings
   getNotificationSettings: async (userId: string) => {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/privacy`, {
+    const res = await fetch(`${BASE_URL()}/api/users/${userId}/privacy`, {
       headers: { 'x-user-id': getCurrentUserId() },
     });
     return res.json();
   },
 
   async getUserPrivacySettings(userId) {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/privacy`, {
+    const res = await fetch(`${BASE_URL()}/api/users/${userId}/privacy`, {
       headers: { 'x-user-id': getCurrentUserId() },
     });
     return res.json();
   },
 
   async updatePrivacySetting(userId, setting, value) {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/privacy`, {
+    const res = await fetch(`${BASE_URL()}/api/users/${userId}/privacy`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'x-user-id': getCurrentUserId() },
       body: JSON.stringify({ [setting]: value }),
@@ -706,7 +662,7 @@ export const api = {
 
   // Transaction History
   async getTransactionHistory(userId, filter = 'all', timeFilter = 'all') {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/transactions?filter=${filter}&time=${timeFilter}`, {
+    const res = await fetch(`${BASE_URL()}/api/users/${userId}/transactions?filter=${filter}&time=${timeFilter}`, {
       headers: { 'x-user-id': getCurrentUserId() },
     });
     return res.json();
@@ -714,7 +670,7 @@ export const api = {
 
   // Savings Summary
   async getSavingsSummary(userId, timeframe = '6months') {
-    const res = await fetch(`${BASE_URL}/api/users/${userId}/savings-summary?timeframe=${timeframe}`, {
+    const res = await fetch(`${BASE_URL()}/api/users/${userId}/savings-summary?timeframe=${timeframe}`, {
       headers: { 'x-user-id': getCurrentUserId() },
     });
     return res.json();
@@ -722,14 +678,14 @@ export const api = {
 
   // Penalty Settings
   async getPoolPenaltySettings(poolId) {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/penalty-settings`, {
+    const res = await fetch(`${BASE_URL()}/api/pools/${poolId}/penalty-settings`, {
       headers: { 'x-user-id': getCurrentUserId() },
     });
     return res.json();
   },
 
   async updatePoolPenaltySettings(poolId, settings) {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/penalty-settings`, {
+    const res = await fetch(`${BASE_URL()}/api/pools/${poolId}/penalty-settings`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'x-user-id': getCurrentUserId() },
       body: JSON.stringify(settings),
@@ -740,14 +696,14 @@ export const api = {
 
   // Recurring Payments
   async getRecurringPaymentSettings(poolId, userId) {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/users/${userId}/recurring`, {
+    const res = await fetch(`${BASE_URL()}/api/pools/${poolId}/users/${userId}/recurring`, {
       headers: { 'x-user-id': getCurrentUserId() },
     });
     return res.json();
   },
 
   async updateRecurringPaymentSettings(poolId, userId, settings) {
-    const res = await fetch(`${BASE_URL}/api/pools/${poolId}/users/${userId}/recurring`, {
+    const res = await fetch(`${BASE_URL()}/api/pools/${poolId}/users/${userId}/recurring`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'x-user-id': getCurrentUserId() },
       body: JSON.stringify(settings),
@@ -758,7 +714,7 @@ export const api = {
   // Accountability partners (removed duplicate)
 
   async inviteAccountabilityPartner(email) {
-    const response = await fetch(`${BASE_URL}/accountability-partners/invite`, {
+    const response = await fetch(`${BASE_URL()}/accountability-partners/invite`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -770,7 +726,7 @@ export const api = {
   },
 
   async removeAccountabilityPartner(partnerId) {
-    const response = await fetch(`${BASE_URL}/accountability-partners/${partnerId}`, {
+    const response = await fetch(`${BASE_URL()}/accountability-partners/${partnerId}`, {
       method: 'DELETE',
       headers: { 'x-user-id': getCurrentUserId() },
     });
@@ -778,7 +734,7 @@ export const api = {
   },
 
   async updateNotificationSettings(settings) {
-    const response = await fetch(`${BASE_URL}/notification-settings`, {
+    const response = await fetch(`${BASE_URL()}/notification-settings`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -792,7 +748,7 @@ export const api = {
   // Payday and Streaks APIs
   getPaydaySettings: async (userId: string) => {
     try {
-      const response = await fetch(`${API_BASE}/users/${userId}/payday-settings`);
+      const response = await fetch(`${API_BASE()}/users/${userId}/payday-settings`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const text = await response.text();
       return text ? JSON.parse(text) : {};
@@ -809,7 +765,7 @@ export const api = {
 
   updatePaydaySettings: async (userId: string, settings: any) => {
     try {
-      const response = await fetch(`${API_BASE}/users/${userId}/payday-settings`, {
+      const response = await fetch(`${API_BASE()}/users/${userId}/payday-settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),

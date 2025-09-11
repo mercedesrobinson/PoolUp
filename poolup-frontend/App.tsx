@@ -1,9 +1,12 @@
-import React from 'react';
+import 'react-native-url-polyfill/auto';
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { Session } from '@supabase/supabase-js';
+import { supabase } from './lib/supabase';
 
 // Import screens
 import Onboarding from './screens/Onboarding';
@@ -48,6 +51,7 @@ import { colors } from './theme';
 
 // Type definitions
 export type RootStackParamList = {
+  AuthPage: undefined;
   AuthGate: undefined;
   Onboarding: undefined;
   MainTabs: { user?: any } | undefined;
@@ -97,6 +101,17 @@ const Tab = createBottomTabNavigator<TabParamList>();
 // Main Tab Navigator
 function MainTabs({ route }: any): React.JSX.Element {
   const user = route?.params?.user;
+  const [session, setSession] = useState<Session | null>(null);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  }, []);
+
+  console.log('session', session);
   return (
     <Tab.Navigator
       screenOptions={{

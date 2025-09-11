@@ -24,7 +24,7 @@ export default function Legal({ navigation, route }: Props): React.JSX.Element {
 ## What We Collect
 
 **Account Information:**
-- Email address (for Google sign-in)
+- Email address (for login and notifications)
 - Profile information (name, avatar)
 - Banking information (via Stripe Connect for secure payment processing)
 
@@ -48,7 +48,6 @@ export default function Legal({ navigation, route }: Props): React.JSX.Element {
 ## Data Sharing
 
 - **Stripe:** Payment processing and compliance (required by law)
-- **Google:** Authentication services only
 - **Pool Members:** Your contributions and activity within shared pools
 - **We never sell your personal data**
 
