@@ -134,8 +134,83 @@ export default function Badges({ navigation, route }: Props): React.JSX.Element 
       const earned = await api.getUserBadges(user.id);
       setEarnedBadges(earned);
 
-      // Use badges from API instead of mock data
-      setAllBadges(earned);
+      // Define all available badges (both earned and unearned)
+      const allAvailableBadges: Badge[] = [
+        {
+          id: '1',
+          name: 'First Contribution',
+          description: 'Made your first deposit to any pool',
+          icon: '🎯',
+          category: 'milestone',
+          points_required: 0,
+          rarity: 'common'
+        },
+        {
+          id: '2',
+          name: '7-Day Streak',
+          description: 'Saved money for 7 consecutive days',
+          icon: '🔥',
+          category: 'streak',
+          points_required: 50,
+          rarity: 'uncommon'
+        },
+        {
+          id: '3',
+          name: 'Goal Achiever',
+          description: 'Successfully reached your savings target',
+          icon: '🎉',
+          category: 'achievement',
+          points_required: 100,
+          rarity: 'rare'
+        },
+        {
+          id: '4',
+          name: 'Team Player',
+          description: 'Completed a group savings goal with friends',
+          icon: '👥',
+          category: 'social',
+          points_required: 75,
+          rarity: 'uncommon'
+        },
+        {
+          id: '5',
+          name: 'Savings Master',
+          description: 'Saved over $10,000 across all pools',
+          icon: '💰',
+          category: 'milestone',
+          points_required: 500,
+          rarity: 'epic'
+        },
+        {
+          id: '6',
+          name: 'Consistency King',
+          description: 'Maintained a 30-day savings streak',
+          icon: '👑',
+          category: 'streak',
+          points_required: 200,
+          rarity: 'epic'
+        },
+        {
+          id: '7',
+          name: 'Pool Creator',
+          description: 'Created your first savings pool',
+          icon: '🏊‍♂️',
+          category: 'milestone',
+          points_required: 25,
+          rarity: 'common'
+        },
+        {
+          id: '8',
+          name: 'Travel Fund Champion',
+          description: 'Completed a travel savings goal',
+          icon: '✈️',
+          category: 'category',
+          points_required: 150,
+          rarity: 'rare'
+        }
+      ];
+
+      setAllBadges(allAvailableBadges);
       setLoading(false);
     } catch (error) {
       console.error('Failed to load badges:', error);
@@ -209,12 +284,15 @@ export default function Badges({ navigation, route }: Props): React.JSX.Element 
         )}
 
         <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 16, marginTop: earnedCount > 0 ? 24 : 0 }}>
-          🎯 Available Badges
+          🎯 All Badges
         </Text>
-        {Array.isArray(allBadges) && Array.isArray(earnedBadges) ? 
-          allBadges.filter(b => !earnedBadges.find(eb => eb.id === b.id)).map(badge => (
-            <BadgeCard key={badge.id} badge={badge} earned={false} />
-          )) : []}
+        {Array.isArray(allBadges) ? 
+          allBadges.map(badge => {
+            const isEarned = earnedBadges.find(eb => eb.id === badge.id);
+            return (
+              <BadgeCard key={badge.id} badge={badge} earned={!!isEarned} />
+            );
+          }) : []}
 
         {earnedCount === 0 && (
           <View style={{ backgroundColor: 'white', padding: 24, borderRadius: radius.medium, alignItems: 'center' }}>

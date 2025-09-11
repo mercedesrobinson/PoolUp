@@ -1812,6 +1812,98 @@ export default function CreatePool({ navigation, route }: Props) {
         </View>
 
 
+        {/* Badges Section */}
+        <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius.medium, marginBottom: 24 }}>
+          <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: 16 }}>
+            🏆 Earn Badges for This Goal
+          </Text>
+          
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {/* First Contribution Badge */}
+            <View style={{ 
+              backgroundColor: colors.green + '15', 
+              padding: 12, 
+              borderRadius: radius.medium, 
+              alignItems: 'center',
+              minWidth: '48%',
+              borderWidth: 1,
+              borderColor: colors.green + '40'
+            }}>
+              <Text style={{ fontSize: 24, marginBottom: 4 }}>🎯</Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text, textAlign: 'center' }}>
+                First Contribution
+              </Text>
+              <Text style={{ fontSize: 10, color: colors.textSecondary, textAlign: 'center', marginTop: 2 }}>
+                Make your first deposit
+              </Text>
+            </View>
+
+            {/* Streak Badge */}
+            <View style={{ 
+              backgroundColor: colors.purple + '15', 
+              padding: 12, 
+              borderRadius: radius.medium, 
+              alignItems: 'center',
+              minWidth: '48%',
+              borderWidth: 1,
+              borderColor: colors.purple + '40'
+            }}>
+              <Text style={{ fontSize: 24, marginBottom: 4 }}>🔥</Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text, textAlign: 'center' }}>
+                7-Day Streak
+              </Text>
+              <Text style={{ fontSize: 10, color: colors.textSecondary, textAlign: 'center', marginTop: 2 }}>
+                Save for 7 days straight
+              </Text>
+            </View>
+
+            {/* Goal Achiever Badge */}
+            <View style={{ 
+              backgroundColor: colors.blue + '15', 
+              padding: 12, 
+              borderRadius: radius.medium, 
+              alignItems: 'center',
+              minWidth: '48%',
+              borderWidth: 1,
+              borderColor: colors.blue + '40'
+            }}>
+              <Text style={{ fontSize: 24, marginBottom: 4 }}>🎉</Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text, textAlign: 'center' }}>
+                Goal Achiever
+              </Text>
+              <Text style={{ fontSize: 10, color: colors.textSecondary, textAlign: 'center', marginTop: 2 }}>
+                Reach your target amount
+              </Text>
+            </View>
+
+            {poolType === 'group' && (
+              <View style={{ 
+                backgroundColor: '#ff6b6b15', 
+                padding: 12, 
+                borderRadius: radius.medium, 
+                alignItems: 'center',
+                minWidth: '48%',
+                borderWidth: 1,
+                borderColor: '#ff6b6b40'
+              }}>
+                <Text style={{ fontSize: 24, marginBottom: 4 }}>👥</Text>
+                <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text, textAlign: 'center' }}>
+                  Team Player
+                </Text>
+                <Text style={{ fontSize: 10, color: colors.textSecondary, textAlign: 'center', marginTop: 2 }}>
+                  Complete group goal together
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <View style={{ backgroundColor: colors.green + '10', padding: 12, borderRadius: radius.medium, marginTop: 12 }}>
+            <Text style={{ fontSize: 12, color: colors.text, textAlign: 'center', fontWeight: '500' }}>
+              💡 Earn badges to unlock achievements and climb the leaderboards!
+            </Text>
+          </View>
+        </View>
+
         {/* Privacy Settings */}
         <View style={{ backgroundColor: 'white', padding: 16, borderRadius: radius.medium, marginBottom: 24 }}>
           <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: 16 }}>
