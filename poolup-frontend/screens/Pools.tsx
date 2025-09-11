@@ -293,7 +293,7 @@ export default function Pools({ navigation, route }: any){
               {(realSummary.savingsRate * 100).toFixed(0)}%
             </Text>
             <Text style={{ fontSize: 12, color: colors.textSecondary }}>
-              Savings Rate
+              Goal Progress
             </Text>
           </View>
         </View>

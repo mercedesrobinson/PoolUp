@@ -288,7 +288,7 @@ export default function SavingsSummary({ navigation, route }: Props): React.JSX.
                 {(summaryData.savingsRate * 100).toFixed(0)}%
               </Text>
               <Text style={{ fontSize: 12, color: colors.textSecondary }}>
-                Savings Rate
+                Goal Progress
               </Text>
             </View>
           </View>

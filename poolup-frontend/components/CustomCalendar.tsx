@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, ScrollView, Dimensions } from 'react-native';
 import { colors, radius } from '../theme';
 
 interface CustomCalendarProps {
@@ -9,12 +9,8 @@ interface CustomCalendarProps {
 }
 
 const CustomCalendar: React.FC<CustomCalendarProps> = ({ onDateSelect, onClose, initialDate }) => {
-  // Get current date and set it properly
   const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth();
-  
-  const [currentDate, setCurrentDate] = useState(new Date(currentYear, currentMonth, 1));
+  const [currentDate, setCurrentDate] = useState(initialDate || now);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const months = [
@@ -24,6 +20,13 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ onDateSelect, onClose, 
 
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+  const handleConfirm = () => {
+    if (selectedDate) {
+      onDateSelect(selectedDate);
+      onClose();
+    }
+  };
+
   const getDaysInMonth = (date: Date): (Date | null)[] => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -32,19 +35,19 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ onDateSelect, onClose, 
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
 
-    const days = [];
+    const calendarDays = [];
     
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(null);
+      calendarDays.push(null);
     }
     
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      days.push(new Date(year, month, day));
+      calendarDays.push(new Date(year, month, day));
     }
     
-    return days;
+    return calendarDays;
   };
 
   const navigateMonth = (direction: number) => {
