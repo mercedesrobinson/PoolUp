@@ -130,87 +130,179 @@ export default function Badges({ navigation, route }: Props): React.JSX.Element 
 
   const loadBadges = async (): Promise<void> => {
     try {
-      // Get user's earned badges
-      const earned = await api.getUserBadges(user.id);
-      setEarnedBadges(earned);
-
       // Define all available badges (both earned and unearned)
       const allAvailableBadges: Badge[] = [
+        // Invite Badges
         {
-          id: '1',
-          name: 'First Contribution',
-          description: 'Made your first deposit to any pool',
-          icon: '🎯',
-          category: 'milestone',
-          points_required: 0,
+          id: 'invite_1',
+          name: 'Pool Buddy',
+          description: "Invite 1 friend to join PoolUp. You've got company! Saving is better together.",
+          icon: '🤝',
+          category: 'invite',
+          points_required: 10,
           rarity: 'common'
         },
         {
-          id: '2',
-          name: '7-Day Streak',
-          description: 'Saved money for 7 consecutive days',
-          icon: '🔥',
-          category: 'streak',
-          points_required: 50,
+          id: 'invite_3',
+          name: 'Squad Builder',
+          description: "Invite 3 friends to join PoolUp. Now it's a squad goal — literally.",
+          icon: '👯‍♀️',
+          category: 'invite',
+          points_required: 30,
           rarity: 'uncommon'
         },
         {
-          id: '3',
-          name: 'Goal Achiever',
-          description: 'Successfully reached your savings target',
-          icon: '🎉',
-          category: 'achievement',
-          points_required: 100,
+          id: 'invite_5',
+          name: 'Money Magnet',
+          description: "Invite 5 friends to join PoolUp. Your friends can't resist pooling up with you.",
+          icon: '💸',
+          category: 'invite',
+          points_required: 50,
           rarity: 'rare'
         },
         {
-          id: '4',
-          name: 'Team Player',
-          description: 'Completed a group savings goal with friends',
-          icon: '👥',
-          category: 'social',
-          points_required: 75,
-          rarity: 'uncommon'
-        },
-        {
-          id: '5',
-          name: 'Savings Master',
-          description: 'Saved over $10,000 across all pools',
-          icon: '💰',
-          category: 'milestone',
-          points_required: 500,
+          id: 'invite_10',
+          name: 'Pool Party Starter',
+          description: 'Invite 10 friends to join PoolUp. You just turned saving into a party.',
+          icon: '🎉',
+          category: 'invite',
+          points_required: 100,
           rarity: 'epic'
         },
         {
-          id: '6',
-          name: 'Consistency King',
-          description: 'Maintained a 30-day savings streak',
-          icon: '👑',
-          category: 'streak',
-          points_required: 200,
-          rarity: 'epic'
+          id: 'invite_15',
+          name: 'Super Connector',
+          description: 'Invite 15 friends to join PoolUp. The ultimate hype saver — you bring everyone along.',
+          icon: '🌟',
+          category: 'invite',
+          points_required: 150,
+          rarity: 'legendary'
         },
+
+        // Multiple Pool Badges
         {
-          id: '7',
-          name: 'Pool Creator',
-          description: 'Created your first savings pool',
-          icon: '🏊‍♂️',
-          category: 'milestone',
+          id: 'pools_2',
+          name: 'Double Dipper',
+          description: "Create 2 active pools. You're saving for more than one dream at a time.",
+          icon: '🍦',
+          category: 'pools',
           points_required: 25,
           rarity: 'common'
         },
         {
-          id: '8',
-          name: 'Travel Fund Champion',
-          description: 'Completed a travel savings goal',
-          icon: '✈️',
-          category: 'category',
-          points_required: 150,
+          id: 'pools_3',
+          name: 'Triple Threat',
+          description: 'Create 3 active pools. Juggling goals like a pro.',
+          icon: '🎬',
+          category: 'pools',
+          points_required: 40,
+          rarity: 'uncommon'
+        },
+        {
+          id: 'pools_5',
+          name: 'Saver Supreme',
+          description: 'Create 5 active pools. Master of multitasking your money.',
+          icon: '👑',
+          category: 'pools',
+          points_required: 75,
           rarity: 'rare'
+        },
+        {
+          id: 'pools_7',
+          name: 'Lucky Saver',
+          description: "Create 7 active pools. Seven pools? You're chasing all the good things in life.",
+          icon: '🍀',
+          category: 'pools',
+          points_required: 100,
+          rarity: 'epic'
+        },
+        {
+          id: 'pools_10',
+          name: 'Goal Getter',
+          description: 'Create 10 active pools. Nothing can stop you — every dream gets a pool.',
+          icon: '🚀',
+          category: 'pools',
+          points_required: 150,
+          rarity: 'legendary'
+        },
+
+        // Savings Milestone Badges
+        {
+          id: 'savings_100',
+          name: 'Starter Stack',
+          description: 'Save $100 total across all pools. Your first step into saving — small but mighty.',
+          icon: '💵',
+          category: 'savings',
+          points_required: 10,
+          rarity: 'common'
+        },
+        {
+          id: 'savings_250',
+          name: 'Quarter Saver',
+          description: "Save $250 total across all pools. You've stacked a solid quarter grand.",
+          icon: '🪙',
+          category: 'savings',
+          points_required: 25,
+          rarity: 'common'
+        },
+        {
+          id: 'savings_500',
+          name: 'Half-Stack Hero',
+          description: 'Save $500 total across all pools. Halfway to your first thousand — consistency pays off.',
+          icon: '💪',
+          category: 'savings',
+          points_required: 50,
+          rarity: 'uncommon'
+        },
+        {
+          id: 'savings_1000',
+          name: '4-Digit Club',
+          description: 'Save $1,000 total across all pools. Welcome to the club — four digits strong.',
+          icon: '🔑',
+          category: 'savings',
+          points_required: 100,
+          rarity: 'uncommon'
+        },
+        {
+          id: 'savings_2500',
+          name: 'Momentum Maker',
+          description: 'Save $2,500 total across all pools. Your discipline is starting to snowball.',
+          icon: '⚡',
+          category: 'savings',
+          points_required: 200,
+          rarity: 'rare'
+        },
+        {
+          id: 'savings_5000',
+          name: 'Goal Crusher',
+          description: 'Save $5,000 total across all pools. Big milestone achieved — dreams within reach.',
+          icon: '🎯',
+          category: 'savings',
+          points_required: 300,
+          rarity: 'epic'
+        },
+        {
+          id: 'savings_10000',
+          name: 'Money Master',
+          description: "Save $10,000 total across all pools. Five figures saved — you've mastered the art of Pooling Up.",
+          icon: '🏆',
+          category: 'savings',
+          points_required: 500,
+          rarity: 'legendary'
         }
       ];
 
       setAllBadges(allAvailableBadges);
+      
+      // Try to get user's earned badges, but don't fail if API is down
+      try {
+        const earned = await api.getUserBadges(user.id);
+        setEarnedBadges(earned || []);
+      } catch (apiError) {
+        console.log('API not available, showing all badges as unearned');
+        setEarnedBadges([]);
+      }
+      
       setLoading(false);
     } catch (error) {
       console.error('Failed to load badges:', error);
@@ -283,11 +375,36 @@ export default function Badges({ navigation, route }: Props): React.JSX.Element 
           </View>
         )}
 
+        {/* Invite Badges */}
         <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 16, marginTop: earnedCount > 0 ? 24 : 0 }}>
-          🎯 All Badges
+          🎖 Invite Badges for PoolUp
         </Text>
         {Array.isArray(allBadges) ? 
-          allBadges.map(badge => {
+          allBadges.filter(badge => badge.category === 'invite').map(badge => {
+            const isEarned = earnedBadges.find(eb => eb.id === badge.id);
+            return (
+              <BadgeCard key={badge.id} badge={badge} earned={!!isEarned} />
+            );
+          }) : []}
+
+        {/* Multiple Pool Badges */}
+        <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 16, marginTop: 24 }}>
+          🎖 Multiple Pool Badges
+        </Text>
+        {Array.isArray(allBadges) ? 
+          allBadges.filter(badge => badge.category === 'pools').map(badge => {
+            const isEarned = earnedBadges.find(eb => eb.id === badge.id);
+            return (
+              <BadgeCard key={badge.id} badge={badge} earned={!!isEarned} />
+            );
+          }) : []}
+
+        {/* Savings Milestone Badges */}
+        <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 16, marginTop: 24 }}>
+          🎖 Savings Milestone Badges
+        </Text>
+        {Array.isArray(allBadges) ? 
+          allBadges.filter(badge => badge.category === 'savings').map(badge => {
             const isEarned = earnedBadges.find(eb => eb.id === badge.id);
             return (
               <BadgeCard key={badge.id} badge={badge} earned={!!isEarned} />
