@@ -19,6 +19,11 @@ router.get('/', (_req, res) => {
 router.post('/', (req, res) => {
   const { name, description, goal_amount, target_date, created_by, pool_type, public_visibility } = req.body || {};
   const db = loadDB();
+  // Respect 0 as a valid user id and fallback to header if not provided
+  const createdByRaw = typeof created_by !== 'undefined' ? created_by : req.header('x-user-id');
+  const createdByNum = Number(createdByRaw);
+  const creatorId = Number.isFinite(createdByNum) ? createdByNum : 1;
+
   const pool = {
     id: nextId(db),
     name: name || 'Untitled',
@@ -27,7 +32,7 @@ router.post('/', (req, res) => {
     destination: description || null,
     trip_date: target_date || null,
     pool_type: pool_type || 'group',
-    creator_id: Number(created_by) || 1,
+    creator_id: creatorId,
     public_visibility: public_visibility ? 1 : 0,
     bonus_pot_cents: 0,
   };
