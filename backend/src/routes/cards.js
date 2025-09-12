@@ -1,65 +1,46 @@
 const express = require('express');
-const { loadDB, saveDB, nextId } = require('../db/fileDb');
+const cardsRepo = require('../repos/cards');
 
 const router = express.Router();
 
-router.post('/users/:userId/debit-card', (req, res) => {
-  const db = loadDB();
+router.post('/users/:userId/debit-card', async (req, res) => {
   const userId = String(req.params.userId);
   const card = {
     userId,
-    cardId: 'card_' + nextId(db),
+    cardId: 'card_' + Math.random().toString(36).slice(2, 10),
     cardNumber: '4242 4242 4242 4242',
     expMonth: 12,
     expYear: 2030,
     cvv: '123',
     status: 'active',
   };
-  db.cards = db.cards.filter((c) => c.userId !== userId).concat(card);
-  saveDB(db);
+  await cardsRepo.upsertCard(userId, card);
   res.json(card);
 });
 
-router.get('/users/:userId/debit-card', (req, res) => {
-  const db = loadDB();
-  const card = db.cards.find((c) => c.userId === String(req.params.userId));
+router.get('/users/:userId/debit-card', async (req, res) => {
+  const card = await cardsRepo.getCard(String(req.params.userId));
   res.json(card || null);
 });
 
-router.post('/debit-card/:cardId/transaction', (req, res) => {
-  const db = loadDB();
+router.post('/debit-card/:cardId/transaction', async (req, res) => {
   const { amountCents, merchant, category } = req.body || {};
-  const id = nextId(db);
-  const card = db.cards.find((c) => c.cardId === String(req.params.cardId));
+  const cardId = String(req.params.cardId);
+  const card = await cardsRepo.getCardByCardId(cardId);
   if (!card) return res.status(404).json({ error: 'Card not found' });
-  const tx = {
-    id,
-    userId: card.userId,
-    cardId: card.cardId,
-    amountCents: Number(amountCents) || 0,
-    merchant: merchant || 'Merchant',
-    category: category || 'general',
-    created_at: new Date().toISOString(),
-  };
-  db.cardTransactions.push(tx);
-  saveDB(db);
-  res.json({ success: true, id });
+  const ins = await cardsRepo.addTransaction(cardId, card.user_id, { amountCents: Number(amountCents) || 0, merchant: merchant || 'Merchant', category: category || 'general' });
+  res.json({ success: true, id: String(ins.id) });
 });
 
-router.get('/users/:userId/card-transactions', (req, res) => {
-  const db = loadDB();
-  const items = db.cardTransactions.filter((t) => String(t.userId) === String(req.params.userId)).slice(-50);
+router.get('/users/:userId/card-transactions', async (req, res) => {
+  const items = await cardsRepo.listTransactions(String(req.params.userId));
   res.json(items);
 });
 
-router.patch('/debit-card/:cardId/toggle', (req, res) => {
-  const db = loadDB();
-  const card = db.cards.find((c) => c.cardId === String(req.params.cardId));
-  if (!card) return res.status(404).json({ error: 'Card not found' });
-  card.status = card.status === 'active' ? 'frozen' : 'active';
-  saveDB(db);
-  res.json({ status: card.status });
+router.patch('/debit-card/:cardId/toggle', async (req, res) => {
+  const next = await cardsRepo.toggleCard(String(req.params.cardId));
+  if (!next) return res.status(404).json({ error: 'Card not found' });
+  res.json({ status: next });
 });
 
 module.exports = router;
-

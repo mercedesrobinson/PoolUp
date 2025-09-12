@@ -250,7 +250,7 @@ export default function CreatePool({ navigation, route }: Props) {
           onSelect={(category: any) => setSelectedCategory(category)}
           style={{ marginBottom: 20 }}
         />
-
+        {/* TODO: needs refactor... move this to a new component. */}
         {/* Category-specific messaging */}
         {selectedCategory && (
           <View

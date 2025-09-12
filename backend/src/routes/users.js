@@ -1,216 +1,155 @@
 const express = require('express');
-const { loadDB, saveDB, nextId } = require('../db/fileDb');
+const usersRepo = require('../repos/users');
+const poolsRepo = require('../repos/pools');
+const socialRepo = require('../repos/social');
+const settingsRepo = require('../repos/settings');
 
 const router = express.Router();
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { google_id, name, email, profile_image_url } = req.body || {};
-  const db = loadDB();
-  const user = {
-    id: nextId(db),
-    google_id: google_id || null,
-    name: name || 'User',
-    email: email || null,
-    profile_image_url: profile_image_url || null,
-    created_at: new Date().toISOString(),
-  };
-  db.users.push(user);
-  saveDB(db);
+  const user = await usersRepo.createUser({ google_id, name, email, profile_image_url });
   res.json({ data: user });
 });
 
-router.get('/:id/profile', (req, res) => {
-  const db = loadDB();
-  const user = db.users.find((u) => String(u.id) === String(req.params.id));
-  if (!user) return res.status(404).json({ error: 'Not found' });
-  const contributions = db.contributions.filter((c) => String(c.userId) === String(user.id));
-  const totalPoints = Math.min(1000, contributions.length * 10);
-  const streak = Math.min(30, contributions.length);
-  const badges = Math.floor(contributions.length / 5);
-  res.json({
-    id: String(user.id),
-    name: user.name,
-    xp: totalPoints,
-    total_points: totalPoints,
-    current_streak: streak,
-    badge_count: badges,
-    profile_image_url: user.profile_image_url || null,
-  });
+router.get('/:id/profile', async (req, res) => {
+  const stats = await usersRepo.getProfileStats(req.params.id);
+  if (!stats) return res.status(404).json({ error: 'Not found' });
+  res.json(stats);
 });
 
-router.get('/:id/streak', (req, res) => {
-  const db = loadDB();
-  const userId = String(req.params.id);
-  const contributions = db.contributions.filter((c) => String(c.userId) === userId);
-  const currentStreak = Math.min(30, contributions.length);
-  res.json({
-    current_streak: currentStreak,
-    longest_streak: currentStreak,
-    last_contribution_date: contributions.length > 0 ? contributions[contributions.length - 1].createdAt : null,
-  });
+router.get('/:id/streak', async (req, res) => {
+  // Approximate streak based on total contributions count
+  const stats = await usersRepo.getProfileStats(req.params.id);
+  if (!stats) return res.status(404).json({ error: 'Not found' });
+  res.json({ current_streak: stats.current_streak, longest_streak: stats.current_streak, last_contribution_date: null });
 });
 
-router.put('/:id/photo', (req, res) => {
-  const db = loadDB();
-  const u = db.users.find((x) => String(x.id) === String(req.params.id));
-  if (!u) return res.status(404).json({ error: 'Not found' });
+router.put('/:id/photo', async (req, res) => {
   const { profileImageUrl } = req.body || {};
-  u.profile_image_url = profileImageUrl || u.profile_image_url;
-  saveDB(db);
+  await usersRepo.updatePhoto(req.params.id, profileImageUrl || null);
   res.json({ success: true });
 });
 
-router.get('/:id/privacy', (req, res) => {
-  const db = loadDB();
-  const settings = db.privacy[String(req.params.id)] || { isPublic: true, allowEncouragement: true };
-  res.json(settings);
+router.get('/:id/privacy', async (req, res) => {
+  const settings = await settingsRepo.getPrivacy(req.params.id);
+  res.json({ isPublic: !!settings.is_public, allowEncouragement: !!settings.allow_encouragement });
 });
 
-router.put('/:id/privacy', (req, res) => {
-  const db = loadDB();
-  db.privacy[String(req.params.id)] = { ...(db.privacy[String(req.params.id)] || {}), ...(req.body || {}) };
-  saveDB(db);
+router.put('/:id/privacy', async (req, res) => {
+  await settingsRepo.setPrivacy(req.params.id, req.body || {});
   res.json({ success: true });
 });
 
-router.post('/:id/push-token', (req, res) => {
-  const db = loadDB();
+router.post('/:id/push-token', async (req, res) => {
   const { pushToken } = req.body || {};
-  db.notifications.tokens[String(req.params.id)] = pushToken || null;
-  saveDB(db);
+  await settingsRepo.setPushToken(req.params.id, pushToken || null);
   res.json({ success: true });
 });
 
-router.post('/:id/notification-preferences', (req, res) => {
-  const db = loadDB();
-  db.notifications.preferences[String(req.params.id)] = req.body || {};
-  saveDB(db);
+router.post('/:id/notification-preferences', async (req, res) => {
+  await settingsRepo.setNotificationPreferences(req.params.id, req.body || {});
   res.json({ success: true });
 });
 
-router.post('/:id/follow', (req, res) => {
-  const db = loadDB();
+router.post('/:id/follow', async (req, res) => {
   const { followerId } = req.body || {};
-  db.follows.push({ userId: String(req.params.id), followerId: String(followerId) });
-  saveDB(db);
+  await socialRepo.follow(req.params.id, followerId);
   res.json({ success: true });
 });
 
-router.delete('/:id/follow', (req, res) => {
-  const db = loadDB();
+router.delete('/:id/follow', async (req, res) => {
   const { followerId } = req.body || {};
-  db.follows = db.follows.filter(
-    (f) => !(String(f.userId) === String(req.params.id) && String(f.followerId) === String(followerId))
+  await socialRepo.unfollow(req.params.id, followerId);
+  res.json({ success: true });
+});
+
+router.get('/:id/follows', async (req, res) => {
+  const items = await socialRepo.listFollows(req.params.id);
+  res.json(items);
+});
+
+router.get('/:id/feed', async (req, res) => {
+  const userId = String(req.params.id);
+  const followees = await socialRepo.listFolloweesOf(userId);
+  const { rows } = await require('../db/pg').query(
+    'SELECT * FROM contributions WHERE user_id = ANY($1) ORDER BY created_at DESC LIMIT 20',
+    [followees]
   );
-  saveDB(db);
-  res.json({ success: true });
-});
-
-router.get('/:id/follows', (req, res) => {
-  const db = loadDB();
-  const items = db.follows.filter((f) => String(f.userId) === String(req.params.id));
+  const items = rows.map((c) => ({ id: String(c.id), poolId: String(c.pool_id), userId: String(c.user_id), amountCents: c.amount_cents, description: c.description, createdAt: c.created_at, type: 'contribution' }));
   res.json(items);
 });
 
-router.get('/:id/feed', (req, res) => {
-  const db = loadDB();
-  const followees = db.follows.filter((f) => String(f.followerId) === String(req.params.id)).map((f) => String(f.userId));
-  const items = db.contributions
-    .filter((c) => followees.includes(String(c.userId)))
-    .slice(-20)
-    .map((c) => ({ ...c, type: 'contribution' }));
-  res.json(items);
-});
-
-router.get('/:id/friends-feed', (req, res) => {
-  const db = loadDB();
+router.get('/:id/friends-feed', async (req, res) => {
   const userId = String(req.params.id);
   const filter = req.query.filter || 'all';
-
-  const followees = db.follows.filter((f) => String(f.followerId) === userId).map((f) => String(f.userId));
-  const userPoolIds = db.memberships.filter((m) => String(m.userId) === userId).map((m) => String(m.poolId));
-  const groupMembers = db.memberships
-    .filter((m) => userPoolIds.includes(String(m.poolId)) && String(m.userId) !== userId)
-    .map((m) => String(m.userId));
+  const followees = await socialRepo.listFolloweesOf(userId);
+  const { rows: userPools } = await require('../db/pg').query('SELECT pool_id FROM memberships WHERE user_id = $1', [userId]);
+  const userPoolIds = userPools.map((r) => String(r.pool_id));
+  const { rows: groupMembersRows } = await require('../db/pg').query(
+    'SELECT DISTINCT user_id FROM memberships WHERE pool_id = ANY($1) AND user_id <> $2',
+    [userPoolIds, userId]
+  );
+  const groupMembers = groupMembersRows.map((r) => String(r.user_id));
 
   let relevantUserIds = [];
   if (filter === 'friends') relevantUserIds = followees;
   else if (filter === 'groups') relevantUserIds = groupMembers;
-  else relevantUserIds = [...new Set([...followees, ...groupMembers])];
+  else relevantUserIds = Array.from(new Set([...followees, ...groupMembers]));
 
   const activities = [];
-
-  db.contributions
-    .filter((c) => relevantUserIds.includes(String(c.userId)))
-    .slice(-20)
-    .forEach((contribution) => {
-      const user = db.users.find((u) => String(u.id) === String(contribution.userId));
-      const pool = db.pools.find((p) => String(p.id) === String(contribution.poolId));
-      if (user && pool) {
-        activities.push({
-          id: `contrib_${contribution.id}`,
-          type: 'contribution',
-          user: { name: user.name, photo: user.profile_image_url },
-          pool: { name: pool.name, destination: pool.destination },
-          amount: contribution.amountCents,
-          timestamp: contribution.createdAt,
-          isPublic: true,
-        });
-      }
+  const { rows: contribs } = await require('../db/pg').query(
+    'SELECT c.*, u.name, u.profile_image_url, p.name AS pool_name, p.destination FROM contributions c JOIN users u ON u.id = c.user_id JOIN pools p ON p.id = c.pool_id WHERE c.user_id = ANY($1) ORDER BY c.created_at DESC LIMIT 20',
+    [relevantUserIds]
+  );
+  for (const c of contribs) {
+    activities.push({
+      id: `contrib_${c.id}`,
+      type: 'contribution',
+      user: { name: c.name, photo: c.profile_image_url },
+      pool: { name: c.pool_name, destination: c.destination },
+      amount: c.amount_cents,
+      timestamp: c.created_at,
+      isPublic: true,
     });
+  }
 
-  db.pools
-    .filter((p) => relevantUserIds.includes(String(p.creator_id)))
-    .slice(-10)
-    .forEach((pool) => {
-      const user = db.users.find((u) => String(u.id) === String(pool.creator_id));
-      if (user) {
-        activities.push({
-          id: `pool_${pool.id}`,
-          type: 'goal_created',
-          user: { name: user.name, photo: user.profile_image_url },
-          pool: { name: pool.name, destination: pool.destination },
-          timestamp: pool.created_at || new Date().toISOString(),
-          isPublic: true,
-        });
-      }
+  const { rows: poolsCreated } = await require('../db/pg').query(
+    'SELECT p.*, u.name, u.profile_image_url FROM pools p JOIN users u ON u.id = p.creator_id WHERE p.creator_id = ANY($1) ORDER BY p.created_at DESC LIMIT 10',
+    [relevantUserIds]
+  );
+  for (const p of poolsCreated) {
+    activities.push({
+      id: `pool_${p.id}`,
+      type: 'goal_created',
+      user: { name: p.name, photo: p.profile_image_url },
+      pool: { name: p.name, destination: p.destination },
+      timestamp: p.created_at,
+      isPublic: true,
     });
+  }
 
   activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
   res.json(activities.slice(0, 20));
 });
 
 // Original path: /api/users/:id/pools
-router.get('/:id/pools', (req, res) => {
-  const db = loadDB();
-  const userId = String(req.params.id);
-  const poolIds = db.memberships.filter((m) => String(m.userId) === userId).map((m) => String(m.poolId));
-  const items = db.pools
-    .filter((p) => poolIds.includes(String(p.id)))
-    .map((p) => ({
-      id: p.id,
-      name: p.name,
-      goal_cents: p.goal_cents,
-      saved_cents: p.saved_cents || 0,
-      destination: p.destination,
-      creator_id: p.creator_id,
-    }));
+router.get('/:id/pools', async (req, res) => {
+  const items = await poolsRepo.listUserPools(req.params.id);
   res.json(items);
 });
 
-router.post('/encouragement', (req, res) => {
-  const db = loadDB();
-  const item = { id: nextId(db), ...(req.body || {}), created_at: new Date().toISOString() };
-  db.encouragements.push(item);
-  saveDB(db);
-  res.json({ success: true, id: item.id });
+router.post('/encouragement', async (req, res) => {
+  const { rows } = await require('../db/pg').query(
+    'INSERT INTO encouragements (to_user_id, from_user_id, message) VALUES ($1,$2,$3) RETURNING id',
+    [req.body?.toUserId || null, req.body?.fromUserId || null, req.body?.message || null]
+  );
+  res.json({ success: true, id: String(rows[0].id) });
 });
 
-router.get('/:id/encouragements', (req, res) => {
-  const db = loadDB();
-  const items = db.encouragements.filter((e) => String(e.toUserId) === String(req.params.id));
-  res.json(items);
+router.get('/:id/encouragements', async (req, res) => {
+  const { rows } = await require('../db/pg').query('SELECT * FROM encouragements WHERE to_user_id = $1', [req.params.id]);
+  res.json(rows);
 });
 
 router.post('/notifications/send-test', (_req, res) => {

@@ -1,9 +1,14 @@
 const http = require('http');
 const { createApp } = require('./app');
+const { initDb } = require('./db/init');
 const { attachSockets } = require('./sockets');
 const { HOST, PORT } = require('./config/env');
 
 const app = createApp();
+// Initialize database schema on startup (idempotent)
+initDb().catch((e) => {
+  console.error('Database init failed:', e.message);
+});
 const server = http.createServer(app);
 attachSockets(server);
 
@@ -30,4 +35,3 @@ server.on('error', (err) => {
 });
 
 startListening();
-

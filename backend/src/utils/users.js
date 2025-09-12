@@ -1,8 +1,3 @@
-function getUserByEmail(db, email) {
-  const e = String(email || '').toLowerCase();
-  return db.users.find((u) => (u.email || '').toLowerCase() === e);
-}
-
 function publicUser(u) {
   return {
     id: String(u.id),
@@ -12,5 +7,4 @@ function publicUser(u) {
   };
 }
 
-module.exports = { getUserByEmail, publicUser };
-
+module.exports = { publicUser };
